@@ -1,0 +1,342 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>清明上河图·虹桥 · 源码</title><style>body{margin:0;background:#0d1513;color:#dbe4d7;font:14px/1.7 ui-monospace,Consolas,monospace}header{position:sticky;top:0;padding:16px 24px;background:#14221f;border-bottom:1px solid #34483e;display:flex;gap:24px;flex-wrap:wrap}a{color:#b7e99c}pre{padding:24px;overflow:auto;tab-size:2}</style><header><a href="index.html">← 返回作品</a><a href="source.js" download>下载 source.js</a><a href="README.md">修改说明</a><span>本页为源码预览；编辑 source.js 后刷新作品页</span></header><pre><code>// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 喵老弟 / MarkMFFF
+
+&quot;use strict&quot;;
+// ================= helpers =================
+const fl=Math.floor, rd=Math.round, PI=Math.PI, D2R=PI/180;
+const clamp=(v,a,b)=&gt;v&lt;a?a:v&gt;b?b:v;
+function R(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(fl(x),fl(y),fl(w),fl(h))}
+function P(g,x,y,c){g.fillStyle=c;g.fillRect(fl(x),fl(y),1,1)}
+function L(g,x0,y0,x1,y1,c,th){th=th||1;x0=rd(x0);y0=rd(y0);x1=rd(x1);y1=rd(y1);g.fillStyle=c;
+  const dx=Math.abs(x1-x0),sx=x0&lt;x1?1:-1,dy=-Math.abs(y1-y0),sy=y0&lt;y1?1:-1;let e=dx+dy;const o=(th-1)&gt;&gt;1;
+  for(let i=0;i&lt;2000;i++){g.fillRect(x0-o,y0-o,th,th);if(x0===x1&amp;&amp;y0===y1)break;const e2=2*e;if(e2&gt;=dy){e+=dy;x0+=sx}if(e2&lt;=dx){e+=dx;y0+=sy}}}
+function disc(g,cx,cy,r,c){cx=rd(cx);cy=rd(cy);r=rd(r);g.fillStyle=c;if(r&lt;=0){g.fillRect(cx,cy,1,1);return}
+  for(let y=-r;y&lt;=r;y++){const w=fl(Math.sqrt(r*r-y*y)+0.35);g.fillRect(cx-w,cy+y,w*2+1,1)}}
+function ell(g,cx,cy,rx,ry,c){cx=rd(cx);cy=rd(cy);g.fillStyle=c;if(ry&lt;1){g.fillRect(cx-rx,cy,rx*2+1,1);return}
+  for(let y=-ry;y&lt;=ry;y++){const w=fl(rx*Math.sqrt(Math.max(0,1-(y*y)/(ry*ry)))+0.3);g.fillRect(cx-w,cy+y,w*2+1,1)}}
+function ring(g,cx,cy,rx,c,ry){ry=ry==null?rx:ry;cx=rd(cx);cy=rd(cy);g.fillStyle=c;const n=Math.max(16,fl((rx+ry)*5));
+  for(let i=0;i&lt;n;i++){const a=i/n*2*PI;g.fillRect(cx+rd(Math.cos(a)*rx),cy+rd(Math.sin(a)*ry),1,1)}}
+function poly(g,pts,c){let y0=1e9,y1=-1e9;for(const p of pts){if(p[1]&lt;y0)y0=p[1];if(p[1]&gt;y1)y1=p[1]}g.fillStyle=c;
+  for(let y=fl(y0);y&lt;=Math.ceil(y1);y++){const yc=y+0.5,xs=[];
+    for(let i=0,j=pts.length-1;i&lt;pts.length;j=i++){const a=pts[i],b=pts[j];if((a[1]&gt;yc)!==(b[1]&gt;yc))xs.push(a[0]+(yc-a[1])/(b[1]-a[1])*(b[0]-a[0]))}
+    xs.sort((a,b)=&gt;a-b);for(let k=0;k+1&lt;xs.length;k+=2){const xa=rd(xs[k]),xb=rd(xs[k+1]);if(xb&gt;xa)g.fillRect(xa,y,xb-xa,1)}}}
+function hash(a,b,c){let h=Math.imul(a|0,374761393)^Math.imul((b|0)+0x9e37,668265263)^Math.imul((c|0)+0x7f4a,1274126177);
+  h=Math.imul(h^(h&gt;&gt;&gt;13),1103515245);h^=h&gt;&gt;&gt;16;h=Math.imul(h,0x45d9f3b);h^=h&gt;&gt;&gt;15;return (h&gt;&gt;&gt;0)/4294967296}
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s&gt;&gt;&gt;15,1|s);t=t+Math.imul(t^t&gt;&gt;&gt;7,61|t)^t;return((t^t&gt;&gt;&gt;14)&gt;&gt;&gt;0)/4294967296}}
+
+
+const SAMPLES=[];
+
+
+// ================= masterwork helpers =================
+function mkc(w,h){const c=document.createElement(&#x27;canvas&#x27;);c.width=w;c.height=h;const x=c.getContext(&#x27;2d&#x27;);x.imageSmoothingEnabled=false;return[c,x]}
+
+
+// ================= sound: every piece&#x27;s soundscape is synthesised live with WebAudio; nothing is a recording =================
+const SND={ctx:null,on:false,live:null,stop:null,out:null};
+function sndCtx(){if(!SND.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;SND.ctx=new C();const comp=SND.ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=4;comp.connect(SND.ctx.destination);
+    SND.out=SND.ctx.createGain();SND.out.gain.value=0.8;SND.out.connect(comp);
+    const n=SND.ctx.sampleRate*3,b=SND.ctx.createBuffer(1,n,SND.ctx.sampleRate),d=b.getChannelData(0);let p=0;for(let i=0;i&lt;n;i++){const w=Math.random()*2-1;p=0.97*p+0.03*w;d[i]=w*0.6+p*2.2}SND.noise=b}
+  if(SND.ctx.state===&#x27;suspended&#x27;)SND.ctx.resume();return SND.ctx}
+// a looping noise source through a filter, with its own gain node returned for modulation
+function sNoise(ctx,dest,type,f,q,vol){const s=ctx.createBufferSource();s.buffer=SND.noise;s.loop=true;s.loopStart=Math.random();const fl_=ctx.createBiquadFilter();fl_.type=type;fl_.frequency.value=f;fl_.Q.value=q||0.7;const gn=ctx.createGain();gn.gain.value=vol;s.connect(fl_);fl_.connect(gn);gn.connect(dest);s.start();return {s,f:fl_,g:gn,stop(){try{s.stop()}catch(e){}}}}
+// a slow wobble on any AudioParam
+function sLfo(ctx,param,rate,depth){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=rate;g.gain.value=depth;o.connect(g);g.connect(param);o.start();return {stop(){try{o.stop()}catch(e){}}}}
+// plucked string: a few harmonics with fast attack and an exponential fall; &#x27;bright&#x27; adds a buzzing upper partial
+function sPluck(ctx,dest,f,o){o=o||{};const t=ctx.currentTime+(o.at||0),dec=o.dec||1.2,v=o.vol||0.2;const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+0.004);g.gain.exponentialRampToValueAtTime(0.0008,t+dec);g.connect(dest);
+  const lp=ctx.createBiquadFilter();lp.type=&#x27;lowpass&#x27;;lp.frequency.setValueAtTime(o.bright||3000,t);lp.frequency.exponentialRampToValueAtTime(Math.max(200,f*1.5),t+dec*0.6);lp.connect(g);
+  for(const [m,a,tp] of [[1,1,&#x27;triangle&#x27;],[2,0.5,&#x27;sine&#x27;],[3,0.25,o.bright?&#x27;sawtooth&#x27;:&#x27;sine&#x27;],[4.02,0.12,&#x27;sine&#x27;]]){const os=ctx.createOscillator(),og=ctx.createGain();os.type=tp;os.frequency.setValueAtTime(f*m*(o.bend?1.03:1),t);if(o.bend)os.frequency.exponentialRampToValueAtTime(f*m,t+0.12);og.gain.value=a;os.connect(og);og.connect(lp);os.start(t);os.stop(t+dec+0.05)}}
+// a held tone with breath and vibrato (flute, fiddle, voice-like)
+function sTone(ctx,dest,f,dur,o){o=o||{};const t=ctx.currentTime+(o.at||0),v=o.vol||0.1;const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+(o.att||0.08));g.gain.setValueAtTime(v,t+dur*0.7);g.gain.linearRampToValueAtTime(0,t+dur);g.connect(dest);
+  const os=ctx.createOscillator();os.type=o.type||&#x27;sine&#x27;;os.frequency.setValueAtTime(f*(o.slide||1),t);os.frequency.exponentialRampToValueAtTime(f,t+Math.min(0.2,dur*0.3));
+  const vb=ctx.createOscillator(),vg=ctx.createGain();vb.frequency.value=o.vibR||5.5;vg.gain.value=f*(o.vib||0.008);vb.connect(vg);vg.connect(os.frequency);
+  let node=os;if(o.bp){const b=ctx.createBiquadFilter();b.type=&#x27;bandpass&#x27;;b.frequency.value=o.bp;b.Q.value=o.q||2;os.connect(b);node=b}node.connect(g);os.start(t);vb.start(t);os.stop(t+dur+0.05);vb.stop(t+dur+0.05);
+  if(o.breath){const s=ctx.createBufferSource();s.buffer=SND.noise;const b=ctx.createBiquadFilter();b.type=&#x27;bandpass&#x27;;b.frequency.value=f*2;b.Q.value=3;const bg=ctx.createGain();bg.gain.setValueAtTime(0,t);bg.gain.linearRampToValueAtTime(v*o.breath,t+0.05);bg.gain.linearRampToValueAtTime(0,t+dur);s.connect(b);b.connect(bg);bg.connect(dest);s.start(t,Math.random());s.stop(t+dur+0.05)}}
+// a burst of filtered noise: splashes, knocks, crashes, growls
+function sBurst(ctx,dest,o){const t=ctx.currentTime+(o.at||0),dur=o.dur||0.3,v=o.vol||0.3;const s=ctx.createBufferSource();s.buffer=SND.noise;const b=ctx.createBiquadFilter();b.type=o.type||&#x27;bandpass&#x27;;b.frequency.setValueAtTime(o.f||800,t);if(o.f2)b.frequency.exponentialRampToValueAtTime(o.f2,t+dur);b.Q.value=o.q||1;
+  const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+(o.att||0.005));g.gain.exponentialRampToValueAtTime(0.0008,t+dur);s.connect(b);b.connect(g);g.connect(dest);s.start(t,Math.random()*2);s.stop(t+dur+0.05)}
+// a struck body: woodblock, gong, bell; inharmonic partials, each with its own decay
+function sStrike(ctx,dest,f,o){o=o||{};const t=ctx.currentTime+(o.at||0),v=o.vol||0.25,dec=o.dec||0.15;for(const [m,a,dk] of (o.parts||[[1,1,1],[2.76,0.5,0.6],[5.4,0.25,0.35]])){const os=ctx.createOscillator(),g=ctx.createGain();os.type=&#x27;sine&#x27;;os.frequency.setValueAtTime(f*m*(o.drop?1.06:1),t);if(o.drop)os.frequency.exponentialRampToValueAtTime(f*m,t+0.3);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+0.003);g.gain.exponentialRampToValueAtTime(0.0006,t+dec*dk);os.connect(g);g.connect(dest);os.start(t);os.stop(t+dec*dk+0.05)}}
+const PENTA=[0,2,4,7,9],note=(base,deg)=&gt;base*Math.pow(2,(PENTA[((deg%5)+5)%5]+12*Math.floor(deg/5))/12);
+const MIYAKO=[0,1,5,7,8],noteM=(base,deg)=&gt;base*Math.pow(2,(MIYAKO[((deg%5)+5)%5]+12*Math.floor(deg/5))/12);
+
+// ================= 1. 千里江山（青绿山水长卷） =================
+
+
+// ================= 2. 敦煌飞天 =================
+
+
+// ================= 3. 皮影戏《武松打虎》 =================
+
+
+// ================= 4. 大桥骤雨（歌川广重风） =================
+
+
+// ================= 5. 虎鹊图（朝鲜民画 까치호랑이） =================
+
+
+// ================= 6. 神奈川冲浪里（葛饰北斋） =================
+
+
+// ================= 7. 清明上河图·虹桥 =================
+(function(){
+const W=320,H=180,LOOPT=1440;
+// parallel oblique projection, as the scroll draws it: X runs along the river, Z goes into the picture (up and to the right), Y is height
+const SX=0.6,SZ=0.45,BASE=150,S=(X,Y,Z)=&gt;[X+Z*SX,BASE-Z*SZ-Y];
+const SILK=&#x27;#cbb58a&#x27;,SILK2=&#x27;#c1aa7e&#x27;,SILK3=&#x27;#d5c39a&#x27;,INK=&#x27;#3c2e20&#x27;,INK2=&#x27;#6a5840&#x27;,ROAD=&#x27;#d8c8a0&#x27;,EARTH=&#x27;#c4ac80&#x27;,WATER=&#x27;#b8ae8a&#x27;,WATER2=&#x27;#a89e7c&#x27;,RIP=&#x27;#8e8264&#x27;;
+const ROOF=&#x27;#77726a&#x27;,ROOF2=&#x27;#5c5852&#x27;,ROOFL=&#x27;#8e8a80&#x27;,WALL=&#x27;#e2d4b0&#x27;,WALL2=&#x27;#cbbb94&#x27;,WOOD=&#x27;#8c6c46&#x27;,WOOD2=&#x27;#6c5034&#x27;,WOODL=&#x27;#b49a6c&#x27;,GRN=&#x27;#7a8a5c&#x27;,GRN2=&#x27;#5e6e46&#x27;,GRN3=&#x27;#98a474&#x27;;
+const CLOTH=[&#x27;#efe6cc&#x27;,&#x27;#e8dcc0&#x27;,&#x27;#8494a0&#x27;,&#x27;#a85a4a&#x27;,&#x27;#b8945c&#x27;,&#x27;#5a4e40&#x27;,&#x27;#9aa48a&#x27;,&#x27;#efe6cc&#x27;,&#x27;#d8ccb0&#x27;,&#x27;#7a6a8a&#x27;];
+const X0=118,X1=140,ZA=-22,ZB=112;// the bridge: its width along the river and its span across it
+const Yd=Z=&gt;2+25*Math.sin(PI*clamp((Z-ZA)/(ZB-ZA),0,1));
+let BG=null;
+function n2(x,y,s){const xi=fl(x),yi=fl(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);const a=hash(xi,yi,s),b=hash(xi+1,yi,s),c=hash(xi,yi+1,s),d=hash(xi+1,yi+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+const qp=(o,pts,c,line)=&gt;{poly(o,pts,c);if(line)for(let i=0;i&lt;pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];L(o,a[0],a[1],b[0],b[1],line)}};
+// ---------- houses: walls, a front roof slope of grey tiles, the gable end, a ridge with turned-up ends ----------
+function house(o,X,Z,w,d,h,rh,opt){opt=opt||{};const a=S(X,0,Z),b=S(X+w,0,Z),c=S(X+w,h,Z),e=S(X,h,Z),f=S(X+w,0,Z+d),g=S(X+w,h,Z+d);
+  qp(o,[b,f,g,c],WALL2,INK);qp(o,[a,b,c,e],WALL,INK);
+  // posts, a door, lattice windows
+  for(let i=0;i&lt;=w;i+=fl(w/3)||w){const p=S(X+i,0,Z),q=S(X+i,h,Z);L(o,p[0],p[1],q[0],q[1],WOOD)}
+  if(opt.open){const p=S(X+2,0,Z);R(o,p[0],p[1]-h+2,w-4,h-2,&#x27;#7a6448&#x27;);R(o,p[0],p[1]-h+2,w-4,1,INK)}
+  else{const p=S(X+w*0.4,0,Z);R(o,p[0],p[1]-fl(h*0.75),3,fl(h*0.75),WOOD2);for(let i=2;i&lt;w-2;i+=5){const q=S(X+i,h*0.6,Z);if(Math.abs(i-w*0.4)&gt;3){R(o,q[0],q[1],3,2,&#x27;#9a8462&#x27;);P(o,q[0]+1,q[1],INK)}}}
+  // roof: ridge along the street; back slope first, then the front slope with tile rows, then the gable
+  const r0=S(X-2,h,Z-3),r1=S(X+w+2,h,Z-3),rr1=S(X+w+2,h+rh,Z+d/2),rr0=S(X-2,h+rh,Z+d/2),rb0=S(X-2,h,Z+d+3),rb1=S(X+w+2,h,Z+d+3);
+  const RF=opt.thatch?[&#x27;#b8a070&#x27;,&#x27;#9a8458&#x27;,&#x27;#cbb488&#x27;]:[ROOF,ROOF2,ROOFL];
+  qp(o,[rr0,rr1,rb1,rb0],RF[1],INK);qp(o,[r0,r1,rr1,rr0],RF[0],INK);
+  for(let i=1;i&lt;w+4;i+=opt.thatch?3:2){const p=S(X-2+i,h,Z-3),q=S(X-2+i,h+rh,Z+d/2);L(o,p[0],p[1],q[0],q[1],i%4===1?RF[1]:RF[2])}
+  qp(o,[r1,rr1,rb1],RF[1],INK);
+  L(o,rr0[0]-1,rr0[1]-1,rr1[0]+1,rr1[1]-1,INK);P(o,rr0[0]-2,rr0[1]-2,INK);P(o,rr1[0]+2,rr1[1]-2,INK);
+  if(opt.awning){// a cloth awning over the shop front, on two poles
+    const p0=S(X,h-2,Z),p1=S(X+w,h-2,Z),q0=S(X,h-4,Z-9),q1=S(X+w,h-4,Z-9);qp(o,[p0,p1,q1,q0],opt.awning,INK);const g0=S(X,0,Z-9),g1=S(X+w,0,Z-9);L(o,q0[0],q0[1],g0[0],g0[1],WOOD2);L(o,q1[0],q1[1],g1[0],g1[1],WOOD2)}}
+function tree(o,X,Z,h,r,kind,t){const g0=S(X,0,Z),top=S(X,h,Z);L(o,g0[0],g0[1],top[0],top[1],INK2);L(o,g0[0]+1,g0[1],top[0]+1,top[1],INK2);
+  if(kind===&#x27;willow&#x27;){const sw=t==null?0:Math.sin(t*0.05+X)*1.2;disc(o,top[0],top[1],2,GRN2);for(let i=-r;i&lt;=r;i+=1.5){const len=h*0.6+hash(i*7,X,3)*h*0.4,x0=top[0]+i,y0=top[1]-Math.sqrt(Math.max(0,r*r-i*i))*0.5;for(let k=0;k&lt;len;k++){P(o,x0+i*k*0.04+sw*k/len,y0+k,k%3?GRN:GRN2)}}}
+  else{const R_=r*1.5;for(let i=0;i&lt;R_*R_*2.2;i++){const a=hash(i,X,1)*6.28,dd=Math.sqrt(hash(i,X,2))*R_;const x=rd(top[0]+Math.cos(a)*dd*1.1),y=rd(top[1]-R_*0.2+Math.sin(a)*dd*0.75);P(o,x,y,y&lt;top[1]-R_*0.45?GRN3:dd&gt;R_*0.75?GRN2:GRN)}for(let i=0;i&lt;R_*2;i++){const a=hash(i,X,4)*6.28,dd=R_*0.8;P(o,top[0]+Math.cos(a)*dd*1.1,top[1]-R_*0.2+Math.sin(a)*dd*0.75,GRN2)}}}
+// ---------- the scroll&#x27;s static layers: silk, the far bank and its town, the river, the near bank ----------
+function build(){const [c,o]=mkc(W,H);R(o,0,0,W,H,SILK);
+  {const rs=rng(5);for(let i=0;i&lt;500;i++)R(o,rs()*W,rs()*H,3+rs()*16,1,rs()&lt;0.7?SILK2:SILK3)}
+  // river between Z=0 and Z=90
+  for(let y=0;y&lt;H;y++)for(let x=0;x&lt;W;x++){const top=BASE-90*SZ,bot=BASE;if(y&gt;=top&amp;&amp;y&lt;bot)P(o,x,y,(y+fl(n2(x*0.05,y*0.2,3)*3))%7===0?WATER2:WATER)}
+  // far bank: a stone revetment facing us, then the street, then rows of houses climbing into the mist
+  {const yb=BASE-90*SZ;R(o,0,yb-3,W,4,&#x27;#9a8a6a&#x27;);R(o,0,yb-3,W,1,INK);R(o,0,yb+1,W,1,INK);for(let x=0;x&lt;W;x+=5)R(o,x,yb-2,1,3,&#x27;#7a6a52&#x27;);
+   for(let y=0;y&lt;yb-3;y++)for(let x=0;x&lt;W;x++){const Z=(BASE-y)/SZ;if(Z&lt;96||Z&gt;114)continue;P(o,x,y,ROAD)}}
+  const rs=rng(17);
+  for(let Z=300;Z&gt;=120;Z-=17+fl(rs()*9)){let X=-210+rs()*30;while(X&lt;330){const w=14+fl(rs()*22),d=10+fl(rs()*8),h=7+fl(rs()*5),r=rs();
+      // the town thins out into fields and treetops as it recedes
+      const far=Z&gt;240;if(far){if(r&lt;0.55)tree(o,X+w/2,Z+4,10+rs()*6,3+rs()*3,&#x27;elm&#x27;);X+=w+6+fl(rs()*16);continue}
+      if(r&lt;0.14){X+=8+fl(rs()*14);continue}
+      if(r&lt;0.36)tree(o,X+w/2,Z+4,12+rs()*8,4+rs()*3,rs()&lt;0.3?&#x27;willow&#x27;:&#x27;elm&#x27;);
+      else house(o,X,Z,w,d,h,5+fl(rs()*3),{awning:Z&lt;150&amp;&amp;rs()&lt;0.5?(rs()&lt;0.5?&#x27;#d8ccb0&#x27;:&#x27;#b8a07a&#x27;):null,open:Z&lt;150&amp;&amp;rs()&lt;0.4,thatch:Z&gt;190&amp;&amp;rs()&lt;0.5});
+      X+=w+4+fl(rs()*12)}}
+  // the near bank: earth, a street along the water, the bank edge
+  for(let y=BASE;y&lt;H;y++)for(let x=0;x&lt;W;x++){const Z=(BASE-y)/SZ;P(o,x,y,Z&gt;-8?EARTH:Z&gt;-30?ROAD:EARTH)}
+  L(o,0,BASE,W,BASE,INK);for(let x=0;x&lt;W;x+=9)R(o,x,BASE,1,2,WOOD2);
+  return c}
+// near-bank houses go in front of everything
+function nearHouses(o){house(o,-30,-44,46,14,11,6,{awning:&#x27;#d8ccb0&#x27;,open:1});house(o,24,-50,30,12,10,6,{awning:&#x27;#b8a07a&#x27;});house(o,236,-46,40,14,11,6,{open:1,awning:&#x27;#d8ccb0&#x27;});house(o,286,-52,40,14,11,6,{})}
+// ---------- the bridge: a woven timber arch, a deck with railings, parasols at its ends ----------
+const SEG=[];for(let Z=ZB;Z&gt;ZA;Z-=3)SEG.push(Z);
+function deckSeg(o,Z){const z2=Z-3,y1=Yd(Z),y2=Yd(z2);
+  // the arch face on the near side of the river (X1 side shows)
+  if(Z&lt;=96&amp;&amp;z2&gt;=-6){const a=S(X1,y1,Z),b=S(X1,y2,z2),c=S(X1,y2-10,z2),d=S(X1,y1-10,Z);qp(o,[a,b,c,d],WOOD);const mm=S(X1,(y1+y2)/2-5,(Z+z2)/2);L(o,mm[0]-1,mm[1],mm[0]+2,mm[1]-1,WOOD2);
+    // crossing timbers: the woven arch reads as a lattice of short diagonals
+    const m=S(X1,(y1+y2)/2-7,(Z+z2)/2);if((fl(Z/3))%2)L(o,a[0],a[1]+1,c[0],c[1]-1,WOOD2);else L(o,b[0],b[1]+1,d[0],d[1]-1,WOOD2);P(o,m[0],m[1],WOODL);
+    L(o,c[0],c[1],d[0],d[1],INK);L(o,a[0],a[1],b[0],b[1],INK)}
+  else if(Z&gt;96||z2&lt;-6){// abutments where the deck meets the banks: stone
+    const a=S(X1,y1,Z),b=S(X1,y2,z2),c=S(X1,-2,z2),d=S(X1,-2,Z);qp(o,[a,b,c,d],&#x27;#a89a7a&#x27;,INK)}
+  // the deck from above
+  const p=[S(X0,y1,Z),S(X1,y1,Z),S(X1,y2,z2),S(X0,y2,z2)];qp(o,p,&#x27;#c8ac7c&#x27;);L(o,p[0][0],p[0][1],p[1][0],p[1][1],WOODL);
+  // railings on both edges: a post every other segment, a top rail
+  for(const X of [X0,X1]){const r1=S(X,y1+4,Z),r2=S(X,y2+4,z2);L(o,r1[0],r1[1],r2[0],r2[1],X===X1?WOOD2:WOOD);if(fl(Z/3)%2===0){const g=S(X,y1,Z);L(o,g[0],g[1],r1[0],r1[1],WOOD2)}}}
+function parasol(o,X,Z,c){const y=Yd(Z),g=S(X,y,Z),top=S(X,y+12,Z);L(o,g[0],g[1],top[0],top[1],INK2);ell(o,top[0],top[1],7,2,INK);ell(o,top[0],top[1]-1,6,2,c);for(let i=-5;i&lt;=5;i+=2.5)P(o,top[0]+i,top[1],INK2)}
+// ---------- people: eight pixels tall, wrapped in pale robes; porters, donkeys, a sedan chair, an ox cart ----------
+function man(o,x,y,f,t,c,hat,arm){x=rd(x);y=rd(y);const st=fl(t/5)%2;
+  P(o,x,y-8,hat||INK);P(o,x+1,y-8,hat||INK);P(o,x,y-7,&#x27;#e0b890&#x27;);P(o,x+1,y-7,&#x27;#d0a880&#x27;);
+  R(o,x-1,y-6,4,4,c);P(o,x+(f&gt;0?2:-1),y-6,INK2);
+  P(o,x+(st?-1:0),y-2,INK2);P(o,x+(st?2:1),y-2,INK2);P(o,x+(st?-1:0),y-1,INK);P(o,x+(st?2:1),y-1,INK);
+  if(arm===1){P(o,x+(f&gt;0?3:-2),y-7,c);P(o,x+(f&gt;0?3:-2),y-8+(fl(t/4)%2),&#x27;#e0b890&#x27;)}else if(arm===2){P(o,x+(f&gt;0?3:-2),y-5,c);P(o,x+(f&gt;0?4:-3),y-5,&#x27;#e0b890&#x27;)}}
+function walker(o,x,y,f,t,k){const c=CLOTH[k.c];x=rd(x);y=rd(y);
+  if(k.kind===&#x27;porter&#x27;){man(o,x,y,f,t,c);L(o,x-4,y-6,x+5,y-6,WOOD2);for(const dx of [-5,5]){R(o,x+dx-1,y-5,3,3,&#x27;#9a7a4a&#x27;);P(o,x+dx,y-5,INK)}}
+  else if(k.kind===&#x27;donkey&#x27;){const st=fl(t/4)%2;R(o,x-3,y-5,7,3,&#x27;#7a7470&#x27;);P(o,x+4*f,y-6,&#x27;#7a7470&#x27;);P(o,x+5*f,y-6,&#x27;#7a7470&#x27;);P(o,x+5*f,y-7,&#x27;#7a7470&#x27;);P(o,x+3*f,y-7,INK);
+    for(const dx of [-2,2])P(o,x+dx+(st?1:0)*(dx&gt;0?-1:1),y-2,INK);for(const dx of [-2,2])P(o,x+dx,y-1,INK);R(o,x-3,y-8,5,3,k.load?&#x27;#c8b07a&#x27;:c);if(!k.load){P(o,x,y-10,&#x27;#e0b890&#x27;);P(o,x,y-11,INK)}
+    if(k.load)man(o,x-7*f,y,f,t,CLOTH[(k.c+3)%CLOTH.length])}
+  else if(k.kind===&#x27;sedan&#x27;){man(o,x+5*f,y,f,t,c);man(o,x-6*f,y,f,t,c);R(o,x-3,y-11,6,6,&#x27;#8a3a2a&#x27;);R(o,x-3,y-12,6,1,INK);R(o,x-2,y-9,4,2,&#x27;#3a2a20&#x27;);L(o,x-8,y-6,x+8,y-6,WOOD2)}
+  else if(k.kind===&#x27;cart&#x27;){const wv=fl(t/6)%2;R(o,x+3*f-3,y-5,7,3,&#x27;#8a6440&#x27;);P(o,x+(f&gt;0?7:-7),y-6,&#x27;#8a6440&#x27;);P(o,x+(f&gt;0?6:-6),y-7,INK);for(const dx of [-2,2])P(o,x+3*f+dx,y-1,INK);
+    R(o,x-6*f-4,y-8,8,5,&#x27;#b49460&#x27;);R(o,x-6*f-4,y-8,8,1,INK);ring(o,x-6*f,y-2,2,INK);P(o,x-6*f+(wv?1:-1),y-2,INK2);man(o,x+(f&gt;0?11:-11),y,f,t,c)}
+  else man(o,x,y,f,t,c,k.hat,k.arm)}
+const rsP=rng(91),KINDS=[&#x27;man&#x27;,&#x27;man&#x27;,&#x27;man&#x27;,&#x27;porter&#x27;,&#x27;man&#x27;,&#x27;donkey&#x27;,&#x27;man&#x27;,&#x27;porter&#x27;,&#x27;cart&#x27;,&#x27;sedan&#x27;,&#x27;man&#x27;,&#x27;man&#x27;];
+const mk=n=&gt;Array.from({length:n},(_,i)=&gt;({kind:KINDS[fl(rsP()*KINDS.length)],c:fl(rsP()*CLOTH.length),v:(0.12+rsP()*0.14)*(rsP()&lt;0.5?1:-1),x0:rsP()*600,z:0,hat:rsP()&lt;0.3?&#x27;#efe6cc&#x27;:null,load:rsP()&lt;0.5}));
+const FAR=mk(34).map(p=&gt;(p.z=97+rsP()*14,p)),NEAR=mk(22).map(p=&gt;(p.z=-8-rsP()*18,p)),DECK=Array.from({length:26},(_,i)=&gt;({kind:rsP()&lt;0.2?&#x27;porter&#x27;:rsP()&lt;0.1?&#x27;donkey&#x27;:&#x27;man&#x27;,c:fl(rsP()*CLOTH.length),v:(0.08+rsP()*0.08)*(i%2?1:-1),z0:rsP()*160,x:X0+4+rsP()*(X1-X0-8),hat:rsP()&lt;0.3?&#x27;#efe6cc&#x27;:null,load:true}));
+// ---------- the grain boat ----------
+function boat(o,X,t,mast){const Z=46,[bx,by]=S(X,0,Z),x=rd(bx),y=rd(by);
+  // wake and ripples
+  for(let i=0;i&lt;14;i++){const a=(t*0.6+i*9)%40;P(o,x-2-a*0.3,y+2+fl(a*0.12),&#x27;#e8e0c4&#x27;);P(o,x+80+a*0.5,y+1+fl(a*0.08),&#x27;#e8e0c4&#x27;)}
+  const hull=[[0,-7],[5,-3],[72,-3],[80,-9],[79,-3],[74,2],[8,2],[2,-1]].map(p=&gt;[x+p[0],y+p[1]]);qp(o,hull,WOOD,INK);L(o,x+5,y-2,x+73,y-2,WOODL);for(let i=10;i&lt;72;i+=6)L(o,x+i,y-2,x+i,y+1,WOOD2);
+  // the long mat-roofed cabin with windows
+  qp(o,[[x+12,y-3],[x+66,y-3],[x+66,y-12],[x+12,y-12]],&#x27;#b8a07a&#x27;,INK);for(let i=14;i&lt;64;i+=5){R(o,x+i,y-9,3,3,&#x27;#5a4a36&#x27;)}
+  qp(o,[[x+10,y-12],[x+68,y-12],[x+66,y-16],[x+12,y-16]],&#x27;#8a8270&#x27;,INK);for(let i=12;i&lt;66;i+=2)P(o,x+i,y-14,i%4?&#x27;#6e685a&#x27;:&#x27;#9a9282&#x27;);
+  // the A-frame mast, pivoting at its foot; stays to bow and stern
+  const px=x+22,py=y-15,ma=mast*D2R,L_=48,tx=px+Math.cos(ma)*L_,ty=py+Math.sin(ma)*L_;
+  L(o,x+1,y-7,tx,ty,INK2);L(o,x+79,y-9,tx,ty,INK2);L(o,px,py,tx,ty,WOOD2);L(o,px+2,py,tx+1,ty,WOOD);
+  // crew: two at the bow poling, one on the roof waving, two at the stern sweeping the big oar
+  const pole=Math.sin(t*0.05);
+  man(o,x+5,y-3,-1,t,CLOTH[0],null,2);L(o,x+2,y-8,x-10+pole*2,y+6,WOOD2);
+  man(o,x+28,y-16,-1,t,CLOTH[3],null,1);man(o,x+40,y-16,-1,t,CLOTH[2],null,2);L(o,x+37,y-21,x+12+pole*3,y+4,WOOD2);
+  man(o,x+70,y-3,1,t,CLOTH[4],null,2);man(o,x+64,y-16,1,t,CLOTH[0],null,2);
+  const sw=Math.sin(t*0.07);L(o,x+76,y-8,x+96+sw*4,y+3,WOOD2);L(o,x+77,y-8,x+97+sw*4,y+3,WOOD)}
+function draw(s,g){if(!BG)BG=build();const t=s.t%LOOPT,T=s.t;g.imageSmoothingEnabled=false;g.drawImage(BG,0,0);
+  // ripples on the river, drifting downstream
+  for(let i=0;i&lt;70;i++){const Z=2+hash(i,1)*86,X=((hash(i,2)*420-T*0.08)%420+420)%420-80,[x,y]=S(X,0,Z);if(y&gt;=BASE-1)continue;const l=2+fl(hash(i,3)*4);for(let k=0;k&lt;l;k++)P(g,x+k,y+(k===0||k===l-1?0:-((k+fl(T/12))%2)),RIP)}
+  // willows along both banks
+  for(const [X,Z] of [[-40,95],[30,96],[220,95],[262,96]])tree(g,X,Z,14,6,&#x27;willow&#x27;,T);
+  // traffic on the far street
+  const far=FAR.map(p=&gt;{let X=((p.x0+T*p.v)%600+600)%600-200;return [X,p]});
+  for(const [X,p] of far.sort((a,b)=&gt;b[1].z-a[1].z)){const [x,y]=S(X,0,p.z);if(x&lt;-12||x&gt;W+12)continue;walker(g,x,y,p.v&gt;0?1:-1,T+p.x0,p)}
+  // the boat&#x27;s run: approach, lower the mast, pass under the arch, raise it again
+  const bX=300-t*0.33,mast=bX&gt;230?-90:bX&gt;165?-90+(230-bX)/65*82:bX&gt;10?-8:bX&gt;-50?-8-(10-bX)/60*82:-90;
+  const excite=bX&lt;280&amp;&amp;bX&gt;40;
+  // the bridge, far end first; the boat slots in at its depth; people on the deck at theirs
+  const deckPeople=DECK.map(p=&gt;{const span=160;let Z=((p.z0+T*p.v)%span+span)%span-26;return [Z,p]});
+  const items=[];for(const Z of SEG)items.push([Z,0,()=&gt;deckSeg(g,Z)]);
+  for(const [Z,p] of deckPeople)items.push([Z,1,()=&gt;{const [x,y]=S(p.x,Yd(Z),Z);walker(g,x,y,p.v&gt;0?1:-1,T+p.z0*3,p)}]);
+  // watchers crowding the downstream rail when the boat comes, shouting and waving
+  if(excite)for(let i=0;i&lt;7;i++){const Z=24+i*6.5,[x,y]=S(X1-2,Yd(Z),Z);items.push([Z,1,()=&gt;man(g,x,y,1,T+i*3,CLOTH[(i*3)%CLOTH.length],i%3?null:&#x27;#efe6cc&#x27;,i%2?1:2)])}
+  for(const [X,Z,c] of [[X0+2,-16,&#x27;#d8ccb0&#x27;],[X1-2,-8,&#x27;#b8a07a&#x27;],[X0+2,102,&#x27;#b8a07a&#x27;],[X1-2,108,&#x27;#d8ccb0&#x27;]])items.push([Z,2,()=&gt;parasol(g,X,Z,c)]);
+  items.push([46.5,0.5,()=&gt;boat(g,bX,T,mast)]);
+  // a rope thrown down from the rail to the bow when the boat is close
+  if(bX&lt;200&amp;&amp;bX&gt;120)items.push([30,3,()=&gt;{const [ax,ay]=S(X1,Yd(40)+4,40),[bx,by]=S(bX+2,0,46);const sag=8;for(let k=0;k&lt;=20;k++){const u=k/20;P(g,ax+(bx-ax)*u,ay+(by-8-ay)*u+Math.sin(u*PI)*sag,INK2)}}]);
+  items.sort((a,b)=&gt;b[0]-a[0]||a[1]-b[1]);for(const it of items)it[2]();
+  // traffic on the near street
+  const near=NEAR.map(p=&gt;{let X=((p.x0+T*p.v)%600+600)%600-200;return [X,p]});
+  for(const [X,p] of near.sort((a,b)=&gt;b[1].z-a[1].z)){const [x,y]=S(X,0,p.z);if(x&lt;-12||x&gt;W+12)continue;walker(g,x,y,p.v&gt;0?1:-1,T+p.x0,p)}
+  for(const [X,Z] of [[60,-4],[200,-3]])tree(g,X,Z,16,7,&#x27;willow&#x27;,T);
+  nearHouses(g);
+  // a wine shop&#x27;s banner on the far bank
+  {const [px,py]=S(250,0,120);L(g,px,py,px,py-26,INK2);for(let i=0;i&lt;10;i++){const yy=py-25+i*0.2+Math.sin(T*0.2-i*0.6)*i*0.15;R(g,px+1+i,fl(yy),1,4,i&lt;2?&#x27;#a85a4a&#x27;:&#x27;#efe6cc&#x27;);P(g,px+1+i,fl(yy)+4,INK2)}}}
+SAMPLES.push({id:&#x27;hongqiao&#x27;,name:&#x27;清明上河图·虹桥&#x27;,w:W,h:H,thumb:600,
+  tags:[&#x27;北宋张择端&#x27;,&#x27;平行斜投影&#x27;,&#x27;虹桥木拱&#x27;,&#x27;百余个行人&#x27;,&#x27;落桅过桥&#x27;,&#x27;淡设色&#x27;],
+  about:&#x27;《清明上河图》里最紧张的一段：一条大粮船顺着汴河冲向虹桥，桅杆太高，船工们赶紧把人字桅放倒，撑篙的、摇橹的、站在篷顶上喊的都在忙；桥上的人挤到栏杆边探身看、挥手，有人把绳子扔下去。桥面两头撑着伞摊，挑担的、赶驴的、抬轿的、推车的在桥上和两岸街上来来往往，对岸一排排屋顶往雾里退去。整幅画按原作的方式用平行斜投影，远近一样大，淡墨勾线、浅设色在旧绢上。一分钟一趟。&#x27;,
+  controls:[],init(s){},tick(s){},draw,info(s){return &#x27;第 &#x27;+fl((s.t%LOOPT)/24)+&#x27; 秒 / 60&#x27;}});
+})();
+
+// ================= soundscapes, one per piece; events are tied to the same frame clock as the pictures =================
+(function(){
+const R_=Math.random,pick=a=&gt;a[fl(R_()*a.length)];
+const walk={};// a melody that wanders a step or two at a time
+function step(k,lo,hi){let v=walk[k]==null?fl((lo+hi)/2):walk[k];v+=pick([-2,-1,-1,1,1,2,0]);v=clamp(v,lo,hi);walk[k]=v;return v}
+const SFX={
+  // river, wind in the reeds, a guqin plucked now and then, birds
+  jiangshan:{amb(c,o){const w=sNoise(c,o,&#x27;lowpass&#x27;,420,0.6,0.07),wi=sNoise(c,o,&#x27;bandpass&#x27;,900,0.4,0.018);return [w,wi,sLfo(c,w.g.gain,0.13,0.03),sLfo(c,wi.g.gain,0.07,0.012)]},
+    ev(t,c,o){if(t%30===0&amp;&amp;R_()&lt;0.7){const d=step(&#x27;qin&#x27;,-3,9);sPluck(c,o,note(146.8,d),{dec:2.8,vol:0.16,bend:R_()&lt;0.4,bright:1800});if(R_()&lt;0.25)sPluck(c,o,note(146.8,d+5),{dec:2.4,vol:0.07,at:0.18})}
+      if(R_()&lt;0.006){for(let i=0;i&lt;2+fl(R_()*3);i++)sTone(c,o,2600+R_()*900,0.07,{at:i*0.11,slide:1.25,vol:0.025})}}},
+  // a low drone in the cave, pipa phrases with tremolo, wind chimes
+  feitian:{amb(c,o){const d1=c.createOscillator(),d2=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();d1.frequency.value=110;d2.frequency.value=164.8;d1.type=d2.type=&#x27;triangle&#x27;;lp.type=&#x27;lowpass&#x27;;lp.frequency.value=380;g.gain.value=0.05;d1.connect(lp);d2.connect(lp);lp.connect(g);g.connect(o);d1.start();d2.start();
+      const air=sNoise(c,o,&#x27;highpass&#x27;,2800,0.5,0.008);return [{stop(){d1.stop();d2.stop()}},air,sLfo(c,g.gain,0.09,0.02)]},
+    ev(t,c,o){if(t%10===0&amp;&amp;R_()&lt;0.5){const d=step(&#x27;pipa&#x27;,0,11),f=note(220,d);if(R_()&lt;0.18){for(let i=0;i&lt;8;i++)sPluck(c,o,f,{at:i*0.055,dec:0.35,vol:0.09,bright:5000})}else sPluck(c,o,f,{dec:1.1,vol:0.14,bright:5200,bend:R_()&lt;0.3})}
+      if(R_()&lt;0.01)sStrike(c,o,1800+R_()*1200,{vol:0.03,dec:2.2,parts:[[1,1,1],[2.4,0.4,0.7],[3.9,0.2,0.4]]})}},
+  // shadow play: clapper and fiddle while he walks, a roar, a whoosh, the gong when the staff lands, knocks for the punches, a drum-and-gong flourish at the end
+  piying:{amb(c,o){const n=sNoise(c,o,&#x27;lowpass&#x27;,600,0.5,0.012);return [n]},
+    ev(t0,c,o){const t=t0%720;const block=(f,v)=&gt;sStrike(c,o,f||1500,{vol:v||0.16,dec:0.08,parts:[[1,1,1],[2.2,0.3,0.5]]});
+      const gong=(f,v,dec)=&gt;{sStrike(c,o,f,{vol:v,dec:dec,drop:true,parts:[[1,1,1],[1.48,0.6,0.8],[2.12,0.5,0.6],[2.93,0.3,0.45],[4.1,0.2,0.3]]});sBurst(c,o,{type:&#x27;highpass&#x27;,f:2500,dur:dec*0.4,vol:v*0.4})};
+      const FID=[0,2,3,2,0,-1,0,2,4,3,2,0];
+      if(t&lt;110||(t&gt;=500&amp;&amp;t&lt;540)){if(t%12===0)block(t%24===0?1400:1700);if(t%24===0){const d=FID[(t/24)%FID.length];sTone(c,o,note(392,d),0.9,{type:&#x27;sawtooth&#x27;,bp:1300,q:1.5,vol:0.07,vib:0.014,slide:0.97})}}
+      if(t===134){sBurst(c,o,{type:&#x27;lowpass&#x27;,f:500,f2:120,dur:1.3,vol:0.5,att:0.08});sTone(c,o,85,1.2,{type:&#x27;sawtooth&#x27;,bp:400,q:2,vol:0.14,vib:0.04,vibR:22})}
+      if(t===176)sBurst(c,o,{f:500,f2:2400,q:2,dur:0.5,vol:0.25,att:0.15});
+      if(t===208){sStrike(c,o,70,{vol:0.35,dec:0.4,parts:[[1,1,1]]});block(900,0.2)}
+      if(t===258){gong(170,0.4,3.2);block(1300,0.3)}
+      if(t&gt;=344&amp;&amp;t&lt;452&amp;&amp;(t-344)%9===0){sBurst(c,o,{type:&#x27;lowpass&#x27;,f:500,dur:0.12,vol:0.4});block((t-344)%18?1700:1200,0.22)}
+      if(t===470)gong(110,0.3,2.5);
+      if(t&gt;=540&amp;&amp;t&lt;600){if(t%4===0)sStrike(c,o,120,{vol:0.2,dec:0.15,parts:[[1,1,1],[1.6,0.4,0.6]]});if((t-540)%12===0)sBurst(c,o,{type:&#x27;highpass&#x27;,f:4000,dur:0.6,vol:0.2})}
+      if(t===600)gong(150,0.4,3)}},
+  // the shower: hiss on the river, heavier gusts, drops on the planks, thunder far off
+  yudachi:{amb(c,o){const r1=sNoise(c,o,&#x27;highpass&#x27;,1400,0.5,0.16),r2=sNoise(c,o,&#x27;bandpass&#x27;,4200,0.8,0.06),r3=sNoise(c,o,&#x27;lowpass&#x27;,260,0.6,0.06);return [r1,r2,r3,sLfo(c,r1.g.gain,0.06,0.06),sLfo(c,r3.g.gain,0.04,0.03)]},
+    ev(t,c,o){if(R_()&lt;0.35)sBurst(c,o,{f:2000+R_()*3000,q:3,dur:0.04,vol:0.02+R_()*0.03});
+      if(t%11===0&amp;&amp;R_()&lt;0.5)sStrike(c,o,260+R_()*80,{vol:0.04,dec:0.06,parts:[[1,1,1]]});
+      if(t%640===320){sBurst(c,o,{type:&#x27;lowpass&#x27;,f:220,f2:60,dur:5,vol:0.6,att:0.4});sBurst(c,o,{type:&#x27;lowpass&#x27;,f:900,f2:120,dur:1.2,vol:0.2,att:0.02,at:0.15})}}},
+  // wind in the pine, a gayageum now and then, the magpie scolding, one big yawn
+  hojak:{amb(c,o){const w=sNoise(c,o,&#x27;bandpass&#x27;,650,0.6,0.05);return [w,sLfo(c,w.g.gain,0.1,0.03),sLfo(c,w.f.frequency,0.05,200)]},
+    ev(t0,c,o){const t=t0%480;const chat=(t&gt;40&amp;&amp;t&lt;110)||(t&gt;300&amp;&amp;t&lt;370)||(t&gt;160&amp;&amp;t&lt;190);
+      if(chat&amp;&amp;t%3===0&amp;&amp;fl(t/3)%2===0){sTone(c,o,2300+R_()*600,0.06,{type:&#x27;square&#x27;,bp:3000,q:3,vol:0.05,slide:1.35});sBurst(c,o,{f:3500,q:2,dur:0.05,vol:0.03})}
+      if(t===380)sTone(c,o,140,2.4,{type:&#x27;sawtooth&#x27;,bp:520,q:1.2,vol:0.12,vib:0.03,vibR:3,slide:1.6,att:0.4});
+      if(t===120||t===260)sBurst(c,o,{f:1200,f2:3000,q:1,dur:0.25,vol:0.06});
+      if(t%40===0&amp;&amp;R_()&lt;0.6){const d=step(&#x27;gaya&#x27;,-2,8);sPluck(c,o,note(196,d),{dec:2.2,vol:0.18,bend:true,bright:2200})}}},
+  // the sea: a roar that swells, hiss of spray, now and then a crash; a shakuhachi on the old Japanese scale
+  nami:{amb(c,o){const r=sNoise(c,o,&#x27;lowpass&#x27;,650,0.5,0.24),h=sNoise(c,o,&#x27;highpass&#x27;,3000,0.5,0.035);return [r,h,sLfo(c,r.g.gain,0.11,0.1),sLfo(c,r.f.frequency,0.07,250),sLfo(c,h.g.gain,0.11,0.02)]},
+    ev(t,c,o){if(t%96===40)sBurst(c,o,{type:&#x27;lowpass&#x27;,f:1400,f2:180,dur:2.4,vol:0.3,att:0.2});
+      if(t%64===0&amp;&amp;R_()&lt;0.55){const d=step(&#x27;shaku&#x27;,0,8);sTone(c,o,noteM(293.7,d),1.8,{vol:0.07,breath:0.7,vib:0.012,vibR:4.5,slide:0.96,att:0.25})}}},
+  // the crowd: babble on several bands, water, the boat crew&#x27;s heave-ho and shouts from the rail as it comes in
+  hongqiao:{amb(c,o){const S_=[];for(const [f,r] of [[480,4.1],[820,5.3],[1300,6.7],[2100,3.7]]){const n=sNoise(c,o,&#x27;bandpass&#x27;,f,5,0.075);S_.push(n,sLfo(c,n.f.frequency,r,f*0.35),sLfo(c,n.g.gain,r*0.6,0.035))}S_.push(sNoise(c,o,&#x27;lowpass&#x27;,380,0.6,0.08));return S_},
+    ev(t0,c,o){const t=t0%1440,bX=300-t*0.33;
+      if(bX&lt;280&amp;&amp;bX&gt;40&amp;&amp;R_()&lt;0.08)sTone(c,o,500+R_()*350,0.25+R_()*0.25,{type:&#x27;sawtooth&#x27;,bp:900+R_()*500,q:4,vol:0.05,slide:1.25,vib:0.03});
+      if(bX&lt;235&amp;&amp;bX&gt;150&amp;&amp;t%30===0){sTone(c,o,330,0.35,{type:&#x27;sawtooth&#x27;,bp:750,q:3,vol:0.07});sTone(c,o,294,0.45,{type:&#x27;sawtooth&#x27;,bp:700,q:3,vol:0.07,at:0.4})}
+      if(R_()&lt;0.03)sBurst(c,o,{f:280,q:8,dur:0.15,vol:0.03});
+      if(t%60===0&amp;&amp;R_()&lt;0.5){const d=step(&#x27;di&#x27;,3,12);sTone(c,o,note(587,d),0.7,{vol:0.03,breath:0.5,vib:0.015})}}}};
+SND.fx=SFX;
+// wire every piece to the shared switch: a &#x27;声音&#x27; toggle, ambience while the piece is on screen, events on its ticks
+function sndStop(){if(SND.bus){const b=SND.bus,st=SND.stops;try{b.gain.setTargetAtTime(0,SND.ctx.currentTime,0.08)}catch(e){}setTimeout(()=&gt;{for(const x of st)try{x.stop()}catch(e){}try{b.disconnect()}catch(e){}},500)}SND.bus=null;SND.stops=[];SND.live=null}
+function sndStart(d){const c=sndCtx();if(!c)return;sndStop();const b=c.createGain();b.gain.value=0;b.connect(SND.out);b.gain.setTargetAtTime(1,c.currentTime,0.3);SND.bus=b;SND.live=d;SND.stops=SFX[d.id].amb(c,b)||[]}
+for(const d of SAMPLES){const fx=SFX[d.id];if(!fx)continue;d.controls=(d.controls||[]).concat([{type:&#x27;toggle&#x27;,key:&#x27;snd&#x27;,label:&#x27;声音&#x27;,def:false}]);
+  const i0=d.init,t0=d.tick,l0=d.onLeave,o0=d.onOpt;
+  d.init=function(s){i0.call(d,s);s.opt.snd=SND.on;if(SND.on&amp;&amp;SND.ctx)sndStart(d)};
+  d.tick=function(s){t0.call(d,s);if(SND.on&amp;&amp;SND.live===d&amp;&amp;SND.ctx&amp;&amp;SND.ctx.state===&#x27;running&#x27;)fx.ev(s.t,SND.ctx,SND.bus,s)};
+  d.onLeave=function(s){if(l0)l0.call(d,s);if(SND.live===d)sndStop()};
+  d.onOpt=function(s,k){if(o0)o0.call(d,s,k);if(k===&#x27;snd&#x27;){SND.on=!!s.opt.snd;if(SND.on)sndStart(d);else sndStop()}}}
+{const sp0=setPaused;setPaused=function(p){sp0(p);if(SND.ctx){if(p)SND.ctx.suspend();else if(SND.on)SND.ctx.resume()}}}
+document.addEventListener(&#x27;visibilitychange&#x27;,()=&gt;{if(!SND.ctx)return;if(document.hidden)SND.ctx.suspend();else if(SND.on&amp;&amp;!paused)SND.ctx.resume()});
+})();
+
+// ================= player =================
+const cv=document.getElementById(&#x27;cv&#x27;),g=cv.getContext(&#x27;2d&#x27;),stage=document.getElementById(&#x27;stage&#x27;);
+const $=id=&gt;document.getElementById(id);
+let cur=0,S=null,paused=false,speed=1,acc=0,last=performance.now(),visible=true;
+const reduce=matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;if(reduce)paused=true;
+function newState(def){const s={t:0,opt:{}};for(const c of def.controls||[])if(c.key)s.opt[c.key]=c.def;def.init(s);return s}
+function fit(){const d=SAMPLES[cur],aw=stage.clientWidth-2,ah=Math.max(200,innerHeight*0.66);let sc=Math.min(aw/d.w,ah/d.h);if(sc&gt;=2)sc=fl(sc);
+  cv.style.width=fl(d.w*sc)+&#x27;px&#x27;;cv.style.height=fl(d.h*sc)+&#x27;px&#x27;;S.scale=sc}
+function render(){g.imageSmoothingEnabled=false;SAMPLES[cur].draw(S,g);syncUI()}
+function syncUI(){const d=SAMPLES[cur];$(&#x27;info&#x27;).textContent=(d.info?d.info(S)+&#x27; · &#x27;:&#x27;&#x27;)+`${d.w}×${d.h}`+(S.scale&gt;=2?` ×${S.scale}`:&#x27;&#x27;);
+  for(const el of $(&#x27;ctls&#x27;).querySelectorAll(&#x27;[data-key]&#x27;)){const k=el.dataset.key,v=S.opt[k];
+    if(el.dataset.type===&#x27;seg&#x27;)for(const b of el.querySelectorAll(&#x27;button&#x27;))b.classList.toggle(&#x27;on&#x27;,String(b.dataset.v)===String(v));
+    else if(el.dataset.type===&#x27;toggle&#x27;){el.classList.toggle(&#x27;on&#x27;,!!v);el.setAttribute(&#x27;aria-pressed&#x27;,!!v)}
+    else if(el.dataset.type===&#x27;range&#x27;&amp;&amp;document.activeElement!==el)el.value=v}}
+function tick(){SAMPLES[cur].tick(S);S.t++}
+function select(i){if(SAMPLES[cur]&amp;&amp;S&amp;&amp;SAMPLES[cur].onLeave)SAMPLES[cur].onLeave(S);cur=i;const d=SAMPLES[i];cv.width=d.w;cv.height=d.h;S=newState(d);
+  $(&#x27;nm&#x27;).textContent=d.name;$(&#x27;about&#x27;).textContent=d.about;
+  $(&#x27;tags&#x27;).innerHTML=&#x27;&lt;li class=&quot;h&quot;&gt;TECHNIQUES&lt;/li&gt;&#x27;+d.tags.map(t=&gt;`&lt;li&gt;${t}&lt;/li&gt;`).join(&#x27;&#x27;);
+  const box=$(&#x27;ctls&#x27;);box.innerHTML=&#x27;&#x27;;
+  for(const c of d.controls||[]){
+    if(c.type===&#x27;seg&#x27;){const lab=document.createElement(&#x27;span&#x27;);lab.className=&#x27;lab&#x27;;lab.textContent=c.label;const seg=document.createElement(&#x27;div&#x27;);seg.className=&#x27;seg&#x27;;seg.dataset.key=c.key;seg.dataset.type=&#x27;seg&#x27;;
+      for(const[v,l]of c.options){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=l;b.dataset.v=v;b.onclick=()=&gt;{S.opt[c.key]=v;d.onOpt&amp;&amp;d.onOpt(S,c.key);render()};seg.appendChild(b)}
+      box.append(lab,seg)}
+    else if(c.type===&#x27;toggle&#x27;){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=c.label;b.dataset.key=c.key;b.dataset.type=&#x27;toggle&#x27;;b.onclick=()=&gt;{S.opt[c.key]=!S.opt[c.key];d.onOpt&amp;&amp;d.onOpt(S,c.key);render()};box.append(b)}
+    else if(c.type===&#x27;range&#x27;){const lab=document.createElement(&#x27;label&#x27;);lab.className=&#x27;lab&#x27;;lab.textContent=c.label;lab.htmlFor=&#x27;rg-&#x27;+c.key;const r=document.createElement(&#x27;input&#x27;);r.type=&#x27;range&#x27;;r.id=&#x27;rg-&#x27;+c.key;r.min=c.min;r.max=c.max;r.step=&#x27;0.1&#x27;;r.dataset.key=c.key;r.dataset.type=&#x27;range&#x27;;
+      r.oninput=()=&gt;{S.opt[c.key]=+r.value;render()};box.append(lab,r)}
+    else if(c.type===&#x27;button&#x27;){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=c.label;b.onclick=()=&gt;{c.act(S);render()};box.append(b)}}
+  for(const[k,el]of [...$(&#x27;tabs&#x27;).children].entries())el.classList.toggle(&#x27;on&#x27;,k===i);
+  cv.style.touchAction=d.onPointer?&#x27;none&#x27;:&#x27;auto&#x27;;fit();render();try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+d.id)}catch(e){}}
+// speed control
+for(const[v,l]of [[0.25,&#x27;¼&#x27;],[0.5,&#x27;½&#x27;],[1,&#x27;1×&#x27;],[2,&#x27;2×&#x27;]]){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=l;b.dataset.v=v;b.onclick=()=&gt;{speed=v;for(const x of $(&#x27;spd&#x27;).children)x.classList.toggle(&#x27;on&#x27;,+x.dataset.v===speed)};$(&#x27;spd&#x27;).appendChild(b)}
+for(const x of $(&#x27;spd&#x27;).children)x.classList.toggle(&#x27;on&#x27;,+x.dataset.v===speed);
+function setPaused(p){paused=p;$(&#x27;play&#x27;).textContent=p?&#x27;播放&#x27;:&#x27;暂停&#x27;}
+$(&#x27;play&#x27;).onclick=()=&gt;setPaused(!paused);
+$(&#x27;stepb&#x27;).onclick=()=&gt;{setPaused(true);tick();render()};
+function cpos(e){const r=cv.getBoundingClientRect(),d=SAMPLES[cur];return[(e.clientX-r.left)/r.width*d.w,(e.clientY-r.top)/r.height*d.h]}
+cv.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{const d=SAMPLES[cur],p=cpos(e);if(d.onPointer){try{cv.setPointerCapture(e.pointerId)}catch(_){}d.onPointer(S,p[0],p[1],&#x27;down&#x27;,1);e.preventDefault()}if(d.onClick)d.onClick(S,p[0],p[1]);render()});
+cv.addEventListener(&#x27;pointermove&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onPointer){const p=cpos(e);d.onPointer(S,p[0],p[1],&#x27;move&#x27;,e.buttons)}});
+cv.addEventListener(&#x27;pointerup&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onPointer){const p=cpos(e);d.onPointer(S,p[0],p[1],&#x27;up&#x27;,0)}});
+addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.target.tagName===&#x27;INPUT&#x27;)return;const d=SAMPLES[cur];
+  if(d.onKey&amp;&amp;d.onKey(S,e.key,true)){e.preventDefault();return}
+  if(e.key===&#x27; &#x27;){e.preventDefault();setPaused(!paused)}else if(e.key===&#x27;ArrowRight&#x27;){e.preventDefault();setPaused(true);tick();render()}
+  else{const k=&#x27;1234567890-=&#x27;.indexOf(e.key);if(k&gt;=0&amp;&amp;k&lt;SAMPLES.length)select(k);else if(e.key===&#x27;[&#x27;||e.key===&#x27;]&#x27;)select((cur+(e.key===&#x27;]&#x27;?1:SAMPLES.length-1))%SAMPLES.length)}});
+addEventListener(&#x27;keyup&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onKey)d.onKey(S,e.key,false)});
+// thumbnails
+SAMPLES.forEach((d,i)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;tab&#x27;;const c=document.createElement(&#x27;canvas&#x27;);c.width=d.w;c.height=d.h;
+  const st=newState(d);for(let k=0;k&lt;(d.thumb||40);k++){d.tick(st);st.t++}const tg=c.getContext(&#x27;2d&#x27;);tg.imageSmoothingEnabled=false;d.draw(st,tg);
+  const tl=document.createElement(&#x27;span&#x27;);tl.className=&#x27;tl&#x27;;tl.innerHTML=`&lt;span class=&quot;k&quot;&gt;${i+1}&lt;/span&gt;${d.name}`;b.append(c,tl);b.onclick=()=&gt;select(i);$(&#x27;tabs&#x27;).appendChild(b)});
+new ResizeObserver(()=&gt;{if(S){fit();render()}}).observe(stage);
+new IntersectionObserver(es=&gt;{visible=es[0].isIntersecting}).observe(stage);
+const start=Math.max(0,SAMPLES.findIndex(d=&gt;&#x27;#&#x27;+d.id===location.hash));select(start);setPaused(paused);
+function loop(now){const dt=Math.min(0.25,(now-last)/1000);last=now;
+  if(!paused&amp;&amp;visible){acc+=dt*24*speed;let n=0;while(acc&gt;=1&amp;&amp;n&lt;8){tick();acc-=1;n++}if(n)render()}
+  requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</code></pre></html>

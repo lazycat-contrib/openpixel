@@ -1,0 +1,25 @@
+name: 作品运行问题
+description: 报告画面、操作或运行异常
+title: "[问题] "
+body:
+  - type: input
+    id: work
+    attributes:
+      label: 作品名称
+      placeholder: 例如：夜池 / night-pond
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 浏览器与操作系统
+      placeholder: 例如：Chrome 版本、Windows / macOS / Android
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤、实际结果与预期结果
+      description: 请写明通过本地文件还是本地服务器打开，可附截图或短录屏。
+    validations:
+      required: true

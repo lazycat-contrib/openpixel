@@ -1,0 +1,587 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>枯山水 · 源码</title><style>body{margin:0;background:#0d1513;color:#dbe4d7;font:14px/1.7 ui-monospace,Consolas,monospace}header{position:sticky;top:0;padding:16px 24px;background:#14221f;border-bottom:1px solid #34483e;display:flex;gap:24px;flex-wrap:wrap}a{color:#b7e99c}pre{padding:24px;overflow:auto;tab-size:2}</style><header><a href="index.html">← 返回作品</a><a href="source.js" download>下载 source.js</a><a href="README.md">修改说明</a><span>本页为源码预览；编辑 source.js 后刷新作品页</span></header><pre><code>// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 喵老弟 / MarkMFFF
+
+const PF={
+&#x27;0&#x27;:[&#x27;.###.&#x27;,&#x27;#..##&#x27;,&#x27;#.#.#&#x27;,&#x27;##..#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;1&#x27;:[&#x27;..#..&#x27;,&#x27;.##..&#x27;,&#x27;#.#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;#####&#x27;],
+&#x27;2&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;....#&#x27;,&#x27;..##.&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],&#x27;3&#x27;:[&#x27;####.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;.###.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;####.&#x27;],
+&#x27;4&#x27;:[&#x27;...#.&#x27;,&#x27;..##.&#x27;,&#x27;.#.#.&#x27;,&#x27;#..#.&#x27;,&#x27;#####&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;],&#x27;5&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],
+&#x27;6&#x27;:[&#x27;.###.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;7&#x27;:[&#x27;#####&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;.#...&#x27;,&#x27;.#...&#x27;],
+&#x27;8&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;9&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.####&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;.###.&#x27;],
+&#x27;A&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#####&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],&#x27;B&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;],
+&#x27;C&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;D&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;],
+&#x27;E&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],&#x27;F&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],
+&#x27;G&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#....&#x27;,&#x27;#.###&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.####&#x27;],&#x27;H&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#####&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;I&#x27;:[&#x27;###&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;###&#x27;],&#x27;J&#x27;:[&#x27;..###&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;,&#x27;#..#.&#x27;,&#x27;#..#.&#x27;,&#x27;.##..&#x27;],
+&#x27;K&#x27;:[&#x27;#...#&#x27;,&#x27;#..#.&#x27;,&#x27;#.#..&#x27;,&#x27;##...&#x27;,&#x27;#.#..&#x27;,&#x27;#..#.&#x27;,&#x27;#...#&#x27;],&#x27;L&#x27;:[&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],
+&#x27;M&#x27;:[&#x27;#...#&#x27;,&#x27;##.##&#x27;,&#x27;#.#.#&#x27;,&#x27;#.#.#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],&#x27;N&#x27;:[&#x27;#...#&#x27;,&#x27;##..#&#x27;,&#x27;#.#.#&#x27;,&#x27;#..##&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;O&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;P&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],
+&#x27;Q&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#.#.#&#x27;,&#x27;#..#.&#x27;,&#x27;.##.#&#x27;],&#x27;R&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#.#..&#x27;,&#x27;#..#.&#x27;,&#x27;#...#&#x27;],
+&#x27;S&#x27;:[&#x27;.####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;.###.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;####.&#x27;],&#x27;T&#x27;:[&#x27;#####&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;],
+&#x27;U&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;V&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;],
+&#x27;W&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#.#.#&#x27;,&#x27;#.#.#&#x27;,&#x27;##.##&#x27;,&#x27;#...#&#x27;],&#x27;X&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;.#.#.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;Y&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;],&#x27;Z&#x27;:[&#x27;#####&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],
+&#x27;+&#x27;:[&#x27;.....&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;#####&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;.....&#x27;],&#x27;-&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;],
+&#x27;!&#x27;:[&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;#&#x27;],&#x27;?&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;....#&#x27;,&#x27;..##.&#x27;,&#x27;..#..&#x27;,&#x27;.....&#x27;,&#x27;..#..&#x27;],&#x27;.&#x27;:[&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;],
+&#x27;:&#x27;:[&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;,&#x27;.&#x27;],&#x27;/&#x27;:[&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],&#x27;x&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;.#.#.&#x27;,&#x27;#...#&#x27;],
+&#x27;%&#x27;:[&#x27;##..#&#x27;,&#x27;##..#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#..##&#x27;,&#x27;#..##&#x27;],&quot;&#x27;&quot;:[&#x27;#&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;],&#x27;*&#x27;:[&#x27;.....&#x27;,&#x27;#.#.#&#x27;,&#x27;.###.&#x27;,&#x27;#####&#x27;,&#x27;.###.&#x27;,&#x27;#.#.#&#x27;,&#x27;.....&#x27;],
+&#x27;(&#x27;:[&#x27;.#&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;.#&#x27;],&#x27;)&#x27;:[&#x27;#.&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;#.&#x27;],&#x27;,&#x27;:[&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;.#&#x27;,&#x27;#.&#x27;],&#x27;=&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;],
+&#x27;&lt;&#x27;:[&#x27;...#&#x27;,&#x27;..#.&#x27;,&#x27;.#..&#x27;,&#x27;#...&#x27;,&#x27;.#..&#x27;,&#x27;..#.&#x27;,&#x27;...#&#x27;],&#x27;&gt;&#x27;:[&#x27;#...&#x27;,&#x27;.#..&#x27;,&#x27;..#.&#x27;,&#x27;...#&#x27;,&#x27;..#.&#x27;,&#x27;.#..&#x27;,&#x27;#...&#x27;],&#x27;#&#x27;:[&#x27;.#.#.&#x27;,&#x27;#####&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;#####&#x27;,&#x27;.#.#.&#x27;],
+&#x27;_&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;],&#x27; &#x27;:[&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;]};
+
+
+// ================= K: a small true-colour pixel core =================
+// A 480x270 colour buffer + emissive (for bloom) + depth. Each game owns its own renderer (voxel space, oblique heightfield,
+// folding paper) and writes final pixels here; K only handles text, sound, helpers, and the hand-off to the display.
+const K=(function(){
+const W=480,H=270,N=W*H;
+const col=new Uint32Array(N),em=new Uint8Array(N),dep=new Float32Array(N);
+const img=new ImageData(W,H),o32=new Uint32Array(img.data.buffer);
+const BW=W&gt;&gt;1,BH=H&gt;&gt;1,bimg=new ImageData(BW,BH),b32=new Uint32Array(bimg.data.buffer);
+const S={W,H,col,em,dep,img,bimg,frame:0,flash:0,flashC:0xffffff,fade:0,fadeC:0,raw:false,bloomK:1,shx:0,shy:0};
+// ---------------- colour helpers ----------------
+const rgb=(r,g,b)=&gt;((r&lt;0?0:r&gt;255?255:r|0)&lt;&lt;16)|((g&lt;0?0:g&gt;255?255:g|0)&lt;&lt;8)|(b&lt;0?0:b&gt;255?255:b|0);
+const hex=s=&gt;parseInt(s.replace(&#x27;#&#x27;,&#x27;&#x27;),16);
+function mix(a,b,t){if(t&lt;=0)return a;if(t&gt;=1)return b;const ar=a&gt;&gt;16&amp;255,ag=a&gt;&gt;8&amp;255,ab=a&amp;255;return rgb(ar+((b&gt;&gt;16&amp;255)-ar)*t,ag+((b&gt;&gt;8&amp;255)-ag)*t,ab+((b&amp;255)-ab)*t)}
+function mul(a,k){return rgb((a&gt;&gt;16&amp;255)*k,(a&gt;&gt;8&amp;255)*k,(a&amp;255)*k)}
+function mulc(a,kr,kg,kb){return rgb((a&gt;&gt;16&amp;255)*kr,(a&gt;&gt;8&amp;255)*kg,(a&amp;255)*kb)}
+function add(a,b){return rgb((a&gt;&gt;16&amp;255)+(b&gt;&gt;16&amp;255),(a&gt;&gt;8&amp;255)+(b&gt;&gt;8&amp;255),(a&amp;255)+(b&amp;255))}
+// a ramp is a hand-picked list of colours, dark to light; sampling snaps to a step (no gradients, no dither)
+const ramp=s=&gt;s.split(&#x27; &#x27;).map(hex);
+function rs(R,t){const n=R.length;let i=Math.floor(t*n);return R[i&lt;0?0:i&gt;=n?n-1:i]}
+// ---------------- random ----------------
+let seed=1;const rnd=()=&gt;{seed=(seed*1664525+1013904223)|0;return((seed&gt;&gt;&gt;8)&amp;0xffffff)/0x1000000};
+const rr=(a,b)=&gt;a+(b-a)*rnd(),ri=(a,b)=&gt;Math.floor(rr(a,b+1));
+function hash(x,y){let h=(x|0)*374761393+(y|0)*668265263;h=(h^(h&gt;&gt;&gt;13))*1274126177;h=h^(h&gt;&gt;&gt;16);return(h&gt;&gt;&gt;0)/4294967296}
+const pmod=(a,n)=&gt;((a%n)+n)%n;
+const clamp=(v,a,b)=&gt;v&lt;a?a:v&gt;b?b:v,lerp=(a,b,t)=&gt;a+(b-a)*t,sstep=(a,b,x)=&gt;{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+function vnoise(x,y,s){const X=Math.floor(x),Y=Math.floor(y),fx=x-X,fy=y-Y,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);s=s||0;
+  const a=hash(X+s,Y),b=hash(X+1+s,Y),c=hash(X+s,Y+1),d=hash(X+1+s,Y+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,y,o,s){let v=0,a=0.5,f=1;for(let i=0;i&lt;o;i++){v+=a*vnoise(x*f,y*f,(s||0)+i*31);f*=2;a*=0.5}return v/(1-Math.pow(0.5,o))}
+// ---------------- drawing ----------------
+function clear(c){col.fill(c);em.fill(0);dep.fill(1e9)}
+function px(x,y,c,e){x|=0;y|=0;if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)return;const p=y*W+x;col[p]=c;em[p]=e||0}
+function pxa(x,y,c,a,e){x|=0;y|=0;if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)return;const p=y*W+x;col[p]=mix(col[p],c,a);if(e)em[p]=Math.max(em[p],e)}
+function rect(x,y,w,h,c,e){x=Math.round(x);y=Math.round(y);for(let j=Math.max(0,y);j&lt;Math.min(H,y+h);j++)for(let i=Math.max(0,x);i&lt;Math.min(W,x+w);i++){const p=j*W+i;col[p]=c;em[p]=e||0}}
+function recta(x,y,w,h,c,a){x=Math.round(x);y=Math.round(y);for(let j=Math.max(0,y);j&lt;Math.min(H,y+h);j++)for(let i=Math.max(0,x);i&lt;Math.min(W,x+w);i++){const p=j*W+i;col[p]=mix(col[p],c,a)}}
+function line(x0,y0,x1,y1,c,e){x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0&lt;x1?1:-1,sy=y0&lt;y1?1:-1;let er=dx+dy;
+  for(let k=0;k&lt;3000;k++){px(x0,y0,c,e);if(x0===x1&amp;&amp;y0===y1)break;const e2=2*er;if(e2&gt;=dy){er+=dy;x0+=sx}if(e2&lt;=dx){er+=dx;y0+=sy}}}
+function disc(cx,cy,r,c,e){for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy;if(dx*dx+dy*dy&lt;=r*r)px(x,y,c,e)}}
+function disca(cx,cy,r,c,a){for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy;if(dx*dx+dy*dy&lt;=r*r)pxa(x,y,c,a)}}
+function ring(cx,cy,r,w,c,e){const r0=Math.max(0,r-w);for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy,d=dx*dx+dy*dy;if(d&lt;=r*r&amp;&amp;d&gt;=r0*r0)px(x,y,c,e)}}
+// soft additive glow (goes to colour and to bloom)
+function glow(cx,cy,r,c,k){const cr=(c&gt;&gt;16&amp;255)*k,cg=(c&gt;&gt;8&amp;255)*k,cb=(c&amp;255)*k;for(let y=Math.max(0,Math.floor(cy-r));y&lt;=Math.min(H-1,Math.ceil(cy+r));y++)for(let x=Math.max(0,Math.floor(cx-r));x&lt;=Math.min(W-1,Math.ceil(cx+r));x++){
+  const dx=x+0.5-cx,dy=y+0.5-cy,d=(dx*dx+dy*dy)/(r*r);if(d&gt;=1)continue;const a=(1-d)*(1-d),p=y*W+x,o=col[p];col[p]=rgb((o&gt;&gt;16&amp;255)+cr*a,(o&gt;&gt;8&amp;255)+cg*a,(o&amp;255)+cb*a);em[p]=Math.min(255,em[p]+a*120*k)}}
+// sprites: rows of chars mapped through a palette object; &#x27;.&#x27; is empty
+function spr(rows,map){const h=rows.length,w=Math.max(...rows.map(r=&gt;r.length)),c=new Int32Array(w*h).fill(-1);
+  for(let y=0;y&lt;h;y++)for(let x=0;x&lt;rows[y].length;x++){const ch=rows[y][x];if(ch===&#x27;.&#x27;||ch===&#x27; &#x27;)continue;const m=map[ch];if(m==null)throw new Error(&#x27;sprite char &#x27;+ch);c[y*w+x]=m}return{w,h,c}}
+function blit(s,x,y,o){o=o||{};x=Math.round(x);y=Math.round(y);const fl=o.flip,tint=o.tint,ta=o.ta||0,e=o.em||0,al=o.a;
+  for(let j=0;j&lt;s.h;j++){const Y=y+j;if(Y&lt;0||Y&gt;=H)continue;for(let i=0;i&lt;s.w;i++){let c=s.c[j*s.w+(fl?s.w-1-i:i)];if(c&lt;0)continue;const X=x+i;if(X&lt;0||X&gt;=W)continue;const p=Y*W+X;
+    if(tint!=null)c=mix(c,tint,ta);if(al!=null)col[p]=mix(col[p],c,al);else col[p]=c;em[p]=e}}}
+// ---------------- text: 5x7 latin, 3x5 digits, CJK rasterised from the system font at 4x ----------------
+const S8=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
+function ptext(str,x,y,c,o){o=o||{};const sc=o.scale||1,e=o.em||0;str=String(str).toUpperCase();let w=0;for(const ch of str){const g=PF[ch]||PF[&#x27; &#x27;];w+=(g[0].length+1)*sc}w-=sc;
+  if(o.align===&#x27;c&#x27;)x-=Math.floor(w/2);else if(o.align===&#x27;r&#x27;)x-=w;x=Math.round(x);y=Math.round(y);
+  const pass=(cc,dx,dy,ee)=&gt;{let cx=x;for(const ch of str){const g=PF[ch]||PF[&#x27; &#x27;];for(let j=0;j&lt;7;j++)for(let i=0;i&lt;g[j].length;i++)if(g[j][i]===&#x27;#&#x27;)rect(cx+i*sc+dx,y+j*sc+dy,sc,sc,cc,ee);cx+=(g[0].length+1)*sc}};
+  if(o.ink!=null)for(const[dx,dy]of S8)pass(o.ink,dx,dy,0);if(o.shadow!=null)pass(o.shadow,sc,sc,0);pass(c,0,0,e);return w}
+const GC=new Map();let gcv=null,gcg=null;
+const FAM=&#x27;&quot;PingFang SC&quot;,&quot;Hiragino Sans GB&quot;,&quot;Noto Sans SC&quot;,&quot;Noto Sans CJK SC&quot;,&quot;Microsoft YaHei&quot;,&quot;WenQuanYi Zen Hei&quot;,sans-serif&#x27;;
+const FAMS={kai:&#x27;&quot;Kaiti SC&quot;,&quot;STKaiti&quot;,&quot;KaiTi&quot;,&quot;AR PL UKai CN&quot;,&quot;Noto Serif SC&quot;,&quot;Noto Serif CJK SC&quot;,&quot;Songti SC&quot;,serif&#x27;,serif:&#x27;&quot;Songti SC&quot;,&quot;Noto Serif SC&quot;,&quot;Noto Serif CJK SC&quot;,&quot;SimSun&quot;,serif&#x27;};
+function glyph(ch,size,bold,fam){const key=ch+&#x27;|&#x27;+size+&#x27;|&#x27;+(bold?1:0)+&#x27;|&#x27;+(fam||&#x27;&#x27;);let G=GC.get(key);if(G)return G;
+  if(ch===&#x27; &#x27;){G={w:Math.round(size*0.35),px:[]};GC.set(key,G);return G}
+  const KK=4;if(!gcv){gcv=document.createElement(&#x27;canvas&#x27;);gcg=gcv.getContext(&#x27;2d&#x27;,{willReadFrequently:true})}
+  const f=(bold?&#x27;bold &#x27;:&#x27;&#x27;)+(size*KK)+&#x27;px &#x27;+(fam?FAMS[fam]||fam:FAM);gcg.font=f;const mw=gcg.measureText(ch).width;const w=Math.max(1,Math.round(mw/KK)),h=size+3;
+  gcv.width=(w+2)*KK;gcv.height=h*KK;gcg.font=f;gcg.textBaseline=&#x27;top&#x27;;gcg.fillStyle=&#x27;#fff&#x27;;gcg.fillText(ch,KK,KK*0.5);
+  const d=gcg.getImageData(0,0,gcv.width,gcv.height).data,pp=[],CW=gcv.width;
+  for(let y=0;y&lt;h;y++)for(let x=0;x&lt;w+2;x++){let s=0;for(let j=0;j&lt;KK;j++)for(let i=0;i&lt;KK;i++)s+=d[((y*KK+j)*CW+x*KK+i)*4+3];if(s/(KK*KK*255)&gt;(bold?0.42:0.34))pp.push(x-1,y)}
+  G={w,px:pp};GC.set(key,G);return G}
+function measure(str,size,bold,fam){let w=0;for(const ch of String(str))w+=glyph(ch,size,bold,fam).w;return w}
+// o: size, bold, align, ink (outline), shadow, em, sp (letter spacing), a (alpha)
+function text(str,x,y,c,o){o=o||{};const size=o.size||12,sp=o.sp||0;str=String(str);const w=measure(str,size,o.bold,o.fam)+sp*(str.length-1);if(o.align===&#x27;c&#x27;)x-=Math.floor(w/2);else if(o.align===&#x27;r&#x27;)x-=w;x=Math.round(x);y=Math.round(y);
+  const a=o.a==null?1:o.a;const put=a&gt;=1?(X,Y,cc,ee)=&gt;px(X,Y,cc,ee):(X,Y,cc,ee)=&gt;pxa(X,Y,cc,a,ee);
+  const pass=(cc,dx,dy,ee,list)=&gt;{let cx=x;for(const ch of str){const G=glyph(ch,size,o.bold,o.fam);const q=G.px;for(let i=0;i&lt;q.length;i+=2)for(const[ax,ay]of list)put(cx+q[i]+dx+ax,y+q[i+1]+dy+ay,cc,ee);cx+=G.w+sp}};
+  if(o.ink!=null)pass(o.ink,0,0,0,S8);if(o.shadow!=null)pass(o.shadow,1,1,0,[[0,0]]);pass(c,0,0,o.em||0,[[0,0]]);return w}
+// ---------------- present: grade, flash/fade, bloom bright-pass from emissive ----------------
+function present(){const raw=S.raw,fl=S.flash,fc=S.flashC,fd=S.fade,fdc=S.fadeC;
+  for(let p=0;p&lt;N;p++){let c=col[p];if(!raw){if(fd&gt;0)c=mix(c,fdc,fd);if(fl&gt;0)c=mix(c,fc,fl)}o32[p]=0xff000000|(c&amp;255)&lt;&lt;16|(c&amp;0xff00)|(c&gt;&gt;16&amp;255)}
+  const k=S.bloomK;for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const p=(y*2)*W+x*2;let r=0,g=0,b=0;
+    for(let j=0;j&lt;4;j++){const q=p+(j&amp;1)+(j&gt;&gt;1)*W,e=em[q];if(!e)continue;const c=col[q],f=e/255*k;r+=(c&gt;&gt;16&amp;255)*f;g+=(c&gt;&gt;8&amp;255)*f;b+=(c&amp;255)*f}
+    r=Math.min(255,r/4);g=Math.min(255,g/4);b=Math.min(255,b/4);b32[y*BW+x]=0xff000000|(b&lt;&lt;16)|(g&lt;&lt;8)|r}}
+// ---------------- sound: a tiny WebAudio synth ----------------
+const SND={on:false,ctx:null,last:{},master:null,nb:null,amb:null};
+function sndInit(){if(SND.ctx)return;try{const C=new (window.AudioContext||window.webkitAudioContext)();SND.ctx=C;SND.master=C.createGain();SND.master.gain.value=0.5;
+  const comp=C.createDynamicsCompressor();SND.master.connect(comp);comp.connect(C.destination);
+  const nb=C.createBuffer(1,C.sampleRate*2,C.sampleRate),d=nb.getChannelData(0);for(let i=0;i&lt;d.length;i++)d[i]=Math.random()*2-1;SND.nb=nb}catch(e){SND.ctx=null}}
+function tone(type,f0,f1,dur,vol,t0,att){const C=SND.ctx,o=C.createOscillator(),g=C.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);
+  if(att){g.gain.setValueAtTime(0.0008,t0);g.gain.exponentialRampToValueAtTime(vol,t0+att)}else g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);o.connect(g);g.connect(SND.master);o.start(t0);o.stop(t0+dur+0.02)}
+function noise(dur,vol,t0,ftype,f0,f1,q,att){const C=SND.ctx,s=C.createBufferSource(),f=C.createBiquadFilter(),g=C.createGain();s.buffer=SND.nb;f.type=ftype||&#x27;lowpass&#x27;;f.frequency.setValueAtTime(f0||3000,t0);f.frequency.exponentialRampToValueAtTime(Math.max(30,f1||f0||3000),t0+dur);f.Q.value=q||0.7;
+  if(att){g.gain.setValueAtTime(0.0008,t0);g.gain.exponentialRampToValueAtTime(vol,t0+att)}else g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);s.connect(f);f.connect(g);g.connect(SND.master);s.start(t0,Math.random()*1);s.stop(t0+dur+0.02)}
+// a looping filtered-noise bed whose level and colour a game sets every frame (wind, rain, crowd)
+function bed(name,ftype,f,q){if(!SND.ctx)return null;SND.beds=SND.beds||{};if(SND.beds[name])return SND.beds[name];const C=SND.ctx,s=C.createBufferSource(),fl=C.createBiquadFilter(),g=C.createGain();
+  s.buffer=SND.nb;s.loop=true;fl.type=ftype;fl.frequency.value=f;fl.Q.value=q||0.7;g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(SND.master);s.start();return SND.beds[name]={g,fl}}
+function bedSet(name,vol,f){const b=SND.beds&amp;&amp;SND.beds[name];if(!b)return;const t=SND.ctx.currentTime;b.g.gain.setTargetAtTime(SND.on?vol:0,t,0.15);if(f)b.fl.frequency.setTargetAtTime(f,t,0.2)}
+function bedsOff(){if(!SND.beds)return;for(const k in SND.beds)SND.beds[k].g.gain.setTargetAtTime(0,SND.ctx.currentTime,0.1)}
+function now(){return SND.ctx?SND.ctx.currentTime:0}
+const live=()=&gt;SND.on&amp;&amp;SND.ctx&amp;&amp;!S.mute;
+return {W,H,N,S,rgb,hex,mix,mul,mulc,add,ramp,rs,rnd,rr,ri,hash,pmod,clamp,lerp,sstep,vnoise,fbm,setSeed:v=&gt;{seed=v|0},
+  clear,px,pxa,rect,recta,line,disc,disca,ring,glow,spr,blit,ptext,text,measure,glyph,present,
+  SND,sndInit,tone,noise,bed,bedSet,bedsOff,now,live};
+})();
+
+const GAMES=[];
+
+
+// ================= 枯山水: rake a dry garden =================
+// A temple garden seen from the veranda. The white gravel is a height field; the rake writes groove profiles into it
+// along its path (grooves follow the stroke, five tines), and every pixel is relit each frame from its slope, so ridges
+// catch the sun and grooves fall into shade. Rocks are faceted (Voronoi facets over a distance-field dome), sit on moss
+// islands and cast shadows that swing with the time of day. A maple drops leaves; the rake pushes them. Rain softens
+// and slowly erases the patterns. Tap a rock and the rake draws rings around it.
+const ZEN=(function(){const {W,H,S,mix,clamp,lerp,hash,fbm,rgb}=K;const col=S.col,em=S.em,N=W*H;
+const FS=0.62,GY0=66,GY1=228,P=6.2;// foreshortening, gravel rows, groove period (world px)
+const GH=new Float32Array(N);// gravel height (only rows GY0..GY1 used)
+const MAT=new Uint8Array(N);// 0 sky,1 lit static,2 gravel,3 rock,4 moss,5 dark (unlit),6 lantern window
+const ALB=new Uint32Array(N),NX=new Float32Array(N),NY=new Float32Array(N),NZ=new Float32Array(N);
+const BLK=new Uint8Array(N);// 1 = rake cannot write here (rocks, moss)
+const SH=new Uint8Array(N);// static cast shadow mask (rocks, lantern, wall), rebuilt when the sun moves
+const DP=new Uint8Array(N);// dapple mask from maple leaves
+const FACE=new Int16Array(N).fill(-1);// rock facet id (for crack lines)
+let built=false;
+// ---------------- palettes ----------------
+const GR=K.ramp(&#x27;#5f5b52 #7d796d #9c978a #b7b2a3 #cdc9b9 #dfdccd #eeebdf&#x27;);// gravel, dark-&gt;light
+const STONE=K.ramp(&#x27;#2e2c2c #45403c #5b554e #716a60 #898072 #a19887&#x27;);
+const MOSS=K.ramp(&#x27;#1e2a14 #2c3d18 #3d5320 #52692a #6b8034 #879a44&#x27;);
+// ---------------- light by time of day ----------------
+const KEYS=[// L toward the light (x right, y into the scene, z up), sun colour, ambient
+  {L:[-0.78,-0.22,0.52],c:[0.86,0.7,0.52],a:[0.34,0.38,0.5],sky:[&#x27;#f3d6b0&#x27;,&#x27;#9ec0d8&#x27;],fol:0x23361f},
+  {L:[-0.3,-0.36,0.88],c:[0.72,0.7,0.66],a:[0.4,0.42,0.48],sky:[&#x27;#e9f1f4&#x27;,&#x27;#8db8dc&#x27;],fol:0x2a4426},
+  {L:[0.82,-0.3,0.36],c:[0.98,0.56,0.32],a:[0.3,0.26,0.4],sky:[&#x27;#ffb46a&#x27;,&#x27;#6a5a8a&#x27;],fol:0x2a2a22},
+  {L:[0.35,0.42,0.72],c:[0.26,0.34,0.56],a:[0.08,0.1,0.18],sky:[&#x27;#1c2a4a&#x27;,&#x27;#0a0e1e&#x27;],fol:0x0c1210}];
+const LT={L:[0,0,1],c:[1,1,1],a:[0.5,0.5,0.5],night:0,skyA:0,skyB:0,fol:0};
+function norm3(v){const l=Math.hypot(v[0],v[1],v[2]);return[v[0]/l,v[1]/l,v[2]/l]}
+function setLight(tod){// tod 0..4 cycles through the four keys
+  const i=Math.floor(tod)%4,j=(i+1)%4,f=K.sstep(0.55,1,tod-Math.floor(tod));const A=KEYS[i],B=KEYS[j];
+  LT.L=norm3([lerp(A.L[0],B.L[0],f),lerp(A.L[1],B.L[1],f),lerp(A.L[2],B.L[2],f)]);
+  for(let k=0;k&lt;3;k++){LT.c[k]=lerp(A.c[k],B.c[k],f);LT.a[k]=lerp(A.a[k],B.a[k],f)}
+  LT.skyA=mix(K.hex(A.sky[0]),K.hex(B.sky[0]),f);LT.skyB=mix(K.hex(A.sky[1]),K.hex(B.sky[1]),f);LT.fol=mix(A.fol,B.fol,f);
+  LT.night=i===3?1-f:j===3?f:0}
+// quantised light: 6 steps of direct light, so shading stays banded while the colour of the light drifts
+function overcast(r){if(r&lt;=0)return;const k=1-0.72*r;for(let i=0;i&lt;3;i++){LT.c[i]*=k;LT.a[i]=LT.a[i]*(1+0.25*r)}LT.skyA=mix(LT.skyA,0x9a9ea4,r*0.8);LT.skyB=mix(LT.skyB,0x7a7e86,r*0.8);LT.fol=mix(LT.fol,0x2a302c,r*0.4)}
+function lightK(ndl,sh){let d=ndl&lt;=0?0:Math.min(1,ndl);d=Math.round(d*6)/6;return d*sh}
+function shade(c,ndl,sh,extra){const d=lightK(ndl,sh);const r=(c&gt;&gt;16&amp;255),g=(c&gt;&gt;8&amp;255),b=(c&amp;255);const e=extra||0;
+  return rgb(r*(LT.a[0]+LT.c[0]*d+e*1.25),g*(LT.a[1]+LT.c[1]*d+e*0.82),b*(LT.a[2]+LT.c[2]*d+e*0.42))}
+// ---------------- geometry helpers ----------------
+function polyMask(pts){const m=new Uint8Array(N);let y0=1e9,y1=-1e9;for(const p of pts){y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}
+  for(let y=Math.max(0,Math.floor(y0));y&lt;=Math.min(H-1,Math.ceil(y1));y++){const xs=[];const yc=y+0.5;
+    for(let i=0;i&lt;pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];if((a[1]&lt;=yc)!==(b[1]&lt;=yc))xs.push(a[0]+(yc-a[1])/(b[1]-a[1])*(b[0]-a[0]))}
+    xs.sort((a,b)=&gt;a-b);for(let k=0;k+1&lt;xs.length;k+=2)for(let x=Math.max(0,Math.round(xs[k]));x&lt;Math.min(W,Math.round(xs[k+1]));x++)m[y*W+x]=1}return m}
+function chamfer(m,x0,y0,x1,y1){const d=new Float32Array(N).fill(0);for(let y=y0;y&lt;=y1;y++)for(let x=x0;x&lt;=x1;x++){const p=y*W+x;d[p]=m[p]?1e6:0}
+  for(let y=y0;y&lt;=y1;y++)for(let x=x0;x&lt;=x1;x++){const p=y*W+x;if(!d[p])continue;let v=d[p];if(x&gt;x0)v=Math.min(v,d[p-1]+1);if(y&gt;y0)v=Math.min(v,d[p-W]+1);if(x&gt;x0&amp;&amp;y&gt;y0)v=Math.min(v,d[p-W-1]+1.414);if(x&lt;x1&amp;&amp;y&gt;y0)v=Math.min(v,d[p-W+1]+1.414);d[p]=v}
+  for(let y=y1;y&gt;=y0;y--)for(let x=x1;x&gt;=x0;x--){const p=y*W+x;if(!d[p])continue;let v=d[p];if(x&lt;x1)v=Math.min(v,d[p+1]+1);if(y&lt;y1)v=Math.min(v,d[p+W]+1);if(x&lt;x1&amp;&amp;y&lt;y1)v=Math.min(v,d[p+W+1]+1.414);if(x&gt;x0&amp;&amp;y&lt;y1)v=Math.min(v,d[p+W-1]+1.414);d[p]=v}return d}
+// ---------------- rocks ----------------
+// each rock: silhouette (screen), footprint centre and radii (for rings and shadows), facet seeds
+const ROCKS=[
+  {pts:[[122,154],[124,142],[129,128],[135,114],[142,104],[149,97],[155,95],[161,99],[165,108],[170,120],[175,133],[179,145],[180,154],[170,159],[150,161],[132,160]],cx:151,cy:153,rx:30,ry:9,seed:3,ring:3},
+  {pts:[[178,160],[181,150],[188,145],[196,146],[202,151],[205,160],[196,164],[185,164]],cx:191,cy:158,rx:15,ry:6,seed:9,ring:0},
+  {pts:[[282,182],[286,172],[296,166],[312,163],[330,163],[346,167],[354,174],[356,184],[340,190],[310,191],[290,189]],cx:318,cy:182,rx:38,ry:10,seed:5,ring:4},
+  {pts:[[380,124],[382,113],[388,104],[395,101],[401,105],[405,114],[407,124],[399,128],[388,128]],cx:393,cy:124,rx:15,ry:5,seed:14,ring:3},
+  {pts:[[96,206],[99,199],[106,195],[115,196],[120,202],[119,208],[108,211],[100,210]],cx:108,cy:206,rx:13,ry:5,seed:21,ring:2}];
+const MOSSI=[{cx:160,cy:156,rx:56,ry:15,seed:2},{cx:320,cy:184,rx:50,ry:12,seed:7},{cx:393,cy:125,rx:22,ry:6,seed:11},{cx:52,cy:76,rx:60,ry:12,seed:4}];
+function buildRock(r,ri){const m=polyMask(r.pts);let x0=W,y0=H,x1=0,y1=0;for(const p of r.pts){x0=Math.min(x0,p[0]|0);x1=Math.max(x1,Math.ceil(p[0]));y0=Math.min(y0,p[1]|0);y1=Math.max(y1,Math.ceil(p[1]))}
+  x0=Math.max(0,x0-2);y0=Math.max(0,y0-2);x1=Math.min(W-1,x1+2);y1=Math.min(H-1,y1+2);const d=chamfer(m,x0,y0,x1,y1);
+  // facet seeds: a loose grid jittered by the rock&#x27;s seed
+  const seeds=[];K.setSeed(r.seed*977);const n=Math.max(5,Math.round((x1-x0)*(y1-y0)/150));
+  for(let k=0;k&lt;n*3&amp;&amp;seeds.length&lt;n;k++){const x=K.rr(x0,x1),y=K.rr(y0,y1);if(!m[(y|0)*W+(x|0)])continue;if(seeds.some(s=&gt;Math.hypot(s.x-x,(s.y-y)*1.2)&lt;7))continue;seeds.push({x,y,n:[0,0,0],c:0})}
+  const own=new Int16Array((x1-x0+1)*(y1-y0+1)).fill(-1);
+  for(let y=y0;y&lt;=y1;y++)for(let x=x0;x&lt;=x1;x++){const p=y*W+x;if(!m[p])continue;let best=0,bd=1e9;for(let k=0;k&lt;seeds.length;k++){const s=seeds[k],dd=(s.x-x)**2+((s.y-y)*1.3)**2;if(dd&lt;bd){bd=dd;best=k}}
+    own[(y-y0)*(x1-x0+1)+(x-x0)]=best;const gx=(d[p+1]-d[p-1]),gy=(d[p+W]-d[p-W]);const dh=Math.sqrt(Math.max(0,d[p]));
+    // dome normal in screen terms: ex right, ey down, ez to camera; then into world (x, depth, up)
+    let ex=-gx*0.5,ey=-gy*0.5,ez=0.35+dh*0.18;const l=Math.hypot(ex,ey,ez);ex/=l;ey/=l;ez/=l;const s=seeds[best];s.n[0]+=ex;s.n[1]+=-ez*0.8;s.n[2]+=-ey+ez*0.35;s.c++}
+  for(const s of seeds){const jit=[K.rr(-0.25,0.25),K.rr(-0.2,0.2),K.rr(-0.15,0.15)];s.n=norm3([s.n[0]/s.c+jit[0],s.n[1]/s.c+jit[1],s.n[2]/s.c+jit[2]+0.15])}
+  for(let y=y0;y&lt;=y1;y++)for(let x=x0;x&lt;=x1;x++){const p=y*W+x;if(!m[p])continue;const k=own[(y-y0)*(x1-x0+1)+(x-x0)],s=seeds[k];
+    MAT[p]=3;BLK[p]=1;FACE[p]=ri*64+k;NX[p]=s.n[0];NY[p]=s.n[1];NZ[p]=s.n[2];
+    const lich=fbm(x*0.21,y*0.27,3,ri*13);let a=STONE[3];if(lich&gt;0.66)a=STONE[4];else if(lich&lt;0.3)a=STONE[2];
+    if(s.n[2]&gt;0.55&amp;&amp;fbm(x*0.12,y*0.15,3,ri*7+50)&gt;0.5)a=hash(x,y)&lt;0.5?MOSS[3]:MOSS[4];// moss on the tops
+    ALB[p]=a}
+  // footprint shadow anchor rows for each column
+  r.mask=m;r.box=[x0,y0,x1,y1]}
+function buildMoss(mi){const {cx,cy,rx,ry,seed}=mi;for(let y=Math.floor(cy-ry-6);y&lt;=cy+ry+6;y++)for(let x=Math.floor(cx-rx-8);x&lt;=cx+rx+8;x++){if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)continue;
+    const dx=(x-cx)/rx,dy=(y-cy)/ry;const n=fbm(x*0.08,y*0.12,3,seed*5)*0.55;const r=Math.sqrt(dx*dx+dy*dy)+n-0.27;if(r&gt;1)continue;const p=y*W+x;if(MAT[p]===3)continue;
+    // cushion bumps: small domes from a noise field
+    const b=fbm(x*0.32,y*0.5,2,seed*9+3);const bx=fbm((x+1)*0.32,y*0.5,2,seed*9+3)-b,by=fbm(x*0.32,(y+1)*0.5,2,seed*9+3)-b;const edge=1-r;
+    MAT[p]=4;BLK[p]=1;const nn=norm3([-bx*5,-by*3-(edge&lt;0.15?0.4:0),1]);NX[p]=nn[0];NY[p]=nn[1];NZ[p]=nn[2];
+    let a=b&gt;0.62?MOSS[4]:b&gt;0.48?MOSS[3]:MOSS[2];if(edge&lt;0.12)a=MOSS[2];if(hash(x*3,y*7)&lt;0.04)a=MOSS[5];ALB[p]=a}}
+// ---------------- static scene: sky, foliage, roof, wall, lantern, veranda ----------------
+const LAN={x:40,base:88,top:36};// stone lantern foot
+function setS(x,y,c,n,m){if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)return;const p=y*W+x;ALB[p]=c;MAT[p]=m==null?1:m;NX[p]=n[0];NY[p]=n[1];NZ[p]=n[2]}
+const NUP=[0,0,1],NFRONT=[0,-1,0.15],NLEFT=[-0.8,-0.5,0.2],NRIGHT=[0.8,-0.5,0.2],NDOWN=[0,-0.6,-0.8];
+function build(){if(built)return;built=true;
+  // sky and the dark trees beyond the wall are drawn per frame (MAT 0); here mark them
+  for(let y=0;y&lt;GY0;y++)for(let x=0;x&lt;W;x++)MAT[y*W+x]=0;
+  // roof: tiles along the wall top
+  for(let x=0;x&lt;W;x++){for(let y=12;y&lt;20;y++){const t=(x%6),row=y-12;let c=0x3a3c40,n=NUP;if(row&lt;2){c=0x4a4c52;n=[0,0.3,1]}else if(row&gt;=6){c=0x2a2c30;n=NFRONT}else{c=t&lt;3?0x45474c:0x3a3c40;n=t&lt;2?[-0.4,-0.2,0.9]:t&gt;3?[0.4,-0.2,0.9]:NUP}setS(x,y,c,n)}
+    // round tile ends
+    const t=x%6;setS(x,20,t===0||t===5?0x1c1d20:0x50535a,NFRONT);setS(x,21,t===0||t===5?0x1c1d20:0x3e4046,NFRONT);setS(x,22,t&gt;0&amp;&amp;t&lt;5?0x2a2c30:0x1c1d20,NDOWN)}
+  for(let x=0;x&lt;W;x++)setS(x,11,0x2e3034,[0,0.2,1]);
+  // plaster wall with five horizontal rank lines, rain stains, a darker base
+  for(let y=23;y&lt;60;y++)for(let x=0;x&lt;W;x++){let c=0xc8a66c;const n=fbm(x*0.03,y*0.11,4,40);if(n&gt;0.6)c=mix(c,0x8c7650,clamp((n-0.6)*2.5,0,0.7));
+    const st=fbm(x*0.2,y*0.02,3,41);if(st&gt;0.68&amp;&amp;y&gt;30)c=mix(c,0x7a6a4c,0.35);
+    let nn=NFRONT;if(y&gt;=55){c=0x6c665c;if((x+((y&gt;&gt;1)&amp;1)*7)%14===0||y===55)c=0x4a4640}
+    for(const ly of [29,34,39,44,49])if(y===ly){c=0xf2ead8;nn=[0,-0.8,0.5]}else if(y===ly+1)c=mix(c,0x6a5a3c,0.4);
+    setS(x,y,c,nn)}
+  for(let x=0;x&lt;W;x++){setS(x,23,0x5a4a34,NDOWN);setS(x,24,0x7a6648,NDOWN)}
+  // the strip where wall meets gravel: dark river-stone edging
+  for(let y=60;y&lt;GY0;y++)for(let x=0;x&lt;W;x++){const h=hash(x&gt;&gt;1,y);const c=h&lt;0.4?0x4a4844:h&lt;0.75?0x5c5954:0x6e6a62;setS(x,y,c,y===60?NDOWN:NUP)}
+  // moss and rocks
+  for(const m of MOSSI)buildMoss(m);ROCKS.forEach(buildRock);
+  const L=LAN.x,B=LAN.base;
+  // stone lantern (kasuga-ish), profile rows from the top: [halfwidth, kind]; kinds t top, f front, e edge, u underside, w window band
+  const PROF=[[1,&#x27;t&#x27;],[2,&#x27;f&#x27;],[2,&#x27;f&#x27;],[1,&#x27;u&#x27;],[3,&#x27;t&#x27;],[4,&#x27;f&#x27;],[5,&#x27;t&#x27;],[6,&#x27;t&#x27;],[8,&#x27;t&#x27;],[10,&#x27;t&#x27;],[12,&#x27;t&#x27;],[14,&#x27;t&#x27;],[15,&#x27;e&#x27;],[13,&#x27;u&#x27;],
+    [8,&#x27;b&#x27;],[8,&#x27;f&#x27;],[8,&#x27;w&#x27;],[8,&#x27;w&#x27;],[8,&#x27;w&#x27;],[8,&#x27;w&#x27;],[8,&#x27;w&#x27;],[8,&#x27;w&#x27;],[8,&#x27;f&#x27;],[8,&#x27;b&#x27;],[11,&#x27;t&#x27;],[11,&#x27;f&#x27;],[11,&#x27;f&#x27;],[9,&#x27;u&#x27;],
+    [3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[4,&#x27;b&#x27;],[4,&#x27;f&#x27;],[4,&#x27;b&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],[3,&#x27;f&#x27;],
+    [7,&#x27;t&#x27;],[8,&#x27;f&#x27;],[8,&#x27;f&#x27;],[8,&#x27;f&#x27;],[10,&#x27;t&#x27;],[10,&#x27;f&#x27;],[10,&#x27;f&#x27;]];
+  const top=B-PROF.length;
+  PROF.forEach(([hw,k],j)=&gt;{const y=top+j;for(let i=-hw;i&lt;=hw;i++){const x=L+i;const side=i&lt;-hw*0.45?-1:i&gt;hw*0.45?1:0;let c=0x8a847a,n=side&lt;0?NLEFT:side&gt;0?NRIGHT:NFRONT;
+      if(k===&#x27;t&#x27;){n=[side*0.35,0.1,1];c=0x948e82;if(j&gt;=6&amp;&amp;j&lt;=11&amp;&amp;fbm(x*0.4,y*0.6,2,70)&gt;0.6)c=0x5a6a34}
+      else if(k===&#x27;e&#x27;){c=0x6e685e;n=NFRONT}else if(k===&#x27;u&#x27;){c=0x3a3632;n=NDOWN}else if(k===&#x27;b&#x27;){c=0x9a9488}
+      else if(k===&#x27;w&#x27;&amp;&amp;Math.abs(i)&lt;=4){c=0x1c1814;if(i===0||j===19)c=0x6e685e;else{const p=y*W+x;setS(x,y,c,NFRONT,6);continue}}
+      if(hash(x*5,y*3)&lt;0.12)c=mix(c,0x4a4640,0.35);if(i===-hw&amp;&amp;k!==&#x27;t&#x27;)c=mix(c,0xb0aa9c,0.35);setS(x,y,c,n)}});
+  setS(L-16,top+11,0x948e82,[0,0.1,1]);setS(L+16,top+11,0x948e82,[0,0.1,1]);setS(L-16,top+10,0x948e82,[0,0.1,1]);setS(L+16,top+10,0x948e82,[0,0.1,1]);
+  LAN.top=top;
+  // tsukubai basin and the bamboo deer-scarer frame (the moving pipe is drawn per frame)
+  for(let y=-6;y&lt;=6;y++)for(let x=-12;x&lt;=12;x++){const d=(x/12)**2+(y/5.5)**2;if(d&gt;1)continue;const p=(90+y)*W+84+x;const top=y&lt;0&amp;&amp;d&lt;0.6;setS(84+x,90+y,top?(d&lt;0.45?0x1a2a34:0x8a847a):0x6e695f,top?NUP:(x&lt;-4?NLEFT:x&gt;4?NRIGHT:NFRONT));BLK[p]=1}
+    // veranda: weathered planks, a front beam, the posts&#x27; feet at the edges
+  for(let y=GY1;y&lt;H;y++)for(let x=0;x&lt;W;x++){let c,n=NUP;const yy=y-GY1;
+    if(yy&lt;3){c=yy===0?0x2a1c12:0x5a4028;n=NFRONT}else{const pl=Math.floor((yy-3)/9),lp=(yy-3)%9;const g=fbm(x*0.05,y*0.6,3,60+pl);c=mix(0x8a6a48,0x6a4c32,g);if(hash(pl,(x/70)|0)&lt;0.3)c=mix(c,0x9a7a56,0.4);
+      if(lp===8)c=0x2a1c12;if(lp===0)c=mix(c,0xb08c64,0.35);if((x+pl*37)%121===0)c=0x3a2a1c;}
+    setS(x,y,c,n)}
+  for(let p=0;p&lt;N;p++)if(MAT[p]===0&amp;&amp;Math.floor(p/W)&gt;=GY0)MAT[p]=2;
+  for(let y=GY0;y&lt;GY1;y++)for(let x=0;x&lt;W;x++){const p=y*W+x;if(MAT[p]===0||MAT[p]===2){MAT[p]=2}}
+}
+// ---------------- grooves ----------------
+const gro=u=&gt;{const c=0.5+0.5*Math.cos(2*Math.PI*u);return Math.pow(c,0.55)};// broad ridges, narrow grooves
+function rakeLinesInit(){for(let y=GY0;y&lt;GY1;y++)for(let x=0;x&lt;W;x++){const p=y*W+x;if(MAT[p]!==2)continue;GH[p]=gro((y-GY0)/4)}}
+function ringRock(r,a0,a1){const R=Math.max(r.rx,r.ry/FS)+6,nR=r.ring;if(!nR)return;const wcx=r.cx,wcy=r.cy/FS;const Rout=R+nR*P;
+  for(let y=Math.max(GY0,Math.floor(r.cy-Rout*FS)-1);y&lt;=Math.min(GY1-1,Math.ceil(r.cy+Rout*FS)+1);y++)for(let x=Math.max(0,Math.floor(r.cx-Rout)-1);x&lt;=Math.min(W-1,Math.ceil(r.cx+Rout)+1);x++){const p=y*W+x;if(MAT[p]!==2||BLK[p])continue;
+    const dx=(x-wcx)/(r.rx/(r.ry/FS)),dy=y/FS-wcy;// rings follow the footprint&#x27;s aspect a little
+    const dd=Math.hypot((x-wcx)*0.85+dx*0.15,dy);const d=dd-R;if(d&lt;-P*0.5||d&gt;nR*P)continue;
+    if(a0!=null){let a=Math.atan2(dy,x-wcx);a=K.pmod(a-a0,Math.PI*2);if(a&gt;a1)continue}
+    const e=d&gt;nR*P-1.5?0.5:1;GH[p]=lerp(GH[p],gro(Math.max(0,d)/P+0.5),e)}}
+// write a rake stroke segment (world capsule body only; tines across the stroke)
+function rakeSeg(g,x0,y0,x1,y1){const wy0=y0/FS,wy1=y1/FS;const dx=x1-x0,dy=wy1-wy0,L=Math.hypot(dx,dy);if(L&lt;0.01)return 0;const ux=dx/L,uy=dy/L,hw=P*2.5;
+  const minx=Math.max(0,Math.floor(Math.min(x0,x1)-hw-1)),maxx=Math.min(W-1,Math.ceil(Math.max(x0,x1)+hw+1));const miny=Math.max(GY0,Math.floor(Math.min(y0,y1)-hw*FS-1)),maxy=Math.min(GY1-1,Math.ceil(Math.max(y0,y1)+hw*FS+1));
+  let n=0;for(let y=miny;y&lt;=maxy;y++){const wy=y/FS;for(let x=minx;x&lt;=maxx;x++){const p=y*W+x;if(MAT[p]!==2||BLK[p])continue;const rx=x-x0,ry=wy-wy0;const t=rx*ux+ry*uy;if(t&lt;-0.6||t&gt;L+0.6)continue;const d=-rx*uy+ry*ux;if(Math.abs(d)&gt;hw)continue;
+    const u=d/P+2.5;GH[p]=Math.abs(d)&gt;hw-0.8?Math.max(GH[p],0.7):gro(u);n++;
+    // leaves in the band get pushed along
+  }}
+  for(const l of g.leaves)if(l.st===2){const rx=l.x-x0,ry=l.y/FS-wy0,t=rx*ux+ry*uy,d=-rx*uy+ry*ux;if(t&gt;-2&amp;&amp;t&lt;L+2&amp;&amp;Math.abs(d)&lt;hw+1){l.x+=ux*(L+1.5);l.y+=uy*(L+1.5)*FS;l.spin+=0.3}}
+  return n}
+// rain slowly relaxes the field toward flat; also used per drop
+function relax(x,y,r,k){for(let j=-r;j&lt;=r;j++)for(let i=-r;i&lt;=r;i++){const X=x+i,Y=y+j;if(X&lt;1||X&gt;=W-1||Y&lt;=GY0||Y&gt;=GY1-1)continue;const p=Y*W+X;if(MAT[p]!==2)continue;GH[p]=lerp(GH[p],(GH[p-1]+GH[p+1]+GH[p-W]+GH[p+W])*0.25*0.96+0.02,k)}}
+// ---------------- shadows ----------------
+let shKey=&#x27;&#x27;;
+function buildShadows(){const L=LT.L;const key=Math.round(L[0]*40)+&#x27;,&#x27;+Math.round(L[1]*40)+&#x27;,&#x27;+Math.round(L[2]*40);if(key===shKey)return;shKey=key;SH.fill(0);
+  const hyp=Math.hypot(L[0],L[1]),k=hyp/Math.max(0.12,L[2]);const sx=-L[0]/hyp*k,sy=L[1]/hyp*k*FS;// screen offset per unit height
+  const splat=(x,y,h)=&gt;{const X=Math.round(x+sx*h),Y=Math.round(y+sy*h);for(let j=0;j&lt;2;j++)for(let i=0;i&lt;2;i++){const xx=X+i,yy=Y+j;if(xx&gt;=0&amp;&amp;yy&gt;=0&amp;&amp;xx&lt;W&amp;&amp;yy&lt;H)SH[yy*W+xx]=1}};
+  for(const r of ROCKS){const [x0,y0,x1,y1]=r.box;for(let y=y0;y&lt;=y1;y++)for(let x=x0;x&lt;=x1;x++){if(!r.mask[y*W+x])continue;const h=Math.max(0,r.cy-y)*1.1;const fy=r.cy+(y-r.cy)*0.25;for(let t=0;t&lt;=h;t+=1.5)splat(x,fy,t)}}
+  // lantern
+  for(let y=LAN.top;y&lt;LAN.base;y++)for(let x=LAN.x-16;x&lt;=LAN.x+16;x++){const p=y*W+x;if(MAT[p]!==1&amp;&amp;MAT[p]!==6)continue;const h=LAN.base-y;for(let t=0;t&lt;=h;t+=1.5)splat(x,LAN.base-2,t)}
+  // the wall: when the sun is behind it, its shadow lies on the near gravel
+  if(L[1]&gt;-0.05){const h=48;const len=Math.round(sy*h);for(let x=0;x&lt;W;x++)for(let y=GY0;y&lt;GY0+Math.max(0,len-4);y++)SH[y*W+x]=1}
+  // keep shadows off the rocks&#x27; own sunlit faces: only ground-like materials take cast shadow
+}
+// maple: branches from the top right over the wall; leaf clusters (also cast dappled shadows)
+const MAPLE=[];const TIPS=[[350,34],[404,58],[366,70],[440,66],[414,96],[392,30],[430,18],[460,8],[470,50],[380,14],[338,44],[420,40],[452,80],[396,82],[470,90]];
+function buildMaple(){K.setSeed(4242);const br=[[[480,0],[430,18],[392,30],[350,34]],[[430,18],[418,40],[404,58]],[[392,30],[372,48],[366,70]],[[480,30],[452,44],[440,66]],[[452,44],[420,78],[414,96]]];
+  for(const b of br)for(let i=0;i+1&lt;b.length;i++){const [a,c]=[b[i],b[i+1]];for(let t=0;t&lt;=1;t+=0.02)MAPLE.push({x:lerp(a[0],c[0],t),y:lerp(a[1],c[1],t),br:1,w:i===0&amp;&amp;b===br[0]?3:i===0?2:1})}
+  const tips=TIPS;void [[350,34],[404,58],[366,70],[440,66],[414,96],[392,30],[430,18],[460,8],[470,50],[380,14],[338,44],[420,40],[452,80],[396,82],[470,90]];
+  for(const [tx,ty] of tips){const n=K.ri(70,95);for(let k=0;k&lt;n;k++){const a=K.rnd()*Math.PI*2,r=Math.sqrt(K.rnd())*13;const ed=r/13;MAPLE.push({x:tx+Math.cos(a)*r*1.5,y:ty+Math.sin(a)*r*0.75,br:0,c:clamp(Math.round(ed*3+K.rr(-1,1.2)+(Math.sin(a)&lt;0?1:0)),0,4),ph:tx*0.1+K.rnd()*0.6})}}
+  for(const m of MAPLE)if(!m.br)m.ph=m.ph+K.rnd()*3;
+  MAPLE.sort((a,b)=&gt;(a.br?-1:0)-(b.br?-1:0)||a.c-b.c)}
+const LEAFC=[0x6a1410,0x9a2214,0xc23a18,0xe0601c,0xf09a2a];
+const LEAF=[[0,-1],[-1,0],[0,0],[1,0],[0,1],[-1,1],[1,1]];// a tiny five-point leaf
+// ---------------- state ----------------
+function init(g){build();if(!MAPLE.length)buildMaple();rakeLinesInit();for(const r of ROCKS)ringRock(r);
+  g.tod=0.35;g.todMode=-1;g.rain=0;g.rainOn=false;g.wet=0;g.drops=[];g.leaves=[];g.rake={x:240,y:150,px:240,py:150,ang:0,down:false,lift:1,spd:0};g.prev=null;g.downT=0;g.downX=0;g.downY=0;
+  g.ringAnim=null;g.shishi={a:0,fill:0,st:0,t:0};g.steam=[];g.ai={q:[],i:0,cur:null,t:0};g.wind=0;
+  for(let i=0;i&lt;14;i++)g.leaves.push({x:K.rr(300,470),y:K.rr(GY0+4,GY1-6),st:2,c:K.ri(0,4),spin:K.rnd()*6,vx:0,vy:0})}
+function rockAt(x,y){for(const r of ROCKS){const dx=(x-r.cx)/(r.rx+r.ring*P+6),dy=(y-r.cy)/((r.ry+(r.ring*P+6)*FS));if(dx*dx+dy*dy&lt;1&amp;&amp;r.ring)return r}return null}
+function tick(g,pad){const m=pad.mouse;
+  // time of day: auto cycle unless fixed
+  if(g.todMode&lt;0)g.tod=(g.tod+1/(60*30))%4;else g.tod=lerp(g.tod,g.todMode+0.0,0.04);setLight(g.tod);
+  g.wind=Math.sin(g.t*0.004)*0.5+Math.sin(g.t*0.0131)*0.3;
+  // rake follows the hand with a spring; pressing lowers it into the gravel
+  const R=g.rake;R.px=R.x;R.py=R.y;if(m){const k=m.down?0.32:0.5;R.x+=(m.x-R.x)*k;R.y+=(clamp(m.y,GY0+2,GY1+20)-R.y)*k}
+  const down=!!(m&amp;&amp;m.down)&amp;&amp;R.y&lt;GY1-2;R.lift=lerp(R.lift,down?0:1,0.35);
+  const vx=R.x-R.px,vy=(R.y-R.py)/FS,sp=Math.hypot(vx,vy);R.spd=lerp(R.spd,down?sp:0,0.3);
+  if(sp&gt;0.3){const a=Math.atan2(vy,vx);let da=a-R.ang;while(da&gt;Math.PI)da-=2*Math.PI;while(da&lt;-Math.PI)da+=2*Math.PI;R.ang+=da*(down?0.35:0.2)}
+  if(down&amp;&amp;R.lift&lt;0.3&amp;&amp;sp&gt;0.05)rakeSeg(g,R.px,R.py,R.x,R.y);
+  // a tap (short press, little movement) on a rock rings it
+  if(m&amp;&amp;m.click){g.downT=g.t;g.downX=m.x;g.downY=m.y}
+  if(m&amp;&amp;!m.down&amp;&amp;g.downT&amp;&amp;g.t-g.downT&lt;16&amp;&amp;Math.hypot(m.x-g.downX,m.y-g.downY)&lt;5){const r=rockAt(m.x,m.y);if(r)g.ringAnim={r,a:0}}
+  if(m&amp;&amp;!m.down)g.downT=0;
+  if(g.ringAnim){const A=g.ringAnim;const a0=A.a;A.a+=0.09;ringRock(A.r,a0-0.02+Math.PI*0.5,0.11);if(A.a&gt;Math.PI*2+0.1)g.ringAnim=null}
+  // rain: drops pock the gravel and relax the pattern; wetness darkens
+  g.rain=lerp(g.rain,g.rainOn?1:0,0.01);g.wet=clamp(g.wet+(g.rain&gt;0.3?0.0012:-0.0004),0,1);
+  if(g.rain&gt;0.05){const n=Math.round(g.rain*12);for(let i=0;i&lt;n;i++)g.drops.push({x:K.rr(-20,W),y:K.rr(-40,-5),z:K.rr(GY0+2,H),v:K.rr(5,7)})}
+  for(let i=g.drops.length-1;i&gt;=0;i--){const d=g.drops[i];d.y+=d.v;d.x+=0.9;if(d.y&gt;=d.z){if(d.z&lt;GY1&amp;&amp;K.rnd()&lt;0.6)relax(Math.round(d.x),Math.round(d.z),1,0.4);g.drops.splice(i,1);if(g.splash&amp;&amp;g.splash.length&lt;200)g.splash.push({x:d.x,y:d.z,t:0})}}
+  g.splash=g.splash||[];for(let i=g.splash.length-1;i&gt;=0;i--){if(++g.splash[i].t&gt;6)g.splash.splice(i,1)}
+  // maple leaves fall, flutter, land and stay; old ones on the gravel slowly fade into the pattern
+  if(K.rnd()&lt;0.025+Math.abs(g.wind)*0.02){const t=MAPLE[K.ri(0,MAPLE.length-1)];if(!t.br)g.leaves.push({x:t.x,y:t.y,st:1,c:t.c,spin:K.rnd()*6,vx:K.rr(-0.3,0.1),vy:0.25,gy:K.rr(GY0+6,GY1-4)})}
+  for(let i=g.leaves.length-1;i&gt;=0;i--){const l=g.leaves[i];if(l.st===1){l.spin+=0.12;l.x+=l.vx+Math.sin(l.spin)*0.5+g.wind*0.4;l.y+=l.vy+Math.cos(l.spin*2)*0.1;if(l.y&gt;=l.gy){const p=Math.round(l.y)*W+Math.round(l.x);if(p&gt;=0&amp;&amp;p&lt;N&amp;&amp;MAT[p]===3){l.gy+=3}else l.st=2}if(l.x&lt;-10)g.leaves.splice(i,1)}
+    else if(l.x&lt;-4||l.x&gt;W+4||l.y&lt;GY0||l.y&gt;GY1+4)g.leaves.splice(i,1)}
+  if(g.leaves.length&gt;70)g.leaves.splice(0,g.leaves.findIndex(l=&gt;l.st===2)+1);
+  // deer-scarer: water fills the pipe, it tips, knocks, returns
+  const sh=g.shishi;sh.t++;if(sh.st===0){sh.fill+=1/600;sh.a=sh.fill*0.25;if(sh.fill&gt;=1){sh.st=1}}else if(sh.st===1){sh.a+=0.09;if(sh.a&gt;=0.75){sh.st=2;sh.fill=0;if(K.live()){const t=K.now();K.noise(0.25,0.08,t,&#x27;bandpass&#x27;,900,700,3)}}}
+  else if(sh.st===2){sh.a-=0.12;if(sh.a&lt;=-0.06){sh.a=-0.06;sh.st=3;sh.k=0;if(K.live()){const t=K.now();K.tone(&#x27;triangle&#x27;,420,380,0.18,0.22,t);K.tone(&#x27;sine&#x27;,840,700,0.08,0.1,t);K.noise(0.05,0.12,t,&#x27;bandpass&#x27;,1800,1200,2)}}}
+  else{sh.k++;sh.a=-0.06+Math.min(0,Math.sin(sh.k*0.6)*0.03*Math.exp(-sh.k*0.1));if(sh.k&gt;30){sh.st=0;sh.a=0}}
+  // steam from the tea cup
+  if(g.t%9===0)g.steam.push({x:430+K.rr(-1,1),y:244,t:0,ph:K.rnd()*6});for(let i=g.steam.length-1;i&gt;=0;i--){const s=g.steam[i];s.t++;s.y-=0.22;s.x+=Math.sin(s.t*0.05+s.ph)*0.18+g.wind*0.05;if(s.t&gt;110)g.steam.splice(i,1)}
+  // sound: rake crunch follows speed; rain bed
+  if(K.live()){K.bed(&#x27;rake&#x27;,&#x27;bandpass&#x27;,2600,1.4);K.bedSet(&#x27;rake&#x27;,clamp(R.spd*0.05,0,0.22)*(down?1:0),1800+R.spd*300);K.bed(&#x27;rain&#x27;,&#x27;lowpass&#x27;,3200,0.6);K.bedSet(&#x27;rain&#x27;,g.rain*0.22,2600);
+    if(down&amp;&amp;R.spd&gt;0.6&amp;&amp;K.rnd()&lt;R.spd*0.15){const t=K.now();K.noise(0.02,0.03+R.spd*0.008,t,&#x27;highpass&#x27;,3000+K.rnd()*2500,3000,1)}
+    K.bed(&#x27;night&#x27;,&#x27;bandpass&#x27;,4200,8);K.bedSet(&#x27;night&#x27;,LT.night*0.03*(1-g.rain),4200)}
+}
+// ---------------- draw ----------------
+function draw(g){setLight(g.tod);overcast(g.rain);buildShadows();const L=LT.L,night=LT.night;
+  // dapple: maple leaf clusters projected on the gravel
+  DP.fill(0);{const hyp=Math.hypot(L[0],L[1]),k=hyp/Math.max(0.15,L[2]);const sx=-L[0]/hyp*k,sy=L[1]/hyp*k*FS;
+    const sw=g.wind*2*Math.sin(g.t*0.02);for(const [tx,ty] of TIPS){const h=60;const X=tx+sw+sx*h*0.3,Y=GY0+22+ty*0.7+sy*h*0.3;
+      for(let yy=Math.max(GY0,Math.floor(Y-12));yy&lt;Math.min(GY1,Y+12);yy++)for(let xx=Math.max(0,Math.floor(X-20));xx&lt;Math.min(W,X+20);xx++){const dx=(xx-X)/20,dy=(yy-Y)/12,d=dx*dx+dy*dy;if(d&gt;1)continue;
+        if(fbm((xx-sw)*0.16,yy*0.26,2,77)+(1-d)*0.25&gt;0.62)DP[yy*W+xx]=1}}}
+  const lamp=night*(g.t%7===0?0.95:1);const lx=LAN.x,ly=LAN.top+19;
+  const wetK=1-g.wet*0.28;const gl=Math.hypot(L[0],L[1]);
+  for(let y=0;y&lt;H;y++)for(let x=0;x&lt;W;x++){const p=y*W+x;const m=MAT[p];let c;
+    if(m===0){// sky and dark trees beyond the wall
+      const tr=y&gt;=3+Math.round(4*fbm(x*0.06,0,3,90)+3*Math.sin(x*0.05))?1:0;c=tr?(hash(x&gt;&gt;1,y&gt;&gt;1)&lt;0.2?mix(LT.fol,0xffffff,0.06):LT.fol):mix(LT.skyB,LT.skyA,y/12);
+      if(!tr&amp;&amp;night&gt;0.5&amp;&amp;hash(x,y*7)&lt;0.012)c=0xcfd8f0}
+    else if(m===2){// gravel: slope toward the light
+      const h0=GH[p],gx=(GH[p+1]-GH[p-1])*0.5,gy=(GH[p+W]-GH[p-W])*0.5*FS;const A=0.55;
+      // a ridge facing the sun gets light; height field slopes in world units
+      const nx=-gx*2.6,ny=gy*2.6,nl=Math.sqrt(nx*nx+ny*ny+1);const ndl=(nx*L[0]+ny*L[1]+L[2])/nl;let sh=SH[p]?0.2:1;if(DP[p])sh*=0.35;
+      let base=GR[clamp(Math.round(2.2+h0*3.2+(hash(x,y)&lt;0.06?-1.2:0)+(hash(x*7,y*3)&lt;0.02?1:0)),0,6)];if(g.wet&gt;0)base=K.mul(base,wetK);
+      let ex=0;if(lamp&gt;0){const dx=x-lx,dy=(y-ly)/FS;const d2=dx*dx+dy*dy;if(d2&lt;9000){const f=Math.max(0,1-Math.sqrt(d2)/95);const s=(-gx*(-dx)+gy*(-dy))/Math.sqrt(d2+1)*0.8;ex=Math.round(clamp(f*f*(0.9+s),0,1)*5)/5*0.9*lamp}}
+      c=shade(base,ndl,sh,ex)}
+    else if(m===6){c=night&gt;0.2?mix(0x2a2218,0xffc060,night):0x2a2218;if(night&gt;0.2)em[p]=Math.round(night*200)}
+    else{// lit static, rock, moss
+      const ndl=NX[p]*L[0]+NY[p]*L[1]+NZ[p]*L[2];let sh=1;if((m===4||m===1)&amp;&amp;SH[p]&amp;&amp;y&gt;=GY0-2)sh=0.3;if(m===4&amp;&amp;DP[p])sh*=0.5;
+      let a=ALB[p];if(g.wet&gt;0&amp;&amp;m&gt;=3)a=K.mul(a,1-g.wet*0.25);
+      let ex=0;if(lamp&gt;0&amp;&amp;(m===3||m===4||m===1)){const dx=x-lx,dy=(y-ly);const d=Math.hypot(dx,dy*1.4);const rr=m===1?30:52;if(d&lt;rr)ex=Math.round(Math.max(0,1-d/rr)**2*5)/5*(m===1?0.6:0.9)*lamp}
+      c=shade(a,ndl,sh,ex);
+      // facet edges: a hairline where two facets meet, dark on the lower one
+      if(m===3){const f=FACE[p];if(FACE[p+W]!==f&amp;&amp;FACE[p+W]&gt;=0&amp;&amp;hash(x,y)&lt;0.7)c=mix(c,0x14100c,0.22);if(FACE[p-W]&lt;0||FACE[p-1]&lt;0||FACE[p+1]&lt;0)c=mix(c,0x14100c,0.55)}}
+    col[p]=c;if(m!==6)em[p]=0}
+  // rock bases: a dark contact line where rock meets moss/gravel
+  for(const r of ROCKS){const [x0,y0,x1,y1]=r.box;for(let x=x0;x&lt;=x1;x++)for(let y=y1;y&gt;=y0;y--){const p=y*W+x;if(r.mask[p]){col[p+W]=mix(col[p+W],0x0c0a08,0.6);break}}}
+  drawShishi(g);drawLeaves(g,2);drawRake(g);drawMaple(g);drawLeaves(g,1);drawVeranda(g);drawRain(g);
+  if(lamp&gt;0.1){K.glow(lx,ly,9,0xffb050,0.45*lamp)}
+}
+function drawShishi(g){const sh=g.shishi;// pivot between two posts, pipe tips toward the basin
+  const px=70,py=76,a=0.32+sh.a;const dx=Math.cos(a),dy=Math.sin(a);
+  const B1=shade(0xc8b860,0.95,1,0),B2=shade(0x9a8a3a,0.6,1,0),B3=shade(0x5a4e1c,0.35,1,0),NODE=shade(0x6a5a24,0.4,1,0);
+  const post=(x)=&gt;{for(let y=py-2;y&lt;py+12;y++){K.px(x,y,B2);K.px(x+1,y,B3)}K.px(x,py-3,B1);K.px(x+1,py-3,B1)};post(px-3);
+  for(let t=-16;t&lt;=14;t+=0.5){const x=px+dx*t,y=py+dy*t;const nd=Math.abs(((t+16)%10)-0)&lt;0.6;K.px(x,y-1,nd?NODE:B1);K.px(x,y,nd?NODE:B2);K.px(x,y+1,B3)}
+  K.px(px-16*dx,py-16*dy-1,shade(0xe8dca0,1,1,0));K.px(px-16*dx,py-16*dy,shade(0xe8dca0,1,1,0));K.px(px+14*dx,py+14*dy,B3);post(px+2);
+  // feed pipe from the wall and its trickle
+  for(let x=44;x&lt;px-16;x++){K.px(x,62,B1);K.px(x,63,B2);K.px(x,64,B3)}const ex=px-17;
+  for(let y=65;y&lt;py-16*dy-1;y++)if((y+g.t)%3)K.px(ex,y,shade(0xa8d8f0,0.9,1,0));
+  if(sh.st===1||sh.st===2){for(let k=0;k&lt;6;k++)K.px(px+14*dx+K.rr(-1,2),py+14*dy+2+k,0xd0ecf8)}}
+function drawLeaves(g,st){for(const l of g.leaves){if(l.st!==st)continue;const x=Math.round(l.x),y=Math.round(l.y);const c=LEAFC[l.c];const dk=mix(c,0x200808,0.4);
+    if(st===2){const p=y*W+x;const lit=p&gt;=0&amp;&amp;p&lt;N&amp;&amp;SH[p]?0.55:1;for(const [i,j] of LEAF)K.px(x+i,y+j,shade(j&gt;0?dk:c,0.9,lit,0));K.px(x,y+2,shade(0x3a1a0c,0.5,1,0))}
+    else{const s=Math.sin(l.spin);if(Math.abs(s)&lt;0.35){K.px(x,y,shade(dk,0.8,1,0));K.px(x+1,y,shade(dk,0.8,1,0))}else for(const [i,j] of LEAF)K.px(x+i*(s&gt;0?1:-1),y+j,shade(c,0.95,1,0))}}}
+function drawMaple(g){const sw=g.wind*1.5;
+  for(const [tx,ty] of TIPS){const s=Math.round(Math.sin(g.t*0.03+tx*0.1)*sw);for(let y=ty-11;y&lt;=ty+11;y++)for(let x=tx-20;x&lt;=tx+20;x++){const dx=(x-tx)/19,dy=(y-ty)/10,d=dx*dx+dy*dy;if(d&gt;1)continue;const n=fbm(x*0.2,y*0.3,2,tx);if(n+(1-d)*0.35&lt;0.62)continue;
+    const lit=fbm(x*0.2+0.6,y*0.3-0.6,2,tx)&lt;n-0.03;K.px(x+s,y,shade(lit?0x8a1c12:0x4a0c0a,lit?0.8:0.3,1,0))}}
+  for(const t of MAPLE){const sw=t.br?0:Math.sin(g.t*0.03+t.ph)*g.wind*1.5;const x=Math.round(t.x+sw),y=Math.round(t.y);
+    if(t.br){const c=shade(0x2a1a14,0.4,1,0);for(let i=0;i&lt;t.w;i++)K.px(x,y+i,i===0?shade(0x4a3424,0.8,1,0):c)}
+    else{const c=LEAFC[t.c];const top=shade(c,0.95,1,0),mid=shade(c,0.6,1,0),bot=shade(mix(c,0x1a0404,0.5),0.4,1,0);const v=(t.ph*7|0)%3;
+      if(v===0){K.px(x,y,top);K.px(x+1,y,mid);K.px(x,y+1,bot)}else if(v===1){K.px(x,y-1,top);K.px(x-1,y,top);K.px(x,y,mid);K.px(x+1,y,top);K.px(x,y+1,bot)}else{K.px(x,y,top);K.px(x-1,y+1,mid);K.px(x+1,y+1,bot)}}}}
+function drawRake(g){return drawRake2(g)}
+function drawRake2(g){const R=g.rake;const lift=R.lift*6;const a=R.ang+Math.PI/2;const ca=Math.cos(a),sa=Math.sin(a)*FS;const cx=R.x,cy=R.y-lift;const hw=P*2.9;
+  const W1=shade(0xc49a64,0.95,1,0),W2=shade(0x9a7446,0.6,1,0),W3=shade(0x5e4228,0.35,1,0);
+  const L=LT.L,hyp=Math.hypot(L[0],L[1])||1,sk=hyp/Math.max(0.2,L[2]);const ssx=-L[0]/hyp*sk,ssy=L[1]/hyp*sk*FS;
+  // handle: from the head toward the viewer, widening with nearness
+  const hx=cx+(cx-240)*0.25+20,hy=H+40;const hl=Math.hypot(hx-cx,hy-cy);
+  // shadows first (head on the gravel, offset by the sun and by the lift)
+  if(R.y&lt;GY1+4){const ox=ssx*(lift+3),oy=ssy*(lift+3)+1;for(let t=-hw;t&lt;=hw;t+=0.5){const x=R.x+ca*t+ox,y=R.y+sa*t+oy;K.pxa(x,y,0x14100a,0.4);K.pxa(x,y+1,0x14100a,0.3)}
+    for(let t=0;t&lt;Math.min(hl,60);t+=0.7){const f=t/hl,x=R.x+(hx-cx)*f+ox+ssx*f*14,y=R.y+(hy-cy)*f*0.6+oy+ssy*f*14;if(y&lt;GY1)K.pxa(x,y,0x14100a,0.3)}}
+  for(let t=3;t&lt;hl;t+=0.5){const f=t/hl,x=cx+(hx-cx)*f,y=cy+(hy-cy)*f;const w=3+Math.round(f*4);for(let i=0;i&lt;w;i++)K.px(x+i-1,y,i===0?W1:i===w-1?W3:W2)}
+  for(let t=-hw;t&lt;=hw;t+=0.5){const x=cx+ca*t,y=cy+sa*t;K.px(x,y-2,W1);K.px(x,y-1,W2);K.px(x,y,W2);K.px(x,y+1,W3)}
+  K.px(cx+ca*-hw,cy+sa*-hw-1,W3);K.px(cx+ca*hw,cy+sa*hw-1,W3);
+  for(let k=-2;k&lt;=2;k++){const t=k*P;const x=cx+ca*t,y=cy+sa*t;K.px(x,y+2,W2);K.px(x,y+3,W3);if(R.lift&gt;0.5)K.px(x,y+4,W3)}}
+function drawRakeOld(g){const R=g.rake;const lift=R.lift*5;const a=R.ang+Math.PI/2;const cx=R.x,cy=R.y-lift;const hw=P*2.6;
+  // handle runs toward the viewer, out past the bottom of the frame
+  const hx=cx+Math.cos(R.ang+Math.PI)*0+(cx&lt;240?-30:30)*0.3,hy=H+30;
+  const wood=shade(0xb08a58,0.8,1,0),woodD=shade(0x7a5a34,0.5,1,0);
+  // shadow of the head on the gravel
+  if(R.y&lt;GY1){for(let t=-hw;t&lt;=hw;t+=0.5){const x=R.x+Math.cos(a)*t,y=R.y+Math.sin(a)*t*FS+2;K.pxa(x+2,y,0x1a1610,0.35)}}
+  const hl=Math.hypot(hx-cx,hy-cy);for(let t=4;t&lt;hl;t+=0.5){const x=cx+(hx-cx)*t/hl,y=cy+(hy-cy)*t/hl;K.px(x,y,wood);K.px(x+1,y,woodD)}
+  for(let t=-hw;t&lt;=hw;t+=0.5){const x=cx+Math.cos(a)*t,y=cy+Math.sin(a)*t*FS;K.px(x,y-1,wood);K.px(x,y,woodD)}
+  for(let k=-2;k&lt;=2;k++){const t=k*P;const x=cx+Math.cos(a)*t,y=cy+Math.sin(a)*t*FS;K.px(x,y+1,woodD);K.px(x,y+2,shade(0x5a4024,0.5,1,0))}}
+function drawVeranda(g){// tea: a cup and a small plate of sweets on the boards
+  const c1=shade(0x4a5a5a,0.8,1,0),c2=shade(0x2e3a3a,0.5,1,0),rim=shade(0xd8d0bc,0.9,1,0);
+  K.rect(424,246,13,9,c1);K.rect(424,246,4,9,shade(0x5e7070,0.9,1,0));K.rect(433,246,4,9,c2);K.rect(424,245,13,1,rim);K.rect(425,246,11,1,shade(0x5a7a3a,0.6,1,0));K.rect(425,255,11,1,c2);
+  for(let i=0;i&lt;14;i++)K.pxa(423+i,257,0x1a1008,0.4);
+  K.rect(446,252,20,3,shade(0xd8d4c8,0.9,1,0));K.rect(447,255,18,1,shade(0x8a8478,0.5,1,0));K.rect(450,249,6,4,shade(0xe8a0b0,0.9,1,0));K.rect(457,249,6,4,shade(0x9ab86a,0.9,1,0));
+  K.rect(450,249,6,1,shade(0xf8c8d0,1,1,0));K.rect(457,249,6,1,shade(0xc0d890,1,1,0));
+  for(const s of g.steam){const a=0.35*Math.sin(Math.PI*s.t/110);K.pxa(s.x,s.y,0xffffff,a);if(s.t&gt;30)K.pxa(s.x+1,s.y,0xffffff,a*0.6)}}
+function drawRain(g){if(g.rain&lt;0.02)return;const c=LT.night&gt;0.5?0x9aaac8:0xe8eef4;for(const d of g.drops){for(let k=0;k&lt;6;k++)K.pxa(d.x-k*0.15,d.y-k,c,0.55-k*0.07)}
+  for(const s of g.splash||[]){const r=s.t&gt;&gt;1;K.pxa(s.x-r-1,s.y,c,0.5);K.pxa(s.x+r+1,s.y,c,0.5)}}
+// ---------------- autoplay: a ghost hand rakes long strokes and rings rocks ----------------
+function path(pts,steps){const out=[];for(let i=0;i&lt;pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+    for(let k=0;k&lt;steps;k++){const t=k/steps,t2=t*t,t3=t2*t;out.push([0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)])}}out.push(pts[pts.length-1]);return out}
+const SCRIPT=[
+  {stroke:[[10,212],[80,214],[160,216],[240,214],[330,214],[420,214],[475,212]],sp:26},
+  {stroke:[[475,100],[420,96],[360,104],[300,128],[250,132],[220,110],[230,86],[290,80],[350,84]],sp:22},
+  {tap:ROCKS[2]},
+  {stroke:[[12,120],[50,118],[80,134],[90,170],[60,186],[20,184]],sp:22},
+  {tap:ROCKS[0]},
+  {stroke:[[230,196],[260,180],[250,160],[226,152],[214,170],[232,198],[268,202],[290,200]],sp:20},
+  {tap:ROCKS[3]},
+  {stroke:[[470,140],[440,150],[430,170],[455,190],[470,200]],sp:22}];
+function ai(g){const A=g.ai;A.t++;
+  if(!A.cur){const s=SCRIPT[A.i%SCRIPT.length];A.i++;if(s.stroke){A.cur={pts:path(s.stroke,s.sp),k:0,ph:&#x27;go&#x27;}}else A.cur={tap:s.tap,k:0,ph:&#x27;go&#x27;};
+    if(A.i%5===0&amp;&amp;g.todMode&lt;0){}}
+  const C=A.cur;let tx,ty,down=false,click=false;
+  if(C.pts){const st=C.pts[0];if(C.ph===&#x27;go&#x27;){tx=st[0];ty=st[1];const d=Math.hypot(g.rake.x-tx,g.rake.y-ty);if(d&lt;2){C.ph=&#x27;rake&#x27;;C.k=0}}
+    else if(C.ph===&#x27;rake&#x27;){C.k+=0.5;const i=Math.min(C.pts.length-1,Math.floor(C.k));tx=C.pts[i][0];ty=C.pts[i][1];down=true;if(C.k===0.5)click=true;if(i&gt;=C.pts.length-1){C.ph=&#x27;rest&#x27;;C.k=0}}
+    else{tx=g.rake.x;ty=g.rake.y-1;if(++C.k&gt;50)A.cur=null}}
+  else{const r=C.tap;tx=r.cx;ty=r.cy-6;C.k++;if(C.k&gt;40&amp;&amp;C.k&lt;44){down=true;click=C.k===41}if(C.k&gt;44&amp;&amp;!g.ringAnim&amp;&amp;C.k&gt;60){if(C.k&gt;130)A.cur=null}}
+  return{x:0,y:0,mouse:{x:tx,y:ty,down,click}}}
+function info(g){const n=[&#x27;清晨&#x27;,&#x27;正午&#x27;,&#x27;黄昏&#x27;,&#x27;夜&#x27;][Math.floor(g.tod+0.45)%4];return &#x27;枯山水 · &#x27;+n+(g.rainOn?&#x27; · 雨&#x27;:&#x27;&#x27;)}
+function flat(){for(let p=GY0*W;p&lt;GY1*W;p++)if(MAT[p]===2)GH[p]=0.55+(hash(p,7)-0.5)*0.08}
+return{init,tick,draw,ai,info,flat}})();
+GAMES.push({id:&#x27;zen&#x27;,name:&#x27;枯山水&#x27;,ref:&#x27;按住拖动耙白砂 · 点石头画同心圆&#x27;,keys:&#x27;按住拖动：耙出沙纹 · 轻点石头：绕石画圈 · 下面的按钮换时辰、下雨&#x27;,noHand:true,thumbAt:900,
+  init:ZEN.init,tick:ZEN.tick,draw:ZEN.draw,ai:ZEN.ai,info:ZEN.info,
+  opts:[{label:g=&gt;&#x27;时辰：&#x27;+(g.todMode&lt;0?&#x27;流转&#x27;:[&#x27;清晨&#x27;,&#x27;正午&#x27;,&#x27;黄昏&#x27;,&#x27;夜&#x27;][g.todMode]),get:g=&gt;g.todMode&gt;=0,set:g=&gt;{g.todMode=g.todMode&gt;=3?-1:g.todMode+1;if(g.todMode===0)g.tod=Math.floor(g.tod)+0.9}},
+    {label:g=&gt;g.rainOn?&#x27;雨：下着&#x27;:&#x27;雨：停&#x27;,get:g=&gt;g.rainOn,set:g=&gt;{g.rainOn=!g.rainOn}},
+    {label:&#x27;抹平重耙&#x27;,set:g=&gt;{ZEN.flat()}}],
+  about:[&#x27;从寺院的檐廊往外看：土墙、瓦顶、石灯笼、竹筒添水，一片白砂和五块石头。按住画面拖动，耙子就跟着你的手在白砂上走，五根耙齿犁出五道沟，沟顺着你的笔画转弯。轻点一块石头，耙子会绕着它画出一圈圈同心纹。&#x27;,&#x27;白砂是一张高度图，每个像素每帧按自己的坡度重新受光：朝着太阳的砂脊亮，背阴的沟暗，所以同一道纹在清晨、正午、黄昏看起来都不一样，到夜里只剩石灯笼照亮的一小片。石头按块面打光，影子随太阳转。枫叶会落下来，耙子会把它们推开。下雨时雨点一点点把沙纹抹平，砂和石头被打湿变暗。&#x27;],
+  tags:[&#x27;耙齿犁出的沙纹顺着你的笔画转弯&#x27;,&#x27;每个像素按坡度实时受光，沙纹随时辰变化&#x27;,&#x27;石头的块面、苔藓、随太阳转的影子&#x27;,&#x27;枫叶飘落，耙子把它们推走&#x27;,&#x27;雨点慢慢抹平你耙的纹&#x27;,&#x27;竹筒添水每隔一阵敲一声&#x27;]});
+
+
+
+// ================= player: 60 Hz fixed step, hit-stop, keyboard / mouse / touch, attract-mode autoplay, bloom display =================
+(function(){
+const $=id=&gt;document.getElementById(id);
+const {W,H,S}=K;
+const cv=$(&#x27;cv&#x27;),ctx=cv.getContext(&#x27;2d&#x27;),stage=$(&#x27;stage&#x27;);
+const low=document.createElement(&#x27;canvas&#x27;);low.width=W;low.height=H;const lg=low.getContext(&#x27;2d&#x27;);
+const half=document.createElement(&#x27;canvas&#x27;);half.width=W&gt;&gt;1;half.height=H&gt;&gt;1;const hg=half.getContext(&#x27;2d&#x27;);
+const b1=document.createElement(&#x27;canvas&#x27;);b1.width=W;b1.height=H;const b1g=b1.getContext(&#x27;2d&#x27;);
+const b2=document.createElement(&#x27;canvas&#x27;);b2.width=W&gt;&gt;1;b2.height=H&gt;&gt;1;const b2g=b2.getContext(&#x27;2d&#x27;);
+const FILT=(()=&gt;{try{const c=document.createElement(&#x27;canvas&#x27;);c.width=c.height=9;const g=c.getContext(&#x27;2d&#x27;);g.filter=&#x27;blur(2px)&#x27;;g.fillStyle=&#x27;#fff&#x27;;g.fillRect(4,4,1,1);return g.getImageData(1,4,1,1).data[3]&gt;0}catch(e){return false}})();
+const mips=[[120,68],[60,34],[30,17]].map(([w,h])=&gt;{const c=document.createElement(&#x27;canvas&#x27;);c.width=w;c.height=h;return c});
+let skip=false,slow=false,avg=8,cur=0,G=null,paused=false,acc=0,last=performance.now(),visible=true,mode=&#x27;auto&#x27;,idle=0;
+const reduce=matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;
+const keys=new Set(),pressed=new Set();
+// mouse / touch: pointer position in game pixels; click = a press this step; stick = the floating joystick for touch play
+const mouse={x:W/2,y:H/2,down:false,active:false,click:false,touch:false};
+const stick={id:null,ox:0,oy:0,x:0,y:0};
+function newGame(d){K.setSeed((Date.now()&amp;0xffff)+cur*77);S.flash=0;S.fade=0;S.frame=0;S.bloomK=1;K.bedsOff();
+  const g={t:0,stop:0,ts:1,d,auto:mode===&#x27;auto&#x27;};d.init(g);return g}
+const TB={a:false,b:false,ap:false,bp:false};
+function readPad(){const k=c=&gt;keys.has(c);
+  let x=(k(&#x27;ArrowRight&#x27;)||k(&#x27;KeyD&#x27;)?1:0)-(k(&#x27;ArrowLeft&#x27;)||k(&#x27;KeyA&#x27;)?1:0),y=(k(&#x27;ArrowDown&#x27;)||k(&#x27;KeyS&#x27;)?1:0)-(k(&#x27;ArrowUp&#x27;)||k(&#x27;KeyW&#x27;)?1:0);
+  if(stick.id!=null){const m=Math.hypot(stick.x,stick.y);if(m&gt;3){const s=Math.min(1,(m-3)/18);x=stick.x/m*s;y=stick.y/m*s}}
+  const pad={x,y,
+    up:pressed.has(&#x27;ArrowUp&#x27;)||pressed.has(&#x27;KeyW&#x27;),down:pressed.has(&#x27;ArrowDown&#x27;)||pressed.has(&#x27;KeyS&#x27;),left:pressed.has(&#x27;ArrowLeft&#x27;)||pressed.has(&#x27;KeyA&#x27;),right:pressed.has(&#x27;ArrowRight&#x27;)||pressed.has(&#x27;KeyD&#x27;),
+    fire:k(&#x27;KeyJ&#x27;)||k(&#x27;KeyZ&#x27;)||k(&#x27;Space&#x27;)||TB.a,
+    a:pressed.has(&#x27;KeyJ&#x27;)||pressed.has(&#x27;KeyZ&#x27;)||pressed.has(&#x27;Space&#x27;)||pressed.has(&#x27;Enter&#x27;)||TB.ap,
+    b:pressed.has(&#x27;KeyK&#x27;)||pressed.has(&#x27;KeyX&#x27;)||pressed.has(&#x27;Escape&#x27;)||TB.bp,
+    hl:k(&#x27;ArrowLeft&#x27;)||k(&#x27;KeyA&#x27;)||k(&#x27;KeyZ&#x27;)||k(&#x27;ShiftLeft&#x27;)||TB.a,hr:k(&#x27;ArrowRight&#x27;)||k(&#x27;KeyD&#x27;)||k(&#x27;KeyJ&#x27;)||k(&#x27;Slash&#x27;)||k(&#x27;ShiftRight&#x27;)||TB.b,hd:k(&#x27;ArrowDown&#x27;)||k(&#x27;KeyS&#x27;)||k(&#x27;Space&#x27;),
+    bh:k(&#x27;KeyK&#x27;)||k(&#x27;KeyX&#x27;)||TB.b,
+    stick:stick.id!=null,
+    mouse:mouse.active?{x:mouse.x,y:mouse.y,down:mouse.down,click:mouse.click,touch:mouse.touch}:null};
+  pressed.clear();mouse.click=false;TB.ap=TB.bp=false;return pad}
+const HAND=K.spr([&#x27;.kk.......&#x27;,&#x27;kwwk......&#x27;,&#x27;kwwk......&#x27;,&#x27;kwwkkk....&#x27;,&#x27;kwwkwwkk..&#x27;,&#x27;kwwkwwkwkk&#x27;,&#x27;kwwwwwwwwk&#x27;,&#x27;kwwwwwwwwk&#x27;,&#x27;.kwwwwwwk.&#x27;,&#x27;..kwwwwk..&#x27;,&#x27;..kwwwwk..&#x27;],{k:0x1a1418,w:0xf4ecdc});
+const HANDD=K.spr([&#x27;..........&#x27;,&#x27;..........&#x27;,&#x27;.kk.......&#x27;,&#x27;kwwkkkkk..&#x27;,&#x27;kwwkwwkwkk&#x27;,&#x27;kwwwwwwwwk&#x27;,&#x27;kwwwwwwwwk&#x27;,&#x27;kwwwwwwwwk&#x27;,&#x27;.kwwwwwwk.&#x27;,&#x27;..kwwwwk..&#x27;,&#x27;..kwwwwk..&#x27;],{k:0x1a1418,w:0xf4ecdc});
+function drawHand(){if(!G||G.d.noHand||G.thumb)return;let m=null;if(mode===&#x27;play&#x27;){if(mouse.active&amp;&amp;!mouse.touch)m={x:mouse.x,y:mouse.y,down:mouse.down}}else m=G._hand;if(!m)return;
+  const s=m.down?HANDD:HAND;const st=G.d.handStyle;K.blit(s,Math.round(m.x)-2,Math.round(m.y)-(m.down?2:0))}
+function step(){const d=G.d;
+  if(G.stop&gt;0){G.stop--;S.frame++;return}
+  let pad;
+  if(mode===&#x27;play&#x27;){pad=readPad();const any=pad.x||pad.y||pad.fire||pad.a||pad.b||(pad.mouse&amp;&amp;(pad.mouse.down||pad.mouse.click));if(!any)idle++;else idle=0;
+    if(idle&gt;60*40&amp;&amp;(!d.canAttract||d.canAttract(G))){setMode(&#x27;auto&#x27;);if(d.onAuto)d.onAuto(G)}}
+  else{pressed.clear();mouse.click=false;pad=d.ai(G);G._hand=pad.mouse||null}
+  d.tick(G,pad);G.t++;S.frame++;if(S.flash&gt;0){S.flash*=0.86;if(S.flash&lt;0.02)S.flash=0}}
+function frame(){G.d.draw(G);drawHand();S.raw=false;K.present();lg.putImageData(S.img,0,0);
+  ctx.imageSmoothingEnabled=false;ctx.globalCompositeOperation=&#x27;source-over&#x27;;ctx.globalAlpha=1;ctx.drawImage(low,0,0,cv.width,cv.height);
+  hg.putImageData(S.bimg,0,0);ctx.globalCompositeOperation=&#x27;lighter&#x27;;ctx.imageSmoothingEnabled=true;
+  if(FILT){b1g.clearRect(0,0,W,H);b1g.filter=&#x27;blur(2px)&#x27;;b1g.drawImage(half,0,0,W,H);b1g.filter=&#x27;none&#x27;;
+    b2g.clearRect(0,0,W&gt;&gt;1,H&gt;&gt;1);b2g.filter=&#x27;blur(7px)&#x27;;b2g.drawImage(half,0,0);b2g.filter=&#x27;none&#x27;;
+    ctx.globalAlpha=0.8;ctx.drawImage(b1,0,0,cv.width,cv.height);ctx.globalAlpha=0.9;ctx.drawImage(b2,0,0,cv.width,cv.height);ctx.globalAlpha=1}
+  else{let src=half;const al=[0.6,0.7,0.8];mips.forEach((m,i)=&gt;{const g=m.getContext(&#x27;2d&#x27;);g.imageSmoothingEnabled=true;g.clearRect(0,0,m.width,m.height);g.drawImage(src,0,0,m.width,m.height);src=m;ctx.globalAlpha=al[i];ctx.drawImage(m,0,0,cv.width,cv.height)});ctx.globalAlpha=1}
+  ctx.globalCompositeOperation=&#x27;source-over&#x27;;syncInfo()}
+function fit(){const aw=stage.clientWidth-2,ah=Math.max(200,innerHeight*0.74);let sc=Math.min(aw/W,ah/H);const dpr=devicePixelRatio||1;
+  const css=sc&gt;=2?Math.floor(sc*dpr)/dpr:Math.max(0.5,sc);const dev=Math.max(1,Math.min(4,Math.round(css*dpr)));if(cv.width!==W*dev){cv.width=W*dev;cv.height=H*dev}
+  cv.style.width=Math.floor(W*css)+&#x27;px&#x27;;cv.style.height=Math.floor(H*css)+&#x27;px&#x27;}
+let infoLast=&#x27;&#x27;;function syncInfo(){const d=G.d;const s=(d.info?d.info(G):&#x27;&#x27;)+(mode===&#x27;play&#x27;?&#x27;&#x27;:&#x27; · 自己在动&#x27;);if(s!==infoLast){$(&#x27;info&#x27;).textContent=s;infoLast=s}}
+// ---------------- controls ----------------
+const rail=$(&#x27;rail&#x27;);
+function seg(label,opts,get,set){const l=document.createElement(&#x27;span&#x27;);l.className=&#x27;lab&#x27;;l.textContent=label;const s=document.createElement(&#x27;div&#x27;);s.className=&#x27;seg&#x27;;
+  for(const[v,t]of opts){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=t;b.onclick=()=&gt;{set(v);sync()};b.dataset.v=v;s.appendChild(b)}
+  const sync=()=&gt;{for(const b of s.children)b.classList.toggle(&#x27;on&#x27;,String(b.dataset.v)===String(get()))};rail.append(l,s);sync();return sync}
+const btn=(t,fn)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;btn&#x27;;b.textContent=t;b.onclick=fn;rail.appendChild(b);return b};
+const syncMode=seg(&#x27;&#x27;,[[&#x27;play&#x27;,&#x27;亲手摸&#x27;],[&#x27;auto&#x27;,&#x27;自己动&#x27;]],()=&gt;mode,v=&gt;{wake();setMode(v);cv.focus()});
+const playB=btn(&#x27;暂停&#x27;,()=&gt;setPaused(!paused));
+btn(&#x27;重来&#x27;,()=&gt;{G=newGame(GAMES[cur]);frame();cv.focus()});
+let sndUser=false;
+const sndB=btn(&#x27;声音 开&#x27;,()=&gt;{K.sndInit();sndUser=true;K.SND.on=!K.SND.on;syncSnd();if(K.SND.ctx&amp;&amp;K.SND.ctx.state===&#x27;suspended&#x27;)K.SND.ctx.resume();if(!K.SND.on)K.bedsOff()});
+function syncSnd(){const on=K.SND.on||!sndUser;sndB.textContent=on?&#x27;声音 开&#x27;:&#x27;声音 关&#x27;;sndB.classList.toggle(&#x27;on&#x27;,on)}
+// sound comes on with the first key or touch (browsers need a gesture), unless the player turned it off
+function wake(){if(sndUser)return;K.sndInit();if(K.SND.ctx){K.SND.on=true;if(K.SND.ctx.state===&#x27;suspended&#x27;)K.SND.ctx.resume()}syncSnd()}
+const optBox=document.createElement(&#x27;span&#x27;);optBox.className=&#x27;opts&#x27;;rail.appendChild(optBox);
+function buildOpts(){optBox.innerHTML=&#x27;&#x27;;const d=GAMES[cur];for(const o of d.opts||[]){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;btn&#x27;;b.onclick=()=&gt;{wake();o.set(G);syncOpts();cv.focus()};b._o=o;optBox.appendChild(b)}syncOpts()}
+function syncOpts(){for(const b of optBox.children){const o=b._o;const v=o.get?o.get(G):null;b.textContent=typeof o.label===&#x27;function&#x27;?o.label(G):o.label;b.classList.toggle(&#x27;on&#x27;,!!v)}}
+setInterval(()=&gt;{if(G)syncOpts()},500);
+const info=document.createElement(&#x27;span&#x27;);info.id=&#x27;info&#x27;;rail.appendChild(info);
+function setMode(m){mode=m;idle=0;syncMode();$(&#x27;hint&#x27;).textContent=m===&#x27;play&#x27;?(GAMES[cur].keys||&#x27;&#x27;):&#x27;它在自己动 · 把手放上画面就换成你&#x27;;if(G)G.auto=m===&#x27;auto&#x27;;touchUI()}
+function setPaused(p){paused=p;playB.textContent=p?&#x27;继续&#x27;:&#x27;暂停&#x27;}
+addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.target.tagName===&#x27;INPUT&#x27;)return;const gameKey=/^(Arrow|Key[WASDJKZX]|Space|Enter|Escape)/.test(e.code);
+  if(e.code===&#x27;KeyP&#x27;){setPaused(!paused);return}
+  if(gameKey&amp;&amp;(e.code===&#x27;Space&#x27;||e.code===&#x27;Enter&#x27;)&amp;&amp;document.activeElement&amp;&amp;document.activeElement.tagName===&#x27;BUTTON&#x27;)return;
+  if(gameKey){wake();if(paused)setPaused(false);if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;)}if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);e.preventDefault()}});
+addEventListener(&#x27;keyup&#x27;,e=&gt;keys.delete(e.code));
+addEventListener(&#x27;blur&#x27;,()=&gt;{keys.clear();if(mode===&#x27;play&#x27;&amp;&amp;G&amp;&amp;G.d.onBlur)G.d.onBlur(G)});
+function cpos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]}
+const coarse=matchMedia(&#x27;(pointer: coarse)&#x27;).matches;
+let hov=0;cv.addEventListener(&#x27;pointermove&#x27;,e=&gt;{const p=cpos(e);if(e.pointerId===stick.id){stick.x=p[0]-stick.ox;stick.y=p[1]-stick.oy}if(mode!==&#x27;play&#x27;){if(e.pointerType===&#x27;mouse&#x27;&amp;&amp;GAMES[cur].hover&amp;&amp;++hov&gt;40){hov=0;setMode(&#x27;play&#x27;)}else return}mouse.x=p[0];mouse.y=p[1];mouse.active=true;mouse.touch=e.pointerType!==&#x27;mouse&#x27;});
+cv.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{cv.focus();wake();const p=cpos(e);e.preventDefault();
+  if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;)}
+  // touch on a stick game: a touch anywhere starts a floating joystick; the game may also read it as a tap
+  if(e.pointerType!==&#x27;mouse&#x27;&amp;&amp;G.d.touch===&#x27;stick&#x27;){stick.id=e.pointerId;stick.ox=p[0];stick.oy=p[1];stick.x=stick.y=0}
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  mouse.x=p[0];mouse.y=p[1];mouse.active=true;mouse.down=true;mouse.click=true;mouse.touch=e.pointerType!==&#x27;mouse&#x27;});
+addEventListener(&#x27;pointerup&#x27;,e=&gt;{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0}mouse.down=false});
+addEventListener(&#x27;pointercancel&#x27;,e=&gt;{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0}mouse.down=false});
+cv.addEventListener(&#x27;pointerleave&#x27;,e=&gt;{if(e.pointerType===&#x27;mouse&#x27;)mouse.active=false});
+// touch buttons (A / B) for games that want them
+const tb=$(&#x27;tbtn&#x27;);
+function tbtn(lbl,k){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=lbl;
+  b.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{e.preventDefault();wake();if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;)}TB[k]=true;TB[k+&#x27;p&#x27;]=true});
+  const up=()=&gt;{TB[k]=false};b.addEventListener(&#x27;pointerup&#x27;,up);b.addEventListener(&#x27;pointercancel&#x27;,up);b.addEventListener(&#x27;pointerleave&#x27;,up);tb.appendChild(b);return b}
+const tA=tbtn(&#x27;A&#x27;,&#x27;a&#x27;),tB=tbtn(&#x27;B&#x27;,&#x27;b&#x27;);
+function touchUI(){const d=GAMES[cur];const show=coarse&amp;&amp;d.tbtn&amp;&amp;mode===&#x27;play&#x27;;tb.style.display=show?&#x27;flex&#x27;:&#x27;none&#x27;;if(show){tA.textContent=d.tbtn[0];tB.textContent=d.tbtn[1]||&#x27;B&#x27;;tB.style.display=d.tbtn[1]?&#x27;&#x27;:&#x27;none&#x27;}}
+// ---------------- cartridges ----------------
+const carts=$(&#x27;carts&#x27;);
+function select(i){cur=i;const d=GAMES[i];mode=&#x27;auto&#x27;;G=newGame(d);$(&#x27;nm&#x27;).textContent=d.name;$(&#x27;about&#x27;).innerHTML=d.about.map(p=&gt;&#x27;&lt;p&gt;&#x27;+p+&#x27;&lt;/p&gt;&#x27;).join(&#x27;&#x27;);$(&#x27;tags&#x27;).innerHTML=d.tags.map(t=&gt;&#x27;&lt;li&gt;&#x27;+t+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;);
+  for(const[k,c]of [...carts.children].entries())c.classList.toggle(&#x27;on&#x27;,k===i);buildOpts();setMode(mode);try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+d.id)}catch(e){}frame()}
+GAMES.forEach((d,i)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;cart&#x27;;const c=document.createElement(&#x27;canvas&#x27;);c.width=W;c.height=H;
+  const nm=document.createElement(&#x27;span&#x27;);nm.className=&#x27;nm&#x27;;nm.textContent=d.name;const rf=document.createElement(&#x27;span&#x27;);rf.className=&#x27;ref&#x27;;rf.textContent=d.ref;b.append(c,nm,rf);
+  b.onclick=()=&gt;{select(i);stage.scrollIntoView({block:&#x27;nearest&#x27;,behavior:&#x27;smooth&#x27;})};carts.appendChild(b);d._thumb=c});
+// thumbnails are simulated one per task after the page is up, so it opens at once; the game being played just lends its live frame
+function thumb(d){const keep=[cur,G];cur=GAMES.indexOf(d);G=newGame(d);G.auto=true;G.thumb=true;for(let k=0;k&lt;(d.thumbAt||300);k++){const pad=d.ai(G);if(G.stop&gt;0)G.stop--;else{d.tick(G,pad);G.t++}S.frame++;if(d.thumbUntil&amp;&amp;d.thumbUntil(G))break}d.draw(G);S.raw=false;K.present();
+  const g=d._thumb.getContext(&#x27;2d&#x27;);g.putImageData(S.img,0,0);cur=keep[0];G=keep[1]}
+function thumbs(){const q=GAMES.slice();const one=()=&gt;{const d=q.shift();if(!d)return;thumb(d);setTimeout(one,30)};setTimeout(one,200)}
+new ResizeObserver(()=&gt;{fit();if(G)frame()}).observe(stage);
+new IntersectionObserver(es=&gt;{visible=es[0].isIntersecting}).observe(stage);
+document.addEventListener(&#x27;visibilitychange&#x27;,()=&gt;{if(document.hidden&amp;&amp;mode===&#x27;play&#x27;&amp;&amp;G&amp;&amp;G.d.onBlur)G.d.onBlur(G)});
+const start=Math.max(0,GAMES.findIndex(d=&gt;&#x27;#&#x27;+d.id===location.hash));
+fit();select(start);thumbs();if(reduce)setPaused(true);syncSnd();
+function loop(now){const dt=Math.min(0.1,(now-last)/1000);last=now;
+  if(!paused&amp;&amp;visible){acc+=dt*60*(G.ts||1);let n=0;while(acc&gt;=1&amp;&amp;n&lt;5){step();acc-=1;n++}skip=!skip;if(n&amp;&amp;(!slow||!skip)){const t0=performance.now();frame();const ft=performance.now()-t0;avg=avg*0.95+ft*0.05;slow=avg&gt;14}}
+  requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+window.__TT={step:()=&gt;step(),frame,select,get G(){return G},setMode:m=&gt;{setMode(m);G=newGame(GAMES[cur])},press:c=&gt;{pressed.add(c)},hold:(c,on)=&gt;{on?keys.add(c):keys.delete(c)},mouse};
+})();
+</code></pre></html>

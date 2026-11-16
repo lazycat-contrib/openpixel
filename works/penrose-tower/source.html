@@ -1,0 +1,297 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>永登之塔 · 源码</title><style>body{margin:0;background:#0d1513;color:#dbe4d7;font:14px/1.7 ui-monospace,Consolas,monospace}header{position:sticky;top:0;padding:16px 24px;background:#14221f;border-bottom:1px solid #34483e;display:flex;gap:24px;flex-wrap:wrap}a{color:#b7e99c}pre{padding:24px;overflow:auto;tab-size:2}</style><header><a href="index.html">← 返回作品</a><a href="source.js" download>下载 source.js</a><a href="README.md">修改说明</a><span>本页为源码预览；编辑 source.js 后刷新作品页</span></header><pre><code>// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 喵老弟 / MarkMFFF
+
+&quot;use strict&quot;;
+// ================= helpers =================
+const fl=Math.floor, rd=Math.round, PI=Math.PI, D2R=PI/180;
+
+function R(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(fl(x),fl(y),fl(w),fl(h))}
+function P(g,x,y,c){g.fillStyle=c;g.fillRect(fl(x),fl(y),1,1)}
+
+function disc(g,cx,cy,r,c){cx=rd(cx);cy=rd(cy);r=rd(r);g.fillStyle=c;if(r&lt;=0){g.fillRect(cx,cy,1,1);return}
+  for(let y=-r;y&lt;=r;y++){const w=fl(Math.sqrt(r*r-y*y)+0.35);g.fillRect(cx-w,cy+y,w*2+1,1)}}
+
+function poly(g,pts,c){let y0=1e9,y1=-1e9;for(const p of pts){if(p[1]&lt;y0)y0=p[1];if(p[1]&gt;y1)y1=p[1]}g.fillStyle=c;
+  for(let y=fl(y0);y&lt;=Math.ceil(y1);y++){const yc=y+0.5,xs=[];
+    for(let i=0,j=pts.length-1;i&lt;pts.length;j=i++){const a=pts[i],b=pts[j];if((a[1]&gt;yc)!==(b[1]&gt;yc))xs.push(a[0]+(yc-a[1])/(b[1]-a[1])*(b[0]-a[0]))}
+    xs.sort((a,b)=&gt;a-b);for(let k=0;k+1&lt;xs.length;k+=2){const xa=rd(xs[k]),xb=rd(xs[k+1]);if(xb&gt;xa)g.fillRect(xa,y,xb-xa,1)}}}
+function hash(a,b,c){let h=Math.imul(a|0,374761393)^Math.imul((b|0)+0x9e37,668265263)^Math.imul((c|0)+0x7f4a,1274126177);
+  h=Math.imul(h^(h&gt;&gt;&gt;13),1103515245);h^=h&gt;&gt;&gt;16;h=Math.imul(h,0x45d9f3b);h^=h&gt;&gt;&gt;15;return (h&gt;&gt;&gt;0)/4294967296}
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s&gt;&gt;&gt;15,1|s);t=t+Math.imul(t^t&gt;&gt;&gt;7,61|t)^t;return((t^t&gt;&gt;&gt;14)&gt;&gt;&gt;0)/4294967296}}
+const hx=h=&gt;[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+
+const U=h=&gt;{const a=hx(h);return((255&lt;&lt;24)|(a[2]&lt;&lt;16)|(a[1]&lt;&lt;8)|a[0])&gt;&gt;&gt;0};
+
+
+const SAMPLES=[];
+
+
+// ================= masterwork helpers =================
+function mkc(w,h){const c=document.createElement(&#x27;canvas&#x27;);c.width=w;c.height=h;const x=c.getContext(&#x27;2d&#x27;);x.imageSmoothingEnabled=false;return[c,x]}
+
+
+// ================= 1. 永登之塔 (Penrose stairs) =================
+(function(){
+const W=320,H=180,OX=136,OY=30;
+// isometric 2:1 projection: +1 x -&gt; (+2,+1), +1 y -&gt; (-2,+1), +1 z -&gt; (0,-2). The view direction (1,1,1) projects to nothing,
+// so a spiral that climbs k while drifting (k,k) sideways closes on screen into a ring that rises forever.
+const NA=5,NC=2,ST=12,WB=10,RZ=2,K=36,ZB=-140,ZF=-12;
+const XB=WB+NA*ST,OUT=XB+WB;
+// a general orthographic camera turned about the vertical: at 45 degrees it is exactly the 2:1 isometric view above
+let CA=Math.SQRT1_2,SA=Math.SQRT1_2;const K2=2*Math.SQRT2,K1=Math.SQRT2;
+let OXv=OX,OYv=OY;const SX=(x,y)=&gt;OXv+K2*(x*CA-y*SA),SY=(x,y,z)=&gt;OYv+K1*(x*SA+y*CA)-2*z,DEP=(x,y,z)=&gt;K1*(x*SA+y*CA)+z;
+let STAT=null;
+const LS=(()=&gt;{const v=[-0.62,0.58,0.36],n=Math.hypot(...v);return v.map(a=&gt;a/n)})(); // toward the sun: low, screen-left
+let LAY=null;
+// the ring: corner0, A x5, corner1, B x5, corner2, C x2, corner3, D x2 (then corner0 again, 27 up and 27 nearer)
+function ringBoxes(){const bx=[];let z=0;const add=(x0,x1,y0,y1)=&gt;{bx.push({x0,x1,y0,y1,z0:ZB,z1:z,m:&#x27;stone&#x27;,step:bx.length});z+=RZ};
+  add(0,WB,0,WB);
+  for(let i=1;i&lt;=NA;i++)add(WB+(i-1)*ST,WB+i*ST,0,WB);
+  const XB=WB+NA*ST;add(XB,XB+WB,0,WB);
+  for(let j=1;j&lt;=NA;j++)add(XB,XB+WB,WB+(j-1)*ST,WB+j*ST);
+  const YC=WB+NA*ST;add(XB,XB+WB,YC,YC+WB);
+  for(let l=1;l&lt;=NC;l++)add(XB-l*ST,XB-(l-1)*ST,YC,YC+WB);
+  const X3=XB-NC*ST-WB;add(X3,X3+WB,YC,YC+WB);
+  for(let m=1;m&lt;=NC;m++)add(X3,X3+WB,YC-m*ST,YC-(m-1)*ST);
+  return bx}
+function build(ang){
+  const A_=(45+ang)*D2R;CA=Math.cos(A_);SA=Math.sin(A_);
+  // turn about the middle of the ring, so the tower stays put on screen
+  const cx=44,cy=44;OXv=OX+2*(cx-cy)-K2*(cx*CA-cy*SA);OYv=OY+(cx+cy)-K1*(cx*SA+cy*CA);
+  const boxes=ringBoxes();
+  // courtyard floor deep inside, a balcony on the front wall, a bell loft on corner2, a buttress
+  boxes.push({x0:K+WB,x1:XB,y0:WB,y1:XB,z0:ZF-4,z1:ZF,m:&#x27;floor&#x27;});
+  boxes.push({x0:WB,x1:K+WB,y0:WB,y1:K+WB,z0:ZF-4,z1:ZF,m:&#x27;floor&#x27;});
+  boxes.push({x0:54,x1:66,y0:OUT,y1:OUT+5,z0:-22,z1:-20,m:&#x27;stone&#x27;});        // balcony on the front face
+  boxes.push({x0:OUT,x1:OUT+5,y0:26,y1:38,z0:-36,z1:-34,m:&#x27;stone&#x27;});        // balcony on the right face
+  boxes.push({x0:OUT,x1:OUT+1.5,y0:0,y1:OUT+1.5,z0:-3,z1:-1,m:&#x27;cornice&#x27;});
+  boxes.push({x0:K,x1:OUT,y0:OUT,y1:OUT+1.5,z0:-3,z1:-1,m:&#x27;cornice&#x27;});
+  const zb=new Float32Array(W*H).fill(-1e9),wx=new Float32Array(W*H),wy=new Float32Array(W*H),wz=new Float32Array(W*H),fc=new Int8Array(W*H).fill(-1),bi=new Int16Array(W*H).fill(-1);
+  const put=(px,py,x,y,z,f,b)=&gt;{const i=py*W+px,d=DEP(x,y,z);if(d&gt;zb[i]){zb[i]=d;wx[i]=x;wy[i]=y;wz[i]=z;fc[i]=f;bi[i]=b}};
+  // each face is a plane, so every pixel inverts to one world point; the box is the bounds of its projected corners
+  const bb=(pts)=&gt;{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const q of pts){const x=SX(q[0],q[1]),y=SY(q[0],q[1],q[2]);a=Math.min(a,x);b=Math.min(b,y);c=Math.max(c,x);d=Math.max(d,y)}return[Math.max(0,fl(a)-1),Math.max(0,fl(b)-1),Math.min(W-1,Math.ceil(c)+1),Math.min(H-1,Math.ceil(d)+1)]};
+  boxes.forEach((b,k)=&gt;{
+    {const h=b.z1,[x0,y0,x1,y1]=bb([[b.x0,b.y0,h],[b.x1,b.y0,h],[b.x0,b.y1,h],[b.x1,b.y1,h]]);
+     for(let py=y0;py&lt;=y1;py++)for(let px=x0;px&lt;=x1;px++){const u=(px+0.5-OXv)/K2,v=(py+0.5-OYv+2*h)/K1,x=u*CA+v*SA,y=-u*SA+v*CA;if(x&gt;=b.x0&amp;&amp;x&lt;b.x1&amp;&amp;y&gt;=b.y0&amp;&amp;y&lt;b.y1)put(px,py,x,y,h,0,k)}}
+    {const X=b.x1,[x0,y0,x1,y1]=bb([[X,b.y0,b.z0],[X,b.y1,b.z0],[X,b.y0,b.z1],[X,b.y1,b.z1]]);
+     for(let py=y0;py&lt;=y1;py++)for(let px=x0;px&lt;=x1;px++){const u=(px+0.5-OXv)/K2,y=(X*CA-u)/SA,z=(K1*(X*SA+y*CA)-(py+0.5-OYv))/2;if(y&gt;=b.y0&amp;&amp;y&lt;b.y1&amp;&amp;z&gt;=b.z0&amp;&amp;z&lt;b.z1)put(px,py,X,y,z,1,k)}}
+    {const Y=b.y1,[x0,y0,x1,y1]=bb([[b.x0,Y,b.z0],[b.x1,Y,b.z0],[b.x0,Y,b.z1],[b.x1,Y,b.z1]]);
+     for(let py=y0;py&lt;=y1;py++)for(let px=x0;px&lt;=x1;px++){const u=(px+0.5-OXv)/K2,x=(u+Y*SA)/CA,z=(K1*(x*SA+Y*CA)-(py+0.5-OYv))/2;if(x&gt;=b.x0&amp;&amp;x&lt;b.x1&amp;&amp;z&gt;=b.z0&amp;&amp;z&lt;b.z1)put(px,py,x,Y,z,2,k)}}});
+  // the seam: the spiral is real 3D, so near corner0 the far end of flight D sits 27 nearer than corner0 while drawing over the same pixels.
+  // everything there already agrees except that corner0 has no lower neighbour; nothing to patch.
+  // cast shadows: slab test along the sun ray against every box
+  const shadow=new Uint8Array(W*H);
+  for(let i=0;i&lt;W*H;i++){if(fc[i]&lt;0)continue;const f=fc[i];const n=f===0?[0,0,1]:f===1?[1,0,0]:[0,1,0];const ndl=n[0]*LS[0]+n[1]*LS[1]+n[2]*LS[2];
+    if(ndl&lt;=0.02){shadow[i]=2;continue}
+    const o=[wx[i]+n[0]*0.05,wy[i]+n[1]*0.05,wz[i]+n[2]*0.05];
+    for(const b of boxes){let t0=0.01,t1=400;const lo=[b.x0,b.y0,b.z0],hi=[b.x1,b.y1,b.z1];let hit=true;
+      for(let a=0;a&lt;3;a++){if(Math.abs(LS[a])&lt;1e-6){if(o[a]&lt;lo[a]||o[a]&gt;hi[a]){hit=false;break}continue}
+        let ta=(lo[a]-o[a])/LS[a],tb=(hi[a]-o[a])/LS[a];if(ta&gt;tb){const q=ta;ta=tb;tb=q}t0=Math.max(t0,ta);t1=Math.min(t1,tb);if(t0&gt;t1){hit=false;break}}
+      if(hit){shadow[i]=1;break}}}
+  LAY={boxes,zb,wx,wy,wz,fc,bi,shadow,ang};
+  LAY.base=paint();
+  if(!STAT)STAT={sky:paintSky(),cBack:cloudStrip(11,W*2,40,[&#x27;#f8c49c&#x27;,&#x27;#e4a08e&#x27;,&#x27;#ca8486&#x27;,&#x27;#b47282&#x27;],120),cFront:cloudStrip(23,W*2,30,[&#x27;#fcd4ac&#x27;,&#x27;#eeae96&#x27;,&#x27;#d48e8c&#x27;,&#x27;#bc7886&#x27;],90)};
+  Object.assign(LAY,STAT);
+}
+// ---- materials ----
+const STONE={top:[&#x27;#f4d9a4&#x27;,&#x27;#e6c08a&#x27;],topS:[&#x27;#8a7aa2&#x27;,&#x27;#7c6c96&#x27;],ly:[&#x27;#d8a474&#x27;,&#x27;#c48e62&#x27;],lyS:[&#x27;#6a5684&#x27;,&#x27;#5e4c78&#x27;],rx:[&#x27;#7a5e86&#x27;,&#x27;#6c5278&#x27;],nose:&#x27;#fff0c8&#x27;,noseS:&#x27;#a898bc&#x27;,joint:&#x27;#b48a62&#x27;,jointS:&#x27;#54446e&#x27;,jointR:&#x27;#5a4468&#x27;,
+  winL:&#x27;#ffd27a&#x27;,winL2:&#x27;#ffad52&#x27;,winD:&#x27;#2a1e3c&#x27;,frame:&#x27;#3c2c4a&#x27;};
+function paint(){
+  const [c,x]=mkc(W,H),im=x.createImageData(W,H),u=new Uint32Array(im.data.buffer);const {zb,wx,wy,wz,fc,bi,shadow,boxes}=LAY;
+  const col=new Map();const UC=h=&gt;{let v=col.get(h);if(v===undefined){v=U(h);col.set(h,v)}return v};
+  for(let i=0;i&lt;W*H;i++){const f=fc[i];if(f&lt;0)continue;const b=boxes[bi[i]],X=wx[i],Y=wy[i],Z=wz[i],sh=shadow[i]&gt;0;let h;
+    if(b.m===&#x27;floor&#x27;){// cloister: flagstone walk around a square of grass
+      const inG=X&gt;WB+6&amp;&amp;X&lt;XB-6&amp;&amp;Y&gt;WB+6&amp;&amp;Y&lt;XB-6;if(inG){h=sh?&#x27;#3c5a5a&#x27;:&#x27;#7ca05a&#x27;;if(hash(fl(X*2),fl(Y*2),9)&gt;0.8)h=sh?&#x27;#34504e&#x27;:&#x27;#94b868&#x27;}
+      else{h=sh?&#x27;#5a4a72&#x27;:&#x27;#d8b488&#x27;;if(((X+0.3)%4&lt;0.5)||((Y+0.3)%4&lt;0.5))h=sh?&#x27;#4c3e64&#x27;:&#x27;#b8946c&#x27;}
+      if(f!==0)h=f===1?&#x27;#2e2244&#x27;:&#x27;#4a3a5e&#x27;}
+    else if(b.m===&#x27;loft&#x27;){h=f===0?&#x27;#e6c08a&#x27;:f===1?&#x27;#5e4472&#x27;:(sh?&#x27;#5e4c78&#x27;:&#x27;#c48e62&#x27;);
+      // open arches of the bell loft
+      if(f!==0){const u_=f===1?Y:X,v=Z;const cu=f===1?63:63;if(Math.abs(u_-cu)&lt;2.2&amp;&amp;v&gt;19&amp;&amp;v&lt;27.5-(Math.abs(u_-cu)&gt;1.4?0.8:0))h=&#x27;#1c1430&#x27;}}
+    else if(b.m===&#x27;cornice&#x27;){h=f===0?&#x27;#ffe0aa&#x27;:f===1?&#x27;#5a4468&#x27;:(sh?&#x27;#4e3e66&#x27;:&#x27;#b07e58&#x27;)}
+    else if(b.m===&#x27;roof&#x27;){h=f===0?&#x27;#b04a3a&#x27;:f===1?&#x27;#5a2032&#x27;:&#x27;#8a3038&#x27;}
+    else if(f===0){// step tops: slabs with a lit nose on the low edge and seams between slabs
+      const S_=STONE;h=sh?S_.topS[0]:S_.top[0];
+      // screen-space step edges: the row right under a lower tread is this tread&#x27;s lit nose; the row right under a higher tread is a contact shadow
+      const up=i-W;if(up&gt;=0&amp;&amp;fc[up]&gt;=0&amp;&amp;bi[up]!==bi[i]){const bu=boxes[bi[up]];if(bu.m===&#x27;stone&#x27;&amp;&amp;bu.z1&lt;b.z1-0.1)h=sh?S_.noseS:S_.nose}
+}
+    else{// walls: brick courses every 2 units of height, staggered joints, windows at fixed world spots
+      const S_=STONE,uu=f===1?Y:X,vv=Z;const lit=f===2&amp;&amp;!sh;
+      let base=f===1?S_.rx[0]:(lit?S_.ly[0]:S_.lyS[0]);
+      const course=Math.floor(vv/2),inc=vv-course*2;if(inc&lt;0.5)base=f===1?S_.jointR:(lit?S_.joint:S_.jointS);
+      else{const jj=Math.floor((uu+(course%2)*3)/6),ju=(uu+(course%2)*3)-jj*6;if(ju&lt;0.5)base=f===1?S_.jointR:(lit?S_.joint:S_.jointS);else if((jj*7+course*3)%5===0)base=f===1?S_.rx[1]:(lit?S_.ly[1]:S_.lyS[1])}
+      // the band at the top of every step column (the stair stringer) is smooth and catches the light
+      if(b.m===&#x27;stone&#x27;&amp;&amp;b.step!=null&amp;&amp;vv&gt;b.z1-3.2){base=f===1?&#x27;#8a6c92&#x27;:(lit?&#x27;#e8bc86&#x27;:&#x27;#76628e&#x27;);if(vv&gt;b.z1-0.6)base=f===1?&#x27;#a084a6&#x27;:(lit?&#x27;#ffe0aa&#x27;:&#x27;#9a86b2&#x27;)}
+      h=base;
+      // windows: tall arches on the outer faces (x=69 / y=69), small slits on the courtyard walls
+      const w=winAt(f,X,Y,Z);if(w)h=w}
+    u[i]=UC(h)}
+  x.putImageData(im,0,0);return c}
+function winAt(f,X,Y,Z){
+  const uu=f===1?Y:X;
+  const outer=(f===1&amp;&amp;X&gt;OUT-0.5)||(f===2&amp;&amp;Y&gt;OUT-0.5);
+  const rows=outer?[[4,6],[-12,7],[-30,8]]:[[-4,3]];
+  for(const[zc,hh]of rows){const cols=outer?(f===1?[10,30,50,68]:[42,56,70]):(f===1?[50]:[24,40,56]);
+    for(const cu of cols){const du=Math.abs(uu-cu),dz=Z-zc;const half=outer?2.2:1.2;
+      // round-arched top: the opening narrows over the last unit
+      const top=hh-(du&gt;half-0.8?0.9:0);if(du&lt;half+0.6&amp;&amp;dz&gt;-0.6&amp;&amp;dz&lt;top+0.6&amp;&amp;!(du&lt;half&amp;&amp;dz&gt;0&amp;&amp;dz&lt;top))return STONE.frame;
+      if(du&lt;half&amp;&amp;dz&gt;0&amp;&amp;dz&lt;top){const lit=hash(cu,zc*3,f)&gt;0.35;if(!lit)return STONE.winD;return dz&lt;1.2?STONE.winL2:STONE.winL}}}
+  return null}
+const SKY=[&#x27;#2c2a5c&#x27;,&#x27;#3a326a&#x27;,&#x27;#4c3a74&#x27;,&#x27;#62427a&#x27;,&#x27;#7c4a7c&#x27;,&#x27;#9a5478&#x27;,&#x27;#b8606e&#x27;,&#x27;#d47062&#x27;,&#x27;#e88a5c&#x27;,&#x27;#f4a65a&#x27;,&#x27;#fcc46c&#x27;];
+function paintSky(){const [c,x]=mkc(W,H);const HS=[16,14,13,12,11,10,9,8,8,7,6];let y0=0;
+  for(let i=0;i&lt;SKY.length;i++){R(x,0,y0,W,HS[i],SKY[i]);if(i&gt;0){const rs=rng(70+i);let xx=0;while(xx&lt;W){const w=5+fl(rs()*26);if(rs()&lt;0.5)R(x,xx,y0-1,w,1,SKY[i]);else R(x,xx,y0,w,1,SKY[i-1]);xx+=w+3+fl(rs()*22)}}y0+=HS[i]}
+  R(x,0,y0,W,H-y0,SKY[SKY.length-1]);
+  // sun, low on the left, sliced by haze
+  const sx=26,sy=112,r=12;disc(x,sx,sy,r+7,&#x27;#fbb866&#x27;);disc(x,sx,sy,r+3,&#x27;#fdd07c&#x27;);
+  for(let y=-r;y&lt;=r;y++){const w=fl(Math.sqrt(r*r-y*y));if(y&gt;3&amp;&amp;((sy+y)%4)&lt;Math.min(2,(y-3)/4))continue;R(x,sx-w,sy+y,w*2+1,1,y&lt;-5?&#x27;#fffbe0&#x27;:&#x27;#fff0b0&#x27;)}
+  // far impossible towers, cool silhouettes
+  const far=(cx,top,w,col,cap)=&gt;{R(x,cx-w,top,w*2,H-top,col);R(x,cx-w-1,top+4,w*2+2,2,col);if(cap){poly(x,[[cx-w-2,top],[cx,top-cap],[cx+w+2,top]],col)}};
+  far(304,58,5,&#x27;#6a4c7c&#x27;,14);far(290,96,3,&#x27;#7a5480&#x27;,8);far(12,92,3,&#x27;#a2627a&#x27;,10);
+  // windows on the far towers
+  for(const[a,b]of[[304,68],[304,80],[304,94],[290,104],[12,102]])P(x,a,b,&#x27;#ffcf7a&#x27;);
+  // first stars and a thin moon
+  const rs=rng(5);for(let i=0;i&lt;26;i++){const a=fl(rs()*W),b=fl(rs()*30);P(x,a,b,rs()&lt;0.3?&#x27;#fff4d0&#x27;:&#x27;#8c86c0&#x27;)}
+  disc(x,262,16,5,&#x27;#fff0c8&#x27;);disc(x,264,14,5,SKY[0]);
+  return c}
+// cloud sea: a wide strip of heaped cumulus built once as a mask, shaded by depth below its top edge (lit crowns, cool bellies), then scrolled
+function cloudStrip(seed,w,h,cols,lumps){const [c,x]=mkc(w,h),mk=new Uint8Array(w*h),rs=rng(seed);
+  for(let i=0;i&lt;lumps;i++){const cx=rs()*w,r=3+rs()*rs()*11,cy=h-4-rs()*rs()*14-r*0.5;for(let yy=fl(cy-r);yy&lt;h;yy++)for(let xx=fl(cx-r);xx&lt;=cx+r;xx++){const dx=xx-cx,dy=Math.min(0,yy-cy);if(dx*dx+dy*dy&lt;=r*r&amp;&amp;yy&gt;=0)mk[yy*w+((xx%w)+w)%w]=1}}
+  for(let xx=0;xx&lt;w;xx++){let d=0;for(let yy=0;yy&lt;h;yy++){const i=yy*w+xx;if(!mk[i]){d=0;continue}
+      // left-lit: pixels whose left neighbour is empty get the bright rim
+      const lft=mk[yy*w+((xx-1+w)%w)];const k=d===0?0:d&lt;2?1:d&lt;5?2:3;let col=cols[k];if(!lft&amp;&amp;d&lt;6)col=cols[0];P(x,xx,yy,col);d++}}
+  return c}
+function cloudLayer(o,img,t,sp,y){const w=img.width,off=fl(t*sp)%w;o.drawImage(img,-off,y);o.drawImage(img,w-off,y)}
+// ---- monks ----
+// 7x12, drawn facing screen-right; o hood, f face, b robe, c cord, k hand, d feet. Shading is by screen column (sun on the left), applied after mirroring
+const SPR={front:[&#x27;...oo..&#x27;,&#x27;..oooo.&#x27;,&#x27;.oooof.&#x27;,&#x27;.oooff.&#x27;,&#x27;.ooooo.&#x27;,&#x27;..bbbb.&#x27;,&#x27;.bbbbbk&#x27;,&#x27;.cccbb.&#x27;,&#x27;.bbbbb.&#x27;,&#x27;.bbbbb.&#x27;,&#x27;bbbbbbb&#x27;,&#x27;.d...d.&#x27;],
+          back:[&#x27;..oo...&#x27;,&#x27;.oooo..&#x27;,&#x27;.ooooo.&#x27;,&#x27;.ooooo.&#x27;,&#x27;.ooooo.&#x27;,&#x27;..bbbb.&#x27;,&#x27;.bbbbb.&#x27;,&#x27;.bcccb.&#x27;,&#x27;.bbbbb.&#x27;,&#x27;.bbbbb.&#x27;,&#x27;bbbbbbb&#x27;,&#x27;.d...d.&#x27;]};
+const ORD=[{o:[&#x27;#d07a3a&#x27;,&#x27;#8a4220&#x27;,&#x27;#5e2a18&#x27;],b:[&#x27;#c86a30&#x27;,&#x27;#8a4020&#x27;,&#x27;#5a2618&#x27;],c:&#x27;#f0c060&#x27;,f:&#x27;#f4c49a&#x27;,k:&#x27;#f4c49a&#x27;,d:&#x27;#2a1620&#x27;},
+           {o:[&#x27;#8a86b8&#x27;,&#x27;#4e4878&#x27;,&#x27;#342e58&#x27;],b:[&#x27;#7c78aa&#x27;,&#x27;#48426e&#x27;,&#x27;#2e2850&#x27;],c:&#x27;#c8c4e0&#x27;,f:&#x27;#e8b48a&#x27;,k:&#x27;#e8b48a&#x27;,d:&#x27;#1c1426&#x27;}];
+function lanePts(off){// off&gt;0 = toward the outside of the ring
+  const a=5-off,b=XB+5+off,c=K+5-off;return[[a,a],[b,a],[b,b],[c,b],[c,c]]}
+function laneLen(pts){let s=0;for(let i=0;i&lt;4;i++)s+=Math.abs(pts[i+1][0]-pts[i][0])+Math.abs(pts[i+1][1]-pts[i][1]);return s}
+function laneAt(pts,u){const tot=laneLen(pts);u=((u%tot)+tot)%tot;for(let i=0;i&lt;4;i++){const dx=pts[i+1][0]-pts[i][0],dy=pts[i+1][1]-pts[i][1],l=Math.abs(dx)+Math.abs(dy);if(u&lt;=l){const k=u/l;return{x:pts[i][0]+dx*k,y:pts[i][1]+dy*k,dx:Math.sign(dx),dy:Math.sign(dy)}}u-=l}return{x:pts[4][0],y:pts[4][1],dx:0,dy:-1}}
+function topAt(x,y){let best=null;for(const b of LAY.boxes){if(b.m!==&#x27;stone&#x27;||b.step==null)continue;if(x&gt;=b.x0&amp;&amp;x&lt;b.x1&amp;&amp;y&gt;=b.y0&amp;&amp;y&lt;b.y1)best=b}return best?best.z1:0}
+function drawMonk(o,zb,m){const {x,y,dx,dy,z,ord,fr,lamp}=m;const sx=rd(SX(x,y)),sy=rd(SY(x,y,z));
+  const view=(dx&gt;0||dy&gt;0)?&#x27;front&#x27;:&#x27;back&#x27;,flip=(dx&lt;0||dy&gt;0);// sprites face screen-right; screen-left movers are mirrored
+  const sp=SPR[view],C=ORD[ord];const ph=fr&amp;3,bob=(ph===1||ph===3)?-1:0;
+  const foot=DEP(x,y,z);
+  const put=(px,py,colr,r)=&gt;{if(px&lt;0||px&gt;=W||py&lt;0||py&gt;=H)return;const ii=py*W+px;if(foot+(12-r)*0.5+3&gt;=zb[ii]){o.fillStyle=colr;o.fillRect(px,py,1,1)}};
+  for(let r=0;r&lt;12;r++){const row=sp[r];for(let i=0;i&lt;7;i++){const ch=row[i];if(ch===&#x27;.&#x27;)continue;
+      const xi=flip?6-i:i;
+      // stride: on the passing frames the feet come together under the robe
+      if(r===11&amp;&amp;(ph===1||ph===3))continue;
+      const sh=xi&lt;=2?0:xi&lt;=4?1:2;let colr;
+      if(ch===&#x27;o&#x27;)colr=C.o[sh];else if(ch===&#x27;b&#x27;)colr=C.b[sh];else if(ch===&#x27;c&#x27;)colr=C.c;else if(ch===&#x27;f&#x27;)colr=xi&lt;=3?C.f:&#x27;#c08870&#x27;;else if(ch===&#x27;k&#x27;)colr=C.k;else colr=C.d;
+      put(sx-3+xi,sy-12+r+bob,colr,r)}}
+  if(ph===1||ph===3)put(sx,sy-1+bob,C.d,11);
+  // the lamp-bearer: a pole over the shoulder with a lantern swinging in front
+  if(lamp){const fx=flip?-1:1,hx=sx+fx*4,hy=sy-7+bob;for(let k=0;k&lt;5;k++)put(hx+fx*rd(k*0.4),hy-k,&#x27;#3a2418&#x27;,9);const sw=rd(Math.sin(m.u*0.4));const lx=hx+fx*2+sw,ly=hy-3;
+    put(lx,ly-1,&#x27;#3a2418&#x27;,10);put(lx,ly,&#x27;#ffe8a0&#x27;,10);put(lx-1,ly,&#x27;#ffb84a&#x27;,10);put(lx+1,ly,&#x27;#ffb84a&#x27;,10);put(lx,ly+1,&#x27;#ffb84a&#x27;,10);put(lx,ly+2,&#x27;#3a2418&#x27;,10)}}
+// long evening shadow of a monk: a streak away from the sun along the tread it stands on
+function monkShadow(o,m){const {x,y,z}=m;for(let k=2;k&lt;=16;k++){const X=x+k*0.31,Y=y-k*0.29;const sx=rd(SX(X,Y)),sy=rd(SY(X,Y,z));
+    for(const dxx of [0,-1]){const px=sx+dxx,py=sy;if(px&lt;0||px&gt;=W||py&lt;0||py&gt;=H)continue;const i=py*W+px;if(LAY.fc[i]!==0||Math.abs(LAY.wz[i]-z)&gt;0.01||LAY.shadow[i])continue;
+      o.fillStyle=&#x27;#b494a8&#x27;;o.fillRect(px,py,1,1)}}}
+// an olive tree in the cloister garden, depth-tested against the walls
+function tree(o,t){const X=30,Y=22,Z=ZF,sx=rd(SX(X,Y)),sy=rd(SY(X,Y,Z)),d0=DEP(X,Y,Z);const zb=LAY.zb;
+  const put=(px,py,c,h)=&gt;{if(px&lt;0||px&gt;=W||py&lt;0||py&gt;=H)return;if(d0+h*0.5+2&gt;=zb[py*W+px]){o.fillStyle=c;o.fillRect(px,py,1,1)}};
+  for(let k=0;k&lt;7;k++){put(sx,sy-k,&#x27;#4a2e2a&#x27;,k);if(k===3)put(sx+1,sy-k-1,&#x27;#4a2e2a&#x27;,k)}
+  for(let k=1;k&lt;=12;k++)put(sx+k,sy+rd(k*0.05)-(k&gt;3&amp;&amp;k&lt;10?1:0),&#x27;#4a6a50&#x27;,0),put(sx+k,sy+rd(k*0.05),&#x27;#4a6a50&#x27;,0);
+  const sw=Math.sin(t*0.05);
+  const blobs=[[0,-11,6],[-4,-9,4],[4,-8,4],[1,-15,4]];
+  for(const[bx,by,r]of blobs)for(let yy=-r;yy&lt;=r;yy++)for(let xx=-r-1;xx&lt;=r+1;xx++){if((xx*xx)/((r+1)*(r+1))+(yy*yy)/(r*r)&gt;1)continue;const lean=rd(sw*(-(by+yy))/14);
+    const lit=xx+yy&lt;-2;const rim=xx&lt;-r+1;put(sx+bx+xx+lean,sy+by+yy,rim||lit?&#x27;#d6c878&#x27;:(yy&gt;r-2?&#x27;#3c5448&#x27;:&#x27;#6a8a50&#x27;),-(by+yy))}}
+const LOOPT=1440;
+function monksAt(t){const out=[];
+  // the ascending order walks the inner lane clockwise on screen (A,B,C,D = up); the descending order walks the outer lane the other way
+  const inner=lanePts(-2.5),outer=lanePts(2.5),Li=laneLen(inner),Lo=laneLen(outer);
+  const NUP=9,NDN=6,vUp=Li/(LOOPT/4),vDn=Lo/(LOOPT/3);
+  for(let i=0;i&lt;NUP;i++){const u=t*vUp+i*Li/NUP+(i===3?2:0);const p=laneAt(inner,u);out.push({...p,u,ord:0,lamp:i===0,fr:fl((t*vUp+i*7)/2.6)})}
+  for(let i=0;i&lt;NDN;i++){const u=-(t*vDn)+i*Lo/NDN+5;const p=laneAt(outer,u);out.push({x:p.x,y:p.y,u,dx:-p.dx,dy:-p.dy,ord:1,lamp:i===2,fr:fl((t*vDn+i*5)/2.6)})}
+  for(const m of out)m.z=topAt(m.x,m.y);
+  // the seam: a monk near corner0 on its approach from flight D is drawn from the copy 27 nearer, so he passes in front of things correctly
+  for(const m of out){if(m.x&lt;WB+0.01&amp;&amp;m.y&lt;WB+0.01&amp;&amp;false){}}
+  return out}
+function draw(s,g){const ang=s.opt.view||0;if(!LAY||LAY.ang!==ang)build(ang);const t=s.t;const [O,o]=LAY.O||(LAY.O=mkc(W,H));
+  o.drawImage(LAY.sky,0,0);
+  cloudLayer(o,LAY.cBack,t,0.06,128);R(o,0,168,W,12,&#x27;#c27a84&#x27;);
+  // birds wheeling around the bell loft
+  for(let i=0;i&lt;5;i++){const a=t*0.018+i*1.3,bx=SX(84,40)+Math.cos(a)*(30+i*6),by=SY(84,40,50)+Math.sin(a)*10-i*3;const up=((t&gt;&gt;2)+i)%2;P(o,bx,by,&#x27;#2a1e3c&#x27;);P(o,bx-1,by-up,&#x27;#2a1e3c&#x27;);P(o,bx+1,by-up,&#x27;#2a1e3c&#x27;)}
+  o.drawImage(LAY.base,0,0);
+  tree(o,t);
+  const ms=monksAt(t);ms.sort((a,b)=&gt;DEP(a.x,a.y,a.z)-DEP(b.x,b.y,b.z));
+  for(const m of ms)monkShadow(o,m);
+  for(const m of ms)drawMonk(o,LAY.zb,m);
+  cloudLayer(o,LAY.cFront,t,0.15,152);
+  g.drawImage(O,0,0)}
+SAMPLES.push({id:&#x27;stairs&#x27;,name:&#x27;永登之塔&#x27;,w:W,h:H,thumb:120,
+  tags:[&#x27;彭罗斯阶梯&#x27;,&#x27;等距投影的视线方向&#x27;,&#x27;逐像素深度缓冲&#x27;,&#x27;解析阴影&#x27;,&#x27;可转动的真实三维&#x27;,&#x27;两支永远走不完的队伍&#x27;],
+  about:&#x27;一座修道院的屋顶是一圈台阶，一队修士顺时针一直往上走，另一队逆时针一直往下走，谁都走不到头。这不是画出来的错觉贴图：塔是一个真实的三维螺旋，绕一圈升高 27 格，同时朝我们靠近 27 格，在这个等距视角下这两段位移刚好抵消，所以首尾在屏幕上严丝合缝。光影、遮挡、投影全部是按这个三维形体逐像素算出来的。拖动下面的「转动视角」，镜头一偏，首尾就会错开，露出它其实是一段螺旋，修士走到接缝处会瞬移；回到正位，它又闭合成一圈。&#x27;,
+  controls:[{type:&#x27;range&#x27;,key:&#x27;view&#x27;,label:&#x27;转动视角&#x27;,min:-40,max:40,def:0},{type:&#x27;button&#x27;,label:&#x27;回到正位&#x27;,act(s){s.opt.view=0}}],init(s){},tick(s){},draw,
+  info(s){return (s.opt.view?&#x27;视角偏了 &#x27;+Math.abs(s.opt.view).toFixed(0)+&#x27;° · &#x27;:&#x27;&#x27;)+&#x27;已登 &#x27;+fl(s.t*18*4/LOOPT)+&#x27; 级&#x27;}});
+})();
+
+// ================= 2. 无尽之窗 (infinite zoom) =================
+
+
+// ================= 3. 五十年 (one shot through six eras) =================
+
+
+// ================= 4. 十二个像素 (a life in 4x3 pixels) =================
+
+
+// ================= player =================
+const cv=document.getElementById(&#x27;cv&#x27;),g=cv.getContext(&#x27;2d&#x27;),stage=document.getElementById(&#x27;stage&#x27;);
+const $=id=&gt;document.getElementById(id);
+let cur=0,S=null,paused=false,speed=1,acc=0,last=performance.now(),visible=true;
+const reduce=matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;if(reduce)paused=true;
+function newState(def){const s={t:0,opt:{}};for(const c of def.controls||[])if(c.key)s.opt[c.key]=c.def;def.init(s);return s}
+function fit(){const d=SAMPLES[cur],aw=stage.clientWidth-2,ah=Math.max(200,innerHeight*0.66);let sc=Math.min(aw/d.w,ah/d.h);if(sc&gt;=2)sc=fl(sc);
+  cv.style.width=fl(d.w*sc)+&#x27;px&#x27;;cv.style.height=fl(d.h*sc)+&#x27;px&#x27;;S.scale=sc}
+function render(){g.imageSmoothingEnabled=false;SAMPLES[cur].draw(S,g);syncUI()}
+function syncUI(){const d=SAMPLES[cur];$(&#x27;info&#x27;).textContent=(d.info?d.info(S)+&#x27; · &#x27;:&#x27;&#x27;)+`${d.w}×${d.h}`+(S.scale&gt;=2?` ×${S.scale}`:&#x27;&#x27;);
+  for(const el of $(&#x27;ctls&#x27;).querySelectorAll(&#x27;[data-key]&#x27;)){const k=el.dataset.key,v=S.opt[k];
+    if(el.dataset.type===&#x27;seg&#x27;)for(const b of el.querySelectorAll(&#x27;button&#x27;))b.classList.toggle(&#x27;on&#x27;,String(b.dataset.v)===String(v));
+    else if(el.dataset.type===&#x27;toggle&#x27;){el.classList.toggle(&#x27;on&#x27;,!!v);el.setAttribute(&#x27;aria-pressed&#x27;,!!v)}
+    else if(el.dataset.type===&#x27;range&#x27;&amp;&amp;document.activeElement!==el)el.value=v}}
+function tick(){SAMPLES[cur].tick(S);S.t++}
+function select(i){if(SAMPLES[cur]&amp;&amp;S&amp;&amp;SAMPLES[cur].onLeave)SAMPLES[cur].onLeave(S);cur=i;const d=SAMPLES[i];cv.width=d.w;cv.height=d.h;S=newState(d);
+  $(&#x27;nm&#x27;).textContent=d.name;$(&#x27;about&#x27;).textContent=d.about;
+  $(&#x27;tags&#x27;).innerHTML=&#x27;&lt;li class=&quot;h&quot;&gt;TECHNIQUES&lt;/li&gt;&#x27;+d.tags.map(t=&gt;`&lt;li&gt;${t}&lt;/li&gt;`).join(&#x27;&#x27;);
+  const box=$(&#x27;ctls&#x27;);box.innerHTML=&#x27;&#x27;;
+  for(const c of d.controls||[]){
+    if(c.type===&#x27;seg&#x27;){const lab=document.createElement(&#x27;span&#x27;);lab.className=&#x27;lab&#x27;;lab.textContent=c.label;const seg=document.createElement(&#x27;div&#x27;);seg.className=&#x27;seg&#x27;;seg.dataset.key=c.key;seg.dataset.type=&#x27;seg&#x27;;
+      for(const[v,l]of c.options){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=l;b.dataset.v=v;b.onclick=()=&gt;{S.opt[c.key]=v;d.onOpt&amp;&amp;d.onOpt(S,c.key);render()};seg.appendChild(b)}
+      box.append(lab,seg)}
+    else if(c.type===&#x27;toggle&#x27;){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=c.label;b.dataset.key=c.key;b.dataset.type=&#x27;toggle&#x27;;b.onclick=()=&gt;{S.opt[c.key]=!S.opt[c.key];d.onOpt&amp;&amp;d.onOpt(S,c.key);render()};box.append(b)}
+    else if(c.type===&#x27;range&#x27;){const lab=document.createElement(&#x27;label&#x27;);lab.className=&#x27;lab&#x27;;lab.textContent=c.label;lab.htmlFor=&#x27;rg-&#x27;+c.key;const r=document.createElement(&#x27;input&#x27;);r.type=&#x27;range&#x27;;r.id=&#x27;rg-&#x27;+c.key;r.min=c.min;r.max=c.max;r.step=&#x27;0.1&#x27;;r.dataset.key=c.key;r.dataset.type=&#x27;range&#x27;;
+      r.oninput=()=&gt;{S.opt[c.key]=+r.value;render()};box.append(lab,r)}
+    else if(c.type===&#x27;button&#x27;){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=c.label;b.onclick=()=&gt;{c.act(S);render()};box.append(b)}}
+  for(const[k,el]of [...$(&#x27;tabs&#x27;).children].entries())el.classList.toggle(&#x27;on&#x27;,k===i);
+  cv.style.touchAction=d.onPointer?&#x27;none&#x27;:&#x27;auto&#x27;;fit();render();try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+d.id)}catch(e){}}
+// speed control
+for(const[v,l]of [[0.25,&#x27;¼&#x27;],[0.5,&#x27;½&#x27;],[1,&#x27;1×&#x27;],[2,&#x27;2×&#x27;]]){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=l;b.dataset.v=v;b.onclick=()=&gt;{speed=v;for(const x of $(&#x27;spd&#x27;).children)x.classList.toggle(&#x27;on&#x27;,+x.dataset.v===speed)};$(&#x27;spd&#x27;).appendChild(b)}
+for(const x of $(&#x27;spd&#x27;).children)x.classList.toggle(&#x27;on&#x27;,+x.dataset.v===speed);
+function setPaused(p){paused=p;$(&#x27;play&#x27;).textContent=p?&#x27;播放&#x27;:&#x27;暂停&#x27;}
+$(&#x27;play&#x27;).onclick=()=&gt;setPaused(!paused);
+$(&#x27;stepb&#x27;).onclick=()=&gt;{setPaused(true);tick();render()};
+function cpos(e){const r=cv.getBoundingClientRect(),d=SAMPLES[cur];return[(e.clientX-r.left)/r.width*d.w,(e.clientY-r.top)/r.height*d.h]}
+cv.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{const d=SAMPLES[cur],p=cpos(e);if(d.onPointer){try{cv.setPointerCapture(e.pointerId)}catch(_){}d.onPointer(S,p[0],p[1],&#x27;down&#x27;,1);e.preventDefault()}if(d.onClick)d.onClick(S,p[0],p[1]);render()});
+cv.addEventListener(&#x27;pointermove&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onPointer){const p=cpos(e);d.onPointer(S,p[0],p[1],&#x27;move&#x27;,e.buttons)}});
+cv.addEventListener(&#x27;pointerup&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onPointer){const p=cpos(e);d.onPointer(S,p[0],p[1],&#x27;up&#x27;,0)}});
+addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.target.tagName===&#x27;INPUT&#x27;)return;const d=SAMPLES[cur];
+  if(d.onKey&amp;&amp;d.onKey(S,e.key,true)){e.preventDefault();return}
+  if(e.key===&#x27; &#x27;){e.preventDefault();setPaused(!paused)}else if(e.key===&#x27;ArrowRight&#x27;){e.preventDefault();setPaused(true);tick();render()}
+  else{const k=&#x27;1234567890-=&#x27;.indexOf(e.key);if(k&gt;=0&amp;&amp;k&lt;SAMPLES.length)select(k);else if(e.key===&#x27;[&#x27;||e.key===&#x27;]&#x27;)select((cur+(e.key===&#x27;]&#x27;?1:SAMPLES.length-1))%SAMPLES.length)}});
+addEventListener(&#x27;keyup&#x27;,e=&gt;{const d=SAMPLES[cur];if(d.onKey)d.onKey(S,e.key,false)});
+// thumbnails
+SAMPLES.forEach((d,i)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;tab&#x27;;const c=document.createElement(&#x27;canvas&#x27;);c.width=d.w;c.height=d.h;
+  const st=newState(d);for(let k=0;k&lt;(d.thumb||40);k++){d.tick(st);st.t++}const tg=c.getContext(&#x27;2d&#x27;);tg.imageSmoothingEnabled=false;d.draw(st,tg);
+  const tl=document.createElement(&#x27;span&#x27;);tl.className=&#x27;tl&#x27;;tl.innerHTML=`&lt;span class=&quot;k&quot;&gt;${i+1}&lt;/span&gt;${d.name}`;b.append(c,tl);b.onclick=()=&gt;select(i);$(&#x27;tabs&#x27;).appendChild(b)});
+new ResizeObserver(()=&gt;{if(S){fit();render()}}).observe(stage);
+new IntersectionObserver(es=&gt;{visible=es[0].isIntersecting}).observe(stage);
+const start=Math.max(0,SAMPLES.findIndex(d=&gt;&#x27;#&#x27;+d.id===location.hash));select(start);setPaused(paused);
+function loop(now){const dt=Math.min(0.25,(now-last)/1000);last=now;
+  if(!paused&amp;&amp;visible){acc+=dt*24*speed;let n=0;while(acc&gt;=1&amp;&amp;n&lt;8){tick();acc-=1;n++}if(n)render()}
+  requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</code></pre></html>

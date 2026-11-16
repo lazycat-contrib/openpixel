@@ -1,0 +1,491 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>金缮 · 源码</title><style>body{margin:0;background:#0d1513;color:#dbe4d7;font:14px/1.7 ui-monospace,Consolas,monospace}header{position:sticky;top:0;padding:16px 24px;background:#14221f;border-bottom:1px solid #34483e;display:flex;gap:24px;flex-wrap:wrap}a{color:#b7e99c}pre{padding:24px;overflow:auto;tab-size:2}</style><header><a href="index.html">← 返回作品</a><a href="source.js" download>下载 source.js</a><a href="README.md">修改说明</a><span>本页为源码预览；编辑 source.js 后刷新作品页</span></header><pre><code>// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 喵老弟 / MarkMFFF
+
+const PF={
+&#x27;0&#x27;:[&#x27;.###.&#x27;,&#x27;#..##&#x27;,&#x27;#.#.#&#x27;,&#x27;##..#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;1&#x27;:[&#x27;..#..&#x27;,&#x27;.##..&#x27;,&#x27;#.#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;#####&#x27;],
+&#x27;2&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;....#&#x27;,&#x27;..##.&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],&#x27;3&#x27;:[&#x27;####.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;.###.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;####.&#x27;],
+&#x27;4&#x27;:[&#x27;...#.&#x27;,&#x27;..##.&#x27;,&#x27;.#.#.&#x27;,&#x27;#..#.&#x27;,&#x27;#####&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;],&#x27;5&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],
+&#x27;6&#x27;:[&#x27;.###.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;7&#x27;:[&#x27;#####&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;.#...&#x27;,&#x27;.#...&#x27;],
+&#x27;8&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;9&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.####&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;.###.&#x27;],
+&#x27;A&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#####&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],&#x27;B&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;],
+&#x27;C&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;D&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;],
+&#x27;E&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],&#x27;F&#x27;:[&#x27;#####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],
+&#x27;G&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#....&#x27;,&#x27;#.###&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.####&#x27;],&#x27;H&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#####&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;I&#x27;:[&#x27;###&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;.#.&#x27;,&#x27;###&#x27;],&#x27;J&#x27;:[&#x27;..###&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;,&#x27;...#.&#x27;,&#x27;#..#.&#x27;,&#x27;#..#.&#x27;,&#x27;.##..&#x27;],
+&#x27;K&#x27;:[&#x27;#...#&#x27;,&#x27;#..#.&#x27;,&#x27;#.#..&#x27;,&#x27;##...&#x27;,&#x27;#.#..&#x27;,&#x27;#..#.&#x27;,&#x27;#...#&#x27;],&#x27;L&#x27;:[&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],
+&#x27;M&#x27;:[&#x27;#...#&#x27;,&#x27;##.##&#x27;,&#x27;#.#.#&#x27;,&#x27;#.#.#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],&#x27;N&#x27;:[&#x27;#...#&#x27;,&#x27;##..#&#x27;,&#x27;#.#.#&#x27;,&#x27;#..##&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;O&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;P&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],
+&#x27;Q&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#.#.#&#x27;,&#x27;#..#.&#x27;,&#x27;.##.#&#x27;],&#x27;R&#x27;:[&#x27;####.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;####.&#x27;,&#x27;#.#..&#x27;,&#x27;#..#.&#x27;,&#x27;#...#&#x27;],
+&#x27;S&#x27;:[&#x27;.####&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;,&#x27;.###.&#x27;,&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;####.&#x27;],&#x27;T&#x27;:[&#x27;#####&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;],
+&#x27;U&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.###.&#x27;],&#x27;V&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;],
+&#x27;W&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;#.#.#&#x27;,&#x27;#.#.#&#x27;,&#x27;##.##&#x27;,&#x27;#...#&#x27;],&#x27;X&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;.#.#.&#x27;,&#x27;#...#&#x27;,&#x27;#...#&#x27;],
+&#x27;Y&#x27;:[&#x27;#...#&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;],&#x27;Z&#x27;:[&#x27;#####&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#####&#x27;],
+&#x27;+&#x27;:[&#x27;.....&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;#####&#x27;,&#x27;..#..&#x27;,&#x27;..#..&#x27;,&#x27;.....&#x27;],&#x27;-&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;],
+&#x27;!&#x27;:[&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;#&#x27;],&#x27;?&#x27;:[&#x27;.###.&#x27;,&#x27;#...#&#x27;,&#x27;....#&#x27;,&#x27;..##.&#x27;,&#x27;..#..&#x27;,&#x27;.....&#x27;,&#x27;..#..&#x27;],&#x27;.&#x27;:[&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;],
+&#x27;:&#x27;:[&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;#&#x27;,&#x27;.&#x27;],&#x27;/&#x27;:[&#x27;....#&#x27;,&#x27;....#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#....&#x27;,&#x27;#....&#x27;],&#x27;x&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#...#&#x27;,&#x27;.#.#.&#x27;,&#x27;..#..&#x27;,&#x27;.#.#.&#x27;,&#x27;#...#&#x27;],
+&#x27;%&#x27;:[&#x27;##..#&#x27;,&#x27;##..#&#x27;,&#x27;...#.&#x27;,&#x27;..#..&#x27;,&#x27;.#...&#x27;,&#x27;#..##&#x27;,&#x27;#..##&#x27;],&quot;&#x27;&quot;:[&#x27;#&#x27;,&#x27;#&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;,&#x27;.&#x27;],&#x27;*&#x27;:[&#x27;.....&#x27;,&#x27;#.#.#&#x27;,&#x27;.###.&#x27;,&#x27;#####&#x27;,&#x27;.###.&#x27;,&#x27;#.#.#&#x27;,&#x27;.....&#x27;],
+&#x27;(&#x27;:[&#x27;.#&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;#.&#x27;,&#x27;.#&#x27;],&#x27;)&#x27;:[&#x27;#.&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;.#&#x27;,&#x27;#.&#x27;],&#x27;,&#x27;:[&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;..&#x27;,&#x27;.#&#x27;,&#x27;#.&#x27;],&#x27;=&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;],
+&#x27;&lt;&#x27;:[&#x27;...#&#x27;,&#x27;..#.&#x27;,&#x27;.#..&#x27;,&#x27;#...&#x27;,&#x27;.#..&#x27;,&#x27;..#.&#x27;,&#x27;...#&#x27;],&#x27;&gt;&#x27;:[&#x27;#...&#x27;,&#x27;.#..&#x27;,&#x27;..#.&#x27;,&#x27;...#&#x27;,&#x27;..#.&#x27;,&#x27;.#..&#x27;,&#x27;#...&#x27;],&#x27;#&#x27;:[&#x27;.#.#.&#x27;,&#x27;#####&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;.#.#.&#x27;,&#x27;#####&#x27;,&#x27;.#.#.&#x27;],
+&#x27;_&#x27;:[&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;.....&#x27;,&#x27;#####&#x27;],&#x27; &#x27;:[&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;,&#x27;...&#x27;]};
+
+
+// ================= K: a small true-colour pixel core =================
+// A 480x270 colour buffer + emissive (for bloom) + depth. Each game owns its own renderer (voxel space, oblique heightfield,
+// folding paper) and writes final pixels here; K only handles text, sound, helpers, and the hand-off to the display.
+const K=(function(){
+const W=480,H=270,N=W*H;
+const col=new Uint32Array(N),em=new Uint8Array(N),dep=new Float32Array(N);
+const img=new ImageData(W,H),o32=new Uint32Array(img.data.buffer);
+const BW=W&gt;&gt;1,BH=H&gt;&gt;1,bimg=new ImageData(BW,BH),b32=new Uint32Array(bimg.data.buffer);
+const S={W,H,col,em,dep,img,bimg,frame:0,flash:0,flashC:0xffffff,fade:0,fadeC:0,raw:false,bloomK:1,shx:0,shy:0};
+// ---------------- colour helpers ----------------
+const rgb=(r,g,b)=&gt;((r&lt;0?0:r&gt;255?255:r|0)&lt;&lt;16)|((g&lt;0?0:g&gt;255?255:g|0)&lt;&lt;8)|(b&lt;0?0:b&gt;255?255:b|0);
+const hex=s=&gt;parseInt(s.replace(&#x27;#&#x27;,&#x27;&#x27;),16);
+function mix(a,b,t){if(t&lt;=0)return a;if(t&gt;=1)return b;const ar=a&gt;&gt;16&amp;255,ag=a&gt;&gt;8&amp;255,ab=a&amp;255;return rgb(ar+((b&gt;&gt;16&amp;255)-ar)*t,ag+((b&gt;&gt;8&amp;255)-ag)*t,ab+((b&amp;255)-ab)*t)}
+function mul(a,k){return rgb((a&gt;&gt;16&amp;255)*k,(a&gt;&gt;8&amp;255)*k,(a&amp;255)*k)}
+function mulc(a,kr,kg,kb){return rgb((a&gt;&gt;16&amp;255)*kr,(a&gt;&gt;8&amp;255)*kg,(a&amp;255)*kb)}
+function add(a,b){return rgb((a&gt;&gt;16&amp;255)+(b&gt;&gt;16&amp;255),(a&gt;&gt;8&amp;255)+(b&gt;&gt;8&amp;255),(a&amp;255)+(b&amp;255))}
+// a ramp is a hand-picked list of colours, dark to light; sampling snaps to a step (no gradients, no dither)
+const ramp=s=&gt;s.split(&#x27; &#x27;).map(hex);
+function rs(R,t){const n=R.length;let i=Math.floor(t*n);return R[i&lt;0?0:i&gt;=n?n-1:i]}
+// ---------------- random ----------------
+let seed=1;const rnd=()=&gt;{seed=(seed*1664525+1013904223)|0;return((seed&gt;&gt;&gt;8)&amp;0xffffff)/0x1000000};
+const rr=(a,b)=&gt;a+(b-a)*rnd(),ri=(a,b)=&gt;Math.floor(rr(a,b+1));
+function hash(x,y){let h=(x|0)*374761393+(y|0)*668265263;h=(h^(h&gt;&gt;&gt;13))*1274126177;h=h^(h&gt;&gt;&gt;16);return(h&gt;&gt;&gt;0)/4294967296}
+const pmod=(a,n)=&gt;((a%n)+n)%n;
+const clamp=(v,a,b)=&gt;v&lt;a?a:v&gt;b?b:v,lerp=(a,b,t)=&gt;a+(b-a)*t,sstep=(a,b,x)=&gt;{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+function vnoise(x,y,s){const X=Math.floor(x),Y=Math.floor(y),fx=x-X,fy=y-Y,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);s=s||0;
+  const a=hash(X+s,Y),b=hash(X+1+s,Y),c=hash(X+s,Y+1),d=hash(X+1+s,Y+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,y,o,s){let v=0,a=0.5,f=1;for(let i=0;i&lt;o;i++){v+=a*vnoise(x*f,y*f,(s||0)+i*31);f*=2;a*=0.5}return v/(1-Math.pow(0.5,o))}
+// ---------------- drawing ----------------
+function clear(c){col.fill(c);em.fill(0);dep.fill(1e9)}
+function px(x,y,c,e){x|=0;y|=0;if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)return;const p=y*W+x;col[p]=c;em[p]=e||0}
+function pxa(x,y,c,a,e){x|=0;y|=0;if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)return;const p=y*W+x;col[p]=mix(col[p],c,a);if(e)em[p]=Math.max(em[p],e)}
+function rect(x,y,w,h,c,e){x=Math.round(x);y=Math.round(y);for(let j=Math.max(0,y);j&lt;Math.min(H,y+h);j++)for(let i=Math.max(0,x);i&lt;Math.min(W,x+w);i++){const p=j*W+i;col[p]=c;em[p]=e||0}}
+function recta(x,y,w,h,c,a){x=Math.round(x);y=Math.round(y);for(let j=Math.max(0,y);j&lt;Math.min(H,y+h);j++)for(let i=Math.max(0,x);i&lt;Math.min(W,x+w);i++){const p=j*W+i;col[p]=mix(col[p],c,a)}}
+function line(x0,y0,x1,y1,c,e){x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0&lt;x1?1:-1,sy=y0&lt;y1?1:-1;let er=dx+dy;
+  for(let k=0;k&lt;3000;k++){px(x0,y0,c,e);if(x0===x1&amp;&amp;y0===y1)break;const e2=2*er;if(e2&gt;=dy){er+=dy;x0+=sx}if(e2&lt;=dx){er+=dx;y0+=sy}}}
+function disc(cx,cy,r,c,e){for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy;if(dx*dx+dy*dy&lt;=r*r)px(x,y,c,e)}}
+function disca(cx,cy,r,c,a){for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy;if(dx*dx+dy*dy&lt;=r*r)pxa(x,y,c,a)}}
+function ring(cx,cy,r,w,c,e){const r0=Math.max(0,r-w);for(let y=Math.floor(cy-r);y&lt;=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x&lt;=Math.ceil(cx+r);x++){const dx=x+0.5-cx,dy=y+0.5-cy,d=dx*dx+dy*dy;if(d&lt;=r*r&amp;&amp;d&gt;=r0*r0)px(x,y,c,e)}}
+// soft additive glow (goes to colour and to bloom)
+function glow(cx,cy,r,c,k){const cr=(c&gt;&gt;16&amp;255)*k,cg=(c&gt;&gt;8&amp;255)*k,cb=(c&amp;255)*k;for(let y=Math.max(0,Math.floor(cy-r));y&lt;=Math.min(H-1,Math.ceil(cy+r));y++)for(let x=Math.max(0,Math.floor(cx-r));x&lt;=Math.min(W-1,Math.ceil(cx+r));x++){
+  const dx=x+0.5-cx,dy=y+0.5-cy,d=(dx*dx+dy*dy)/(r*r);if(d&gt;=1)continue;const a=(1-d)*(1-d),p=y*W+x,o=col[p];col[p]=rgb((o&gt;&gt;16&amp;255)+cr*a,(o&gt;&gt;8&amp;255)+cg*a,(o&amp;255)+cb*a);em[p]=Math.min(255,em[p]+a*120*k)}}
+// sprites: rows of chars mapped through a palette object; &#x27;.&#x27; is empty
+function spr(rows,map){const h=rows.length,w=Math.max(...rows.map(r=&gt;r.length)),c=new Int32Array(w*h).fill(-1);
+  for(let y=0;y&lt;h;y++)for(let x=0;x&lt;rows[y].length;x++){const ch=rows[y][x];if(ch===&#x27;.&#x27;||ch===&#x27; &#x27;)continue;const m=map[ch];if(m==null)throw new Error(&#x27;sprite char &#x27;+ch);c[y*w+x]=m}return{w,h,c}}
+function blit(s,x,y,o){o=o||{};x=Math.round(x);y=Math.round(y);const fl=o.flip,tint=o.tint,ta=o.ta||0,e=o.em||0,al=o.a;
+  for(let j=0;j&lt;s.h;j++){const Y=y+j;if(Y&lt;0||Y&gt;=H)continue;for(let i=0;i&lt;s.w;i++){let c=s.c[j*s.w+(fl?s.w-1-i:i)];if(c&lt;0)continue;const X=x+i;if(X&lt;0||X&gt;=W)continue;const p=Y*W+X;
+    if(tint!=null)c=mix(c,tint,ta);if(al!=null)col[p]=mix(col[p],c,al);else col[p]=c;em[p]=e}}}
+// ---------------- text: 5x7 latin, 3x5 digits, CJK rasterised from the system font at 4x ----------------
+const S8=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
+function ptext(str,x,y,c,o){o=o||{};const sc=o.scale||1,e=o.em||0;str=String(str).toUpperCase();let w=0;for(const ch of str){const g=PF[ch]||PF[&#x27; &#x27;];w+=(g[0].length+1)*sc}w-=sc;
+  if(o.align===&#x27;c&#x27;)x-=Math.floor(w/2);else if(o.align===&#x27;r&#x27;)x-=w;x=Math.round(x);y=Math.round(y);
+  const pass=(cc,dx,dy,ee)=&gt;{let cx=x;for(const ch of str){const g=PF[ch]||PF[&#x27; &#x27;];for(let j=0;j&lt;7;j++)for(let i=0;i&lt;g[j].length;i++)if(g[j][i]===&#x27;#&#x27;)rect(cx+i*sc+dx,y+j*sc+dy,sc,sc,cc,ee);cx+=(g[0].length+1)*sc}};
+  if(o.ink!=null)for(const[dx,dy]of S8)pass(o.ink,dx,dy,0);if(o.shadow!=null)pass(o.shadow,sc,sc,0);pass(c,0,0,e);return w}
+const GC=new Map();let gcv=null,gcg=null;
+const FAM=&#x27;&quot;PingFang SC&quot;,&quot;Hiragino Sans GB&quot;,&quot;Noto Sans SC&quot;,&quot;Noto Sans CJK SC&quot;,&quot;Microsoft YaHei&quot;,&quot;WenQuanYi Zen Hei&quot;,sans-serif&#x27;;
+const FAMS={kai:&#x27;&quot;Kaiti SC&quot;,&quot;STKaiti&quot;,&quot;KaiTi&quot;,&quot;AR PL UKai CN&quot;,&quot;Noto Serif SC&quot;,&quot;Noto Serif CJK SC&quot;,&quot;Songti SC&quot;,serif&#x27;,serif:&#x27;&quot;Songti SC&quot;,&quot;Noto Serif SC&quot;,&quot;Noto Serif CJK SC&quot;,&quot;SimSun&quot;,serif&#x27;};
+function glyph(ch,size,bold,fam){const key=ch+&#x27;|&#x27;+size+&#x27;|&#x27;+(bold?1:0)+&#x27;|&#x27;+(fam||&#x27;&#x27;);let G=GC.get(key);if(G)return G;
+  if(ch===&#x27; &#x27;){G={w:Math.round(size*0.35),px:[]};GC.set(key,G);return G}
+  const KK=4;if(!gcv){gcv=document.createElement(&#x27;canvas&#x27;);gcg=gcv.getContext(&#x27;2d&#x27;,{willReadFrequently:true})}
+  const f=(bold?&#x27;bold &#x27;:&#x27;&#x27;)+(size*KK)+&#x27;px &#x27;+(fam?FAMS[fam]||fam:FAM);gcg.font=f;const mw=gcg.measureText(ch).width;const w=Math.max(1,Math.round(mw/KK)),h=size+3;
+  gcv.width=(w+2)*KK;gcv.height=h*KK;gcg.font=f;gcg.textBaseline=&#x27;top&#x27;;gcg.fillStyle=&#x27;#fff&#x27;;gcg.fillText(ch,KK,KK*0.5);
+  const d=gcg.getImageData(0,0,gcv.width,gcv.height).data,pp=[],CW=gcv.width;
+  for(let y=0;y&lt;h;y++)for(let x=0;x&lt;w+2;x++){let s=0;for(let j=0;j&lt;KK;j++)for(let i=0;i&lt;KK;i++)s+=d[((y*KK+j)*CW+x*KK+i)*4+3];if(s/(KK*KK*255)&gt;(bold?0.42:0.34))pp.push(x-1,y)}
+  G={w,px:pp};GC.set(key,G);return G}
+function measure(str,size,bold,fam){let w=0;for(const ch of String(str))w+=glyph(ch,size,bold,fam).w;return w}
+// o: size, bold, align, ink (outline), shadow, em, sp (letter spacing), a (alpha)
+function text(str,x,y,c,o){o=o||{};const size=o.size||12,sp=o.sp||0;str=String(str);const w=measure(str,size,o.bold,o.fam)+sp*(str.length-1);if(o.align===&#x27;c&#x27;)x-=Math.floor(w/2);else if(o.align===&#x27;r&#x27;)x-=w;x=Math.round(x);y=Math.round(y);
+  const a=o.a==null?1:o.a;const put=a&gt;=1?(X,Y,cc,ee)=&gt;px(X,Y,cc,ee):(X,Y,cc,ee)=&gt;pxa(X,Y,cc,a,ee);
+  const pass=(cc,dx,dy,ee,list)=&gt;{let cx=x;for(const ch of str){const G=glyph(ch,size,o.bold,o.fam);const q=G.px;for(let i=0;i&lt;q.length;i+=2)for(const[ax,ay]of list)put(cx+q[i]+dx+ax,y+q[i+1]+dy+ay,cc,ee);cx+=G.w+sp}};
+  if(o.ink!=null)pass(o.ink,0,0,0,S8);if(o.shadow!=null)pass(o.shadow,1,1,0,[[0,0]]);pass(c,0,0,o.em||0,[[0,0]]);return w}
+// ---------------- present: grade, flash/fade, bloom bright-pass from emissive ----------------
+function present(){const raw=S.raw,fl=S.flash,fc=S.flashC,fd=S.fade,fdc=S.fadeC;
+  for(let p=0;p&lt;N;p++){let c=col[p];if(!raw){if(fd&gt;0)c=mix(c,fdc,fd);if(fl&gt;0)c=mix(c,fc,fl)}o32[p]=0xff000000|(c&amp;255)&lt;&lt;16|(c&amp;0xff00)|(c&gt;&gt;16&amp;255)}
+  const k=S.bloomK;for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const p=(y*2)*W+x*2;let r=0,g=0,b=0;
+    for(let j=0;j&lt;4;j++){const q=p+(j&amp;1)+(j&gt;&gt;1)*W,e=em[q];if(!e)continue;const c=col[q],f=e/255*k;r+=(c&gt;&gt;16&amp;255)*f;g+=(c&gt;&gt;8&amp;255)*f;b+=(c&amp;255)*f}
+    r=Math.min(255,r/4);g=Math.min(255,g/4);b=Math.min(255,b/4);b32[y*BW+x]=0xff000000|(b&lt;&lt;16)|(g&lt;&lt;8)|r}}
+// ---------------- sound: a tiny WebAudio synth ----------------
+const SND={on:false,ctx:null,last:{},master:null,nb:null,amb:null};
+function sndInit(){if(SND.ctx)return;try{const C=new (window.AudioContext||window.webkitAudioContext)();SND.ctx=C;SND.master=C.createGain();SND.master.gain.value=0.5;
+  const comp=C.createDynamicsCompressor();SND.master.connect(comp);comp.connect(C.destination);
+  const nb=C.createBuffer(1,C.sampleRate*2,C.sampleRate),d=nb.getChannelData(0);for(let i=0;i&lt;d.length;i++)d[i]=Math.random()*2-1;SND.nb=nb}catch(e){SND.ctx=null}}
+function tone(type,f0,f1,dur,vol,t0,att){const C=SND.ctx,o=C.createOscillator(),g=C.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);
+  if(att){g.gain.setValueAtTime(0.0008,t0);g.gain.exponentialRampToValueAtTime(vol,t0+att)}else g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);o.connect(g);g.connect(SND.master);o.start(t0);o.stop(t0+dur+0.02)}
+function noise(dur,vol,t0,ftype,f0,f1,q,att){const C=SND.ctx,s=C.createBufferSource(),f=C.createBiquadFilter(),g=C.createGain();s.buffer=SND.nb;f.type=ftype||&#x27;lowpass&#x27;;f.frequency.setValueAtTime(f0||3000,t0);f.frequency.exponentialRampToValueAtTime(Math.max(30,f1||f0||3000),t0+dur);f.Q.value=q||0.7;
+  if(att){g.gain.setValueAtTime(0.0008,t0);g.gain.exponentialRampToValueAtTime(vol,t0+att)}else g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);s.connect(f);f.connect(g);g.connect(SND.master);s.start(t0,Math.random()*1);s.stop(t0+dur+0.02)}
+// a looping filtered-noise bed whose level and colour a game sets every frame (wind, rain, crowd)
+function bed(name,ftype,f,q){if(!SND.ctx)return null;SND.beds=SND.beds||{};if(SND.beds[name])return SND.beds[name];const C=SND.ctx,s=C.createBufferSource(),fl=C.createBiquadFilter(),g=C.createGain();
+  s.buffer=SND.nb;s.loop=true;fl.type=ftype;fl.frequency.value=f;fl.Q.value=q||0.7;g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(SND.master);s.start();return SND.beds[name]={g,fl}}
+function bedSet(name,vol,f){const b=SND.beds&amp;&amp;SND.beds[name];if(!b)return;const t=SND.ctx.currentTime;b.g.gain.setTargetAtTime(SND.on?vol:0,t,0.15);if(f)b.fl.frequency.setTargetAtTime(f,t,0.2)}
+function bedsOff(){if(!SND.beds)return;for(const k in SND.beds)SND.beds[k].g.gain.setTargetAtTime(0,SND.ctx.currentTime,0.1)}
+function now(){return SND.ctx?SND.ctx.currentTime:0}
+const live=()=&gt;SND.on&amp;&amp;SND.ctx&amp;&amp;!S.mute;
+return {W,H,N,S,rgb,hex,mix,mul,mulc,add,ramp,rs,rnd,rr,ri,hash,pmod,clamp,lerp,sstep,vnoise,fbm,setSeed:v=&gt;{seed=v|0},
+  clear,px,pxa,rect,recta,line,disc,disca,ring,glow,spr,blit,ptext,text,measure,glyph,present,
+  SND,sndInit,tone,noise,bed,bedSet,bedsOff,now,live};
+})();
+
+const GAMES=[];
+// ================= shared bits for the three games: save data, pixel UI frames, floating numbers, particles, sound cues =================
+const STORE=(function(){const mem={};
+  return{get(k,d){try{const s=localStorage.getItem(&#x27;zlyj.&#x27;+k);if(s!=null)return JSON.parse(s)}catch(e){}return k in mem?mem[k]:JSON.parse(JSON.stringify(d))},
+    set(k,v){mem[k]=v;try{localStorage.setItem(&#x27;zlyj.&#x27;+k,JSON.stringify(v))}catch(e){}}}})();
+const UI=(function(){const {rect,recta,px,hex}=K;
+  // a chunky pixel frame: dark ink outline, a light bevel on top-left, a dark one bottom-right, a flat face
+  function frame(x,y,w,h,face,o){o=o||{};x|=0;y|=0;w|=0;h|=0;const ink=o.ink!=null?o.ink:0x14101c,hi=o.hi!=null?o.hi:K.mix(face,0xffffff,0.28),lo=o.lo!=null?o.lo:K.mix(face,0,0.35);
+    if(o.a!=null){recta(x+1,y+1,w-2,h-2,face,o.a)}else rect(x+1,y+1,w-2,h-2,face);
+    rect(x+1,y,w-2,1,ink);rect(x+1,y+h-1,w-2,1,ink);rect(x,y+1,1,h-2,ink);rect(x+w-1,y+1,1,h-2,ink);
+    rect(x+1,y+1,w-2,1,hi);rect(x+1,y+1,1,h-3,hi);rect(x+1,y+h-2,w-2,1,lo);rect(x+w-2,y+2,1,h-4,lo);
+    if(o.shadow)recta(x+2,y+h,w-2,2,0,0.45)}
+  function bar(x,y,w,h,t,c,bg){x|=0;y|=0;rect(x,y,w,h,0x14101c);rect(x+1,y+1,w-2,h-2,bg!=null?bg:0x2a2434);const f=Math.round((w-2)*K.clamp(t,0,1));if(f&gt;0){rect(x+1,y+1,f,h-2,c);rect(x+1,y+1,f,1,K.mix(c,0xffffff,0.4))}}
+  return{frame,bar}})();
+// floating text: score numbers, words. A list owned by each game; world or screen coordinates are the game&#x27;s business
+function Pops(){const L=[];return{L,
+  add(x,y,s,c,o){o=o||{};L.push({x,y,s:String(s),c,t:0,life:o.life||46,vy:o.vy!=null?o.vy:-0.9,size:o.size||0,big:o.big||0,cjk:/[^\x00-\x7f]/.test(String(s))})},
+  tick(){for(let i=L.length-1;i&gt;=0;i--){const p=L[i];p.t++;p.y+=p.vy;p.vy*=0.92;if(p.t&gt;p.life)L.splice(i,1)}},
+  draw(ox,oy){for(const p of L){const x=p.x-(ox||0),y=p.y-(oy||0);const k=p.t&lt;5?(p.big?1+(5-p.t)*0.1:1):1;const fade=p.t&gt;p.life-10?(p.life-p.t)/10:1;if(fade&lt;=0.05)continue;
+    if(p.cjk||p.size)K.text(p.s,x,y,p.c,{size:Math.round((p.size||11)*k),bold:true,align:&#x27;c&#x27;,ink:0x14101c,a:fade});
+    else{const sc=p.big&amp;&amp;p.t&lt;4?2:1;K.ptext(p.s,x,y,p.c,{align:&#x27;c&#x27;,ink:0x14101c,scale:sc})}}}}}
+
+// sound cues with a per-name rate limit so 200 hits in one frame make one sound
+const SFX=(function(){const last={};
+  function ok(n,gap){if(!K.live())return false;const t=K.now();if(last[n]&amp;&amp;t-last[n]&lt;(gap||0.03))return false;last[n]=t;return true}
+  return{ok,
+    blip(f,d,v,type){if(!ok(&#x27;b&#x27;+f,0.02))return;K.tone(type||&#x27;square&#x27;,f,f*1.02,d||0.06,v||0.06,K.now())},
+    up(f0,f1,d,v,type,n){if(!ok(n||(&#x27;u&#x27;+f0),0.03))return;K.tone(type||&#x27;square&#x27;,f0,f1,d,v,K.now())},
+    hit(v){if(!ok(&#x27;hit&#x27;,0.035))return;const t=K.now();K.noise(0.05,v||0.1,t,&#x27;bandpass&#x27;,2400,900,1.2);K.tone(&#x27;square&#x27;,220,90,0.05,(v||0.1)*0.5,t)},
+    boom(v,f){if(!ok(&#x27;boom&#x27;,0.06))return;const t=K.now();K.noise(0.5,v||0.3,t,&#x27;lowpass&#x27;,f||1400,60,0.8);K.tone(&#x27;sine&#x27;,90,32,0.4,(v||0.3)*0.9,t)},
+    coin(p){if(!ok(&#x27;coin&#x27;,0.025))return;const t=K.now(),f=988*(p||1);K.tone(&#x27;square&#x27;,f,f,0.05,0.045,t);K.tone(&#x27;square&#x27;,f*1.335,f*1.335,0.18,0.045,t+0.05)},
+    arp(notes,dt,type,v){if(!ok(&#x27;arp&#x27;+notes[0],0.1))return;const t=K.now();notes.forEach((f,i)=&gt;K.tone(type||&#x27;square&#x27;,f,f,dt*1.6,v||0.05,t+i*dt))}}})();
+
+
+
+// ================= 金缮: mend three broken tea bowls with lacquer and gold on a rainy night =================
+// The bowl falls and breaks. Move the cursor, J picks a shard up (and drops it), hold K to turn it; near its place it clicks in.
+// Then hold J and brush red lacquer along every crack (off the crack it smears), K for the gold tube: hold J over the wet
+// lacquer to sift gold onto it, K again for the silk: hold J and rub to polish the gold bright. K when done.
+const KIN=(function(){const {W,H,S,mix,clamp,lerp,hash,rnd,rr,vnoise,sstep}=K;const col=S.col,em=S.em;
+const BW=230,BH=142,BX=125,BY=12,XC=115,RY=26,RA=110,RB=20,YB=115;// bowl image size, where it sits, rim ellipse, body bottom
+const LV=[-0.6,-0.55,0.58],LN=Math.hypot(...LV),LX=LV[0]/LN,LY=LV[1]/LN,LZ=LV[2]/LN;// the paper lamp, up and to the left
+const HX=LX,HY=LY,HZ=LZ+1,HN=Math.hypot(HX,HY,HZ);
+const TYPES=[
+  {n:&#x27;天目茶碗&#x27;,who:&#x27;山口先生&#x27;,say:&#x27;祖父传下来的天目，摔成了六片。&#x27;,ramp:[0x0a0706,0x14100c,0x201810,0x302216,0x48341f],alt:[0x1c130b,0x302010,0x4c3219,0x6c4623,0x8e5e2e],rim:[0x3a220e,0x5a361a,0x7a4a24,0x9a6434,0xbc8448],gloss:1,
+    seeds:[[115,128],[32,40],[104,16],[186,30],[58,86],[166,84]]},
+  {n:&#x27;青瓷碗&#x27;,who:&#x27;陈阿婆&#x27;,say:&#x27;嫁妆里的青瓷碗，碎得厉害。&#x27;,ramp:[0x2a4a3e,0x46695a,0x648a76,0x86ac94,0xaccab2],alt:[0x1e3a30,0x365848,0x507462,0x6e927c,0x92b29a],rim:[0x5a7a66,0x7a9a84,0x98b8a0,0xb6d2bc,0xd4e8d6],gloss:1,
+    seeds:[[115,128],[24,32],[82,14],[150,14],[208,40],[48,84],[128,72],[184,94]]},
+  {n:&#x27;粉引茶碗&#x27;,who:&#x27;小林&#x27;,say:&#x27;第一次自己烧的碗，舍不得扔。&#x27;,ramp:[0x7a6e62,0xa09484,0xc2b6a4,0xdcd2c0,0xf0e8da],alt:[0x86685c,0xae8e80,0xccae9e,0xe2c8ba,0xf4ddd0],rim:[0x8a7e70,0xb0a492,0xcec4b2,0xe6dece,0xf8f2e6],gloss:0,
+    seeds:[[115,128],[48,22],[144,18],[202,56],[30,64],[94,68],[158,96]]}];
+const CLAY=[0x4a2e1c,0x6a4428,0x8a5e3a,0xa87a50];
+const GM=[0x4a3418,0x6a4c22,0x8a6a30,0xa6843e,0xbc9a4c],GB=[0x8a5a16,0xb8842a,0xdcaa3c,0xf2ca5c,0xfff0b0],GI=GM.map((c,i)=&gt;mix(c,GB[i],0.5));
+const SLOT=[[66,190],[156,226],[262,246],[362,224],[424,186],[70,250],[430,252]];// where the shards come to rest on the cloth
+// ---------------- the bowl image: shape, glaze, light; then cracks ----------------
+function makeBowl(ti){const T=TYPES[ti],img=new Int32Array(BW*BH).fill(-1),band=new Uint8Array(BW*BH),reg=new Uint8Array(BW*BH);
+  const tone=(r,v)=&gt;r[clamp((v*5)|0,0,4)];
+  for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const dx=x+0.5-XC,i=y*BW+x;let rg=0;const e=(dx/RA)**2+((y+0.5-RY)/RB)**2;
+    if(e&lt;1)rg=e&gt;0.84?4:1;else if(y&gt;RY&amp;&amp;y&lt;YB){const t=(y-RY)/(YB-RY);if(Math.abs(dx)&lt;RA*(1-0.47*t*t))rg=2}else if(y&gt;=YB&amp;&amp;y&lt;YB+13&amp;&amp;Math.abs(dx)&lt;40-(y-YB)*0.3)rg=3;reg[i]=rg}
+  for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const i=y*BW+x,rg=reg[i];if(!rg)continue;const dx=x+0.5-XC;let c,v;
+    if(rg===1){const ex=dx/RA,ey=(y+0.5-RY)/RB,r=Math.hypot(ex,ey);v=0.34+0.34*ex-0.16*ey+(r&lt;0.36?-0.14:0);if(ex&lt;-0.3&amp;&amp;ey&lt;0.2)v-=0.12;// shade from the rim on the left inner wall
+      const sp=Math.hypot(ex-0.5,ey+0.34);if(sp&lt;0.12&amp;&amp;T.gloss)v=0.98;c=tone(T.ramp,v);if(ti===0&amp;&amp;r&gt;0.4&amp;&amp;vnoise(Math.atan2(ey,ex)*44,r*3,7)&gt;0.64)c=tone(T.alt,v);if(ti===2&amp;&amp;vnoise(x*0.09,y*0.16,4)&gt;0.72)c=tone(T.alt,v)}
+    else if(rg===4){const ex=dx/RA,ey=(y+0.5-RY)/RB;v=0.5-0.4*ex-0.3*ey;c=tone(T.rim,v)}
+    else if(rg===2){const t=(y-RY)/(YB-RY),w=RA*(1-0.47*t*t),ph=Math.asin(clamp(dx/w,-1,1)),be=-0.15+t*1.0,nx=Math.sin(ph)*Math.cos(be),ny=Math.sin(be),nz=Math.cos(ph)*Math.cos(be);
+      const df=Math.max(0,nx*LX+ny*LY+nz*LZ),sp=Math.max(0,(nx*HX+ny*HY+nz*HZ)/HN);v=0.08+0.82*df+(t&gt;0.8?0.06:0);
+      const yg=104+4*vnoise(dx*0.11,0,ti+3);
+      if(ti!==1&amp;&amp;y&gt;yg+1){c=CLAY[clamp((v*4)|0,0,3)]}
+      else{if(y&gt;yg-2&amp;&amp;ti!==1)v-=0.18;// the thick bead where the glaze stopped
+        let r=T.ramp;if(ti===0&amp;&amp;vnoise(ph*44,y*0.02,7)&gt;0.68-0.14*(1-t))r=T.alt;if(ti===1&amp;&amp;t&gt;0.6)v-=0.1;if(ti===2&amp;&amp;vnoise(x*0.08,y*0.12,5)&gt;0.7)r=T.alt;
+        const s=sp**18;if(T.gloss&amp;&amp;s&gt;0.6)c=mix(r[4],0xfff4e0,0.7);else if(s&gt;0.6)c=r[4];else{c=tone(r,v+(T.gloss&amp;&amp;s&gt;0.28?0.22:0))}
+        const w2=Math.max(0,nx*0.62+ny*-0.2+nz*0.76);if(T.gloss&amp;&amp;w2**40&gt;0.6&amp;&amp;t&lt;0.55)c=mix(c,0x9ab4d4,0.6);// the window, a cool second highlight
+        if(ti===2&amp;&amp;hash(x&gt;&gt;1,y&gt;&gt;1)&lt;0.012)c=0x7a4a30}}// 粉引&#x27;s iron spots
+    else{const t=(y-YB)/13;v=0.6-0.5*(dx/40)-t*0.3+0.15*(vnoise(x*0.4,y*0.4,2)-0.5);c=CLAY[clamp((v*4)|0,0,3)]}
+    img[i]=c;band[i]=clamp((v*5)|0,0,4)}
+  // silhouette outline: darkest glaze tone
+  for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const i=y*BW+x;if(!reg[i])continue;const out=x===0||x===BW-1||y===0||y===BH-1||!reg[i-1]||!reg[i+1]||!reg[i-BW]||!reg[i+BW];if(out){img[i]=reg[i]===3||reg[i]===2&amp;&amp;y&gt;YB-8?CLAY[0]:TYPES[ti].ramp[0];band[i]=0}}
+  // shards: a warped Voronoi split; the foot piece is a bit bigger and stays on the stand
+  const sd=T.seeds,lab=new Int8Array(BW*BH).fill(-1);
+  for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const i=y*BW+x;if(!reg[i])continue;const wx=x+16*(vnoise(x*0.03,y*0.03,ti*5+1)-0.5)+5*(vnoise(x*0.13,y*0.13,ti*5+2)-0.5),wy=y+16*(vnoise(x*0.03,y*0.03,ti*5+3)-0.5)+5*(vnoise(x*0.13,y*0.13,ti*5+4)-0.5);
+    let bk=0,bd=1e9;for(let k=0;k&lt;sd.length;k++){const d=Math.hypot(wx-sd[k][0],(wy-sd[k][1])*1.25)*(k?1:0.82);if(d&lt;bd){bd=d;bk=k}}lab[i]=bk}
+  // keep every shard in one piece: stray islands join the neighbour they touch most
+  for(let pass=0;pass&lt;3;pass++){const seen=new Uint8Array(BW*BH);for(let k=0;k&lt;sd.length;k++){const comps=[];for(let i=0;i&lt;BW*BH;i++){if(lab[i]!==k||seen[i])continue;const q=[i];seen[i]=1;const cmp=[];while(q.length){const j=q.pop();cmp.push(j);const x=j%BW;for(const n of [x&gt;0?j-1:-1,x&lt;BW-1?j+1:-1,j-BW,j+BW])if(n&gt;=0&amp;&amp;n&lt;BW*BH&amp;&amp;!seen[n]&amp;&amp;lab[n]===k){seen[n]=1;q.push(n)}}comps.push(cmp)}
+      comps.sort((a,b)=&gt;b.length-a.length);for(const cmp of comps.slice(1)){const cnt={};for(const j of cmp){const x=j%BW;for(const n of [x&gt;0?j-1:-1,x&lt;BW-1?j+1:-1,j-BW,j+BW])if(n&gt;=0&amp;&amp;n&lt;BW*BH&amp;&amp;lab[n]&gt;=0&amp;&amp;lab[n]!==k)cnt[lab[n]]=(cnt[lab[n]]||0)+1}let bb=-1,bc=0;for(const q in cnt)if(cnt[q]&gt;bc){bc=cnt[q];bb=+q}if(bb&gt;=0)for(const j of cmp)lab[j]=bb}}}
+  const crk=new Uint8Array(BW*BH),val=new Uint8Array(BW*BH),oth=new Int8Array(BW*BH).fill(-1),list=[];
+  for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const i=y*BW+x;if(lab[i]&lt;0)continue;for(const n of [x&lt;BW-1?i+1:-1,y&lt;BH-1?i+BW:-1,x&gt;0?i-1:-1,y&gt;0?i-BW:-1])if(n&gt;=0&amp;&amp;lab[n]&gt;=0&amp;&amp;lab[n]!==lab[i]){oth[i]=lab[n];break}
+    if(x&lt;BW-1&amp;&amp;lab[i+1]&gt;=0&amp;&amp;lab[i+1]!==lab[i]||y&lt;BH-1&amp;&amp;lab[i+BW]&gt;=0&amp;&amp;lab[i+BW]!==lab[i]){crk[i]=1;list.push(i)}}
+  for(const i of list){const x=i%BW,y=(i/BW)|0;for(let j=-1;j&lt;=1;j++)for(let k=-1;k&lt;=1;k++){const xx=x+k,yy=y+j;if(xx&lt;0||yy&lt;0||xx&gt;=BW||yy&gt;=BH)continue;const n=yy*BW+xx;if(lab[n]&gt;=0)val[n]=1}}
+  const sh=sd.map(()=&gt;({px:[],cx:0,cy:0,r:0}));for(let i=0;i&lt;BW*BH;i++)if(lab[i]&gt;=0){const s=sh[lab[i]];s.px.push(i);s.cx+=i%BW;s.cy+=(i/BW)|0}
+  for(const s of sh){s.cx/=s.px.length;s.cy/=s.px.length;for(const i of s.px)s.r=Math.max(s.r,Math.hypot(i%BW-s.cx,((i/BW)|0)-s.cy));s.r=Math.ceil(s.r)+2}
+  return{img,band,reg,lab,crk,val,oth,list,sh}}
+const BOWLS=TYPES.map((_,i)=&gt;makeBowl(i));
+// ---------------- the room: paper lamp, rain window, walnut table and an indigo work cloth ----------------
+const BG=new Int32Array(W*H);(function(){const lx=56,ly=78;
+  for(let y=0;y&lt;H;y++)for(let x=0;x&lt;W;x++){let c;const d=Math.hypot(x-lx,(y-ly)*1.3);const l=clamp(1-d/360,0,1),q=Math.floor(l*l*6)/6;
+    if(y&lt;140){c=mix(0x1a1410,0x6a5038,q);if(vnoise(x*0.05,y*0.05,3)&gt;0.7)c=mix(c,0x000000,0.08);if(y&gt;=134)c=mix(0x2a1e14,0x5a4028,q)}// plaster wall, a dark skirting rail
+    else{const u=y-140;c=mix(0x1e120a,0x5a3a22,q*0.9+0.1);const gr=vnoise(x*0.012,u*0.25,8);if(gr&gt;0.62)c=mix(c,0x120a06,0.25);if(((u*7+((x*0.03)|0))%41)===0)c=mix(c,0x0a0604,0.4);if(y&lt;144)c=mix(c,0x8a6a4a,0.25)}
+    BG[y*W+x]=c}
+  // the cloth the shards lie on
+  for(let y=158;y&lt;268;y++)for(let x=14;x&lt;466;x++){const e=Math.max(Math.abs(x-240)/226,Math.abs(y-213)/55);if(e&gt;1)continue;const d=Math.hypot(x-lx,(y-ly)*1.3),l=clamp(1-d/380,0,1),q=Math.floor(l*l*5)/5;let c=mix(0x0e1424,0x2a3a5a,q+0.08);
+    const sx=(x-14)%22,sy=(y-158)%14;const wave=Math.hypot(sx-11,sy-14);if(Math.abs(wave-9)&lt;0.6||Math.abs(wave-5)&lt;0.6)c=mix(c,0x8a9ab8,0.12);if(e&gt;0.97)c=mix(c,0x000000,0.3);BG[y*W+x]=c}
+  // the stand under the bowl
+  for(let y=140;y&lt;152;y++)for(let x=BX+XC-60;x&lt;BX+XC+60;x++){const u=(x-BX-XC)/60;BG[y*W+x]=y&lt;143?0x8a5a34:mix(0x5a3420,0x2a160a,(u+1)/2)}
+  // paper lamp (andon): a wooden frame round warm paper
+  for(let y=30;y&lt;124;y++)for(let x=28;x&lt;84;x++){const fr=x&lt;31||x&gt;80||y&lt;33||(y&gt;74&amp;&amp;y&lt;77)||y&gt;120,lat=(x-28)%14===0&amp;&amp;y&gt;33;let c=fr?0x2a1a10:lat?0xb08850:mix(0xf8dca0,0xffefc8,1-Math.abs(x-56)/28);BG[y*W+x]=c}
+  for(let x=24;x&lt;88;x++){BG[28*W+x]=0x1a100a;BG[29*W+x]=0x3a2414}
+  // window with a night garden behind rain
+  for(let y=10;y&lt;112;y++)for(let x=332;x&lt;468;x++){const fr=x&lt;336||x&gt;463||y&lt;14||y&gt;107||Math.abs(x-400)&lt;2;let c;if(fr)c=0x24180e;else{c=mix(0x0c1424,0x1a2a42,(y-14)/94);const b=vnoise(x*0.06,y*0.02,11);if(y&gt;60+20*vnoise(x*0.03,0,12))c=mix(c,0x0a120e,0.7);if(b&gt;0.7&amp;&amp;y&lt;80)c=mix(c,0x0a100c,0.6)}BG[y*W+x]=c}
+  for(const [x,y,r,cc] of [[350,70,3,0xe0a050],[372,64,2,0xf0c070],[440,74,4,0xe09040],[420,58,2,0xd0b080]])for(let j=-r;j&lt;=r;j++)for(let i=-r;i&lt;=r;i++)if(i*i+j*j&lt;=r*r)BG[(y+j)*W+x+i]=mix(BG[(y+j)*W+x+i],cc,0.55)})();
+// ---------------- game ----------------
+function init(g){g.T=0;g.sv=STORE.get(&#x27;kin1&#x27;,{best:0})||{best:0};g.pops=Pops();g.st=&#x27;intro&#x27;;g.it=0;g.k=0;g.total=0;g.res=[];g.et=0;fresh(g)}
+function fresh(g){const B=BOWLS[g.k];g.stage=&#x27;break&#x27;;g.ft=0;g.cur={x:240,y:200};g.held=null;g.spd=0;g.md=false;g.aiT=0;
+  g.L=new Uint8Array(BW*BH);g.G=new Uint8Array(BW*BH);g.Pl=new Float32Array(BW*BH);g.Sm=new Uint8Array(BW*BH);g.smear=0;g.chips=[];g.dust=[];
+  g.pc=B.sh.map((s,k)=&gt;{const sl=SLOT[(k-1+g.k*2)%SLOT.length];return{k,tx:BX+s.cx,ty:BY+s.cy,x:BX+s.cx,y:BY+s.cy,th:0,ex:k?sl[0]+rr(-8,8):BX+s.cx,ey:k?sl[1]+rr(-4,4):BY+s.cy,eth:k?rr(0.8,5.4):0,placed:k===0,sx:BX+s.cx,sy:BY+s.cy}});g.drop=0}
+function ai(g){return{x:0,y:0,a:false,b:false,fire:false}}
+function snd(g,n){if(!K.live()||g.thumb)return;const t=K.now();
+  if(n===&#x27;crash&#x27;){K.noise(0.6,0.26,t,&#x27;highpass&#x27;,3200,900,0.7);K.tone(&#x27;sine&#x27;,110,60,0.2,0.12,t);for(let i=0;i&lt;7;i++){const f=2200+rnd()*2400;K.tone(&#x27;triangle&#x27;,f,f*0.98,0.12+rnd()*0.2,0.04,t+0.03+i*0.035)}}
+  else if(n===&#x27;snap&#x27;){K.tone(&#x27;sine&#x27;,1500,1480,0.1,0.07,t);K.noise(0.03,0.08,t,&#x27;bandpass&#x27;,3000,3000,2)}
+  else if(n===&#x27;pick&#x27;){K.tone(&#x27;triangle&#x27;,2600,2500,0.05,0.03,t)}
+  else if(n===&#x27;brush&#x27;){if(SFX.ok(&#x27;kbr&#x27;,0.09))K.noise(0.1,0.025,t,&#x27;bandpass&#x27;,900,700,1)}
+  else if(n===&#x27;powder&#x27;){if(SFX.ok(&#x27;kpw&#x27;,0.06))K.noise(0.07,0.02,t,&#x27;highpass&#x27;,7000,6000,1)}
+  else if(n===&#x27;rub&#x27;){if(SFX.ok(&#x27;krb&#x27;,0.07))K.noise(0.06,0.03,t,&#x27;bandpass&#x27;,2400,2800,4)}
+  else if(n===&#x27;done&#x27;){[587,659,784,880,1175].forEach((f,i)=&gt;K.tone(&#x27;triangle&#x27;,f,f,1.2,0.05,t+i*0.16))}}
+function beds(g){if(!K.live()||g.thumb)return;K.bed(&#x27;kinrain&#x27;,&#x27;lowpass&#x27;,1500,0.5);K.bedSet(&#x27;kinrain&#x27;,0.02,1500)}
+const wrap=a=&gt;{a%=Math.PI*2;if(a&gt;Math.PI)a-=Math.PI*2;if(a&lt;-Math.PI)a+=Math.PI*2;return a};
+function stats(g){const B=BOWLS[g.k];let n=0,go=0,la=0,pl=0;for(const i of B.list){n++;if(g.L[i])la++;if(g.G[i]){go++;pl+=g.Pl[i]}}return{lac:la/n,gold:go/n,pol:go?pl/go:0}}
+// screen point -&gt; bowl image index (the bowl is fixed once joined)
+const bi=(x,y)=&gt;{const ix=Math.floor(x-BX),iy=Math.floor(y-BY);return ix&lt;0||iy&lt;0||ix&gt;=BW||iy&gt;=BH?-1:iy*BW+ix};
+function nearest(g,test){const B=BOWLS[g.k];let best=-1,bd=1e9;for(const i of B.list){if(!test(i))continue;const d=Math.hypot(BX+i%BW+0.5-g.cur.x,BY+((i/BW)|0)+0.5-g.cur.y);if(d&lt;bd){bd=d;best=i}}return best&lt;0?null:{x:BX+best%BW+0.5,y:BY+((best/BW)|0)+0.5,d:bd}}
+// the restorer: one shard at a time, then follow the cracks nearest-first with the brush, the tube, the silk
+function aiPad(g){const pad={x:0,y:0,a:false,b:false,fire:false,bh:false};g.aiT++;const c=g.cur;const go=(x,y,s)=&gt;{const dx=x-c.x,dy=y-c.y,d=Math.hypot(dx,dy);if(d&gt;0.4){pad.x=clamp(dx/(s*3),-1,1);pad.y=clamp(dy/(s*3),-1,1)}return d};
+  if(g.stage===&#x27;join&#x27;){if(!g.held){const p=g.pc.find(p=&gt;!p.placed);if(!p)return pad;if(go(p.x,p.y,1)&lt;2.5&amp;&amp;g.aiT&gt;8){pad.a=true;g.aiT=0}return pad}
+    const p=g.held;go(p.tx-p.ox,p.ty-p.oy,1);if(Math.abs(wrap(p.th))&gt;0.12)pad.bh=true;return pad}
+  if(g.stage===&#x27;lac&#x27;||g.stage===&#x27;gold&#x27;){const n=g.stage===&#x27;lac&#x27;?nearest(g,i=&gt;!g.L[i]):nearest(g,i=&gt;g.L[i]&amp;&amp;!g.G[i]);if(!n||(g.stage===&#x27;lac&#x27;?stats(g).lac:stats(g).gold)&gt;0.99){if(g.aiT&gt;40)pad.b=true;return pad}g.aiT=0;go(n.x,n.y,0.7);pad.fire=n.d&lt;2.2;return pad}
+  if(g.stage===&#x27;polish&#x27;){const st=stats(g);const n=nearest(g,i=&gt;g.G[i]&amp;&amp;g.Pl[i]&lt;0.85);if(!n||st.pol&gt;0.88){if(g.aiT&gt;40)pad.b=true;return pad}g.aiT=0;const w=Math.sin(g.T*0.5)*3;go(n.x+w,n.y+w*0.6,0.5);pad.fire=n.d&lt;6;return pad}
+  return pad}
+function tick(g,pad){g.T++;g.pops.tick();beds(g);const T=g.T,B=BOWLS[g.k];
+  for(const c of g.chips){c.vy+=0.18;c.x+=c.vx;c.y+=c.vy;if(c.y&gt;c.fl){c.y=c.fl;c.vy*=-0.3;c.vx*=0.5}c.l--}g.chips=g.chips.filter(c=&gt;c.l&gt;0);
+  for(const d of g.dust){d.vy+=0.04;d.y+=d.vy;d.x+=d.vx;d.l--}g.dust=g.dust.filter(d=&gt;d.l&gt;0);
+  if(g.st===&#x27;intro&#x27;){g.it++;tickBreak(g);if(g.it&gt;220||g.it&gt;60&amp;&amp;(pad.a||pad.b)&amp;&amp;!g.auto){g.st=&#x27;play&#x27;;g.ft=g.it}return}
+  if(g.st===&#x27;end&#x27;){g.et++;if(g.et&gt;600&amp;&amp;(pad.a||g.auto&amp;&amp;g.et&gt;700))init(g);return}
+  const P=g.auto?aiPad(g):pad;g.ft++;
+  if(g.stage===&#x27;break&#x27;){tickBreak(g);if(g.ft&gt;110){g.stage=&#x27;join&#x27;;g.ft=0}return}
+  // the cursor: keys accelerate while held; the mouse puts it where it is
+  const m=P.mouse,c=g.cur,ox=c.x,oy=c.y;if(m&amp;&amp;!m.touch&amp;&amp;!g.auto){c.x=m.x;c.y=m.y}else{const mv=Math.hypot(P.x||0,P.y||0);g.spd=mv&gt;0.1?Math.min(g.auto?1.6:3,g.spd+0.06):0;const s=g.auto?(g.stage===&#x27;join&#x27;?2.4:g.stage===&#x27;lac&#x27;?1.1:2):1+g.spd;c.x=clamp(c.x+(P.x||0)*s,4,W-4);c.y=clamp(c.y+(P.y||0)*s,4,H-4)}
+  const mdown=!!(m&amp;&amp;m.down&amp;&amp;!g.auto),press=P.a||mdown&amp;&amp;!g.md,rel=!mdown&amp;&amp;g.md&amp;&amp;!g.auto;g.md=mdown;const hold=P.fire||mdown;
+  if(g.stage===&#x27;join&#x27;){if(press&amp;&amp;!g.held){let best=null,bd=1e9;for(const p of g.pc){if(p.placed)continue;const d=Math.hypot(p.x-c.x,p.y-c.y);if(d&lt;BOWLS[g.k].sh[p.k].r*0.8&amp;&amp;d&lt;bd&amp;&amp;underShard(g,p,c.x,c.y)){bd=d;best=p}}if(!best)for(const p of g.pc){if(p.placed)continue;const d=Math.hypot(p.x-c.x,p.y-c.y);if(d&lt;14&amp;&amp;d&lt;bd){bd=d;best=p}}
+      if(best){g.held=best;best.ox=c.x-best.x;best.oy=c.y-best.y;snd(g,&#x27;pick&#x27;);g.pc.splice(g.pc.indexOf(best),1);g.pc.push(best)}}
+    else if((press&amp;&amp;!mdown||rel)&amp;&amp;g.held){g.held=null}
+    const p=g.held;if(p){p.x=c.x-p.ox;p.y=c.y-p.oy;if(P.bh)p.th=wrap(p.th+0.055);
+      if(Math.hypot(p.x-p.tx,p.y-p.ty)&lt;7&amp;&amp;Math.abs(wrap(p.th))&lt;0.32){p.placed=true;p.x=p.tx;p.y=p.ty;p.th=0;g.held=null;snd(g,&#x27;snap&#x27;);g.pops.add(p.tx,p.ty-10,&#x27;嗒&#x27;,0xf0e0c0,{size:11,life:40});
+        if(g.pc.every(q=&gt;q.placed)){g.stage=&#x27;lac&#x27;;g.ft=0;g.pops.add(240,24,&#x27;碗拼好了 · 上漆&#x27;,0xf0d0a0,{size:12,life:80})}}}
+    return}
+  if(g.stage===&#x27;lac&#x27;){if(hold)paint(g,c.x,c.y,ox,oy,&#x27;lac&#x27;);if(P.b){g.stage=&#x27;gold&#x27;;g.ft=0;g.pops.add(240,24,&#x27;撒金粉&#x27;,0xf8d870,{size:12,life:60})}return}
+  if(g.stage===&#x27;gold&#x27;){if(hold){paint(g,c.x,c.y,ox,oy,&#x27;gold&#x27;);for(let k=0;k&lt;3;k++)g.dust.push({x:c.x+rr(-2,2),y:c.y-12,vx:rr(-0.2,0.2),vy:rr(0.3,0.8),l:rr(10,18)|0})}if(P.b){g.stage=&#x27;polish&#x27;;g.ft=0;g.pops.add(240,24,&#x27;打磨&#x27;,0xfff0c0,{size:12,life:60})}return}
+  if(g.stage===&#x27;polish&#x27;){if(hold)paint(g,c.x,c.y,ox,oy,&#x27;polish&#x27;);if(P.b){finish(g)}return}
+  if(g.stage===&#x27;show&#x27;){if(g.ft===20)snd(g,&#x27;done&#x27;);if(g.ft&gt;420||g.ft&gt;140&amp;&amp;!g.auto&amp;&amp;(pad.a||pad.b)){if(g.k&lt;2){g.k++;fresh(g)}else{g.st=&#x27;end&#x27;;g.et=0;if(g.total&gt;g.sv.best){g.sv.best=g.total;STORE.set(&#x27;kin1&#x27;,g.sv)}}}}}
+function underShard(g,p,x,y){const s=BOWLS[g.k].sh[p.k],dx=x-p.x,dy=y-p.y,co=Math.cos(-p.th),si=Math.sin(-p.th),sx=Math.floor(s.cx+co*dx-si*dy),sy=Math.floor(s.cy+si*dx+co*dy);return sx&gt;=0&amp;&amp;sy&gt;=0&amp;&amp;sx&lt;BW&amp;&amp;sy&lt;BH&amp;&amp;BOWLS[g.k].lab[sy*BW+sx]===p.k}
+function tickBreak(g){const t=g.st===&#x27;intro&#x27;?g.it:g.ft;// falls 40 frames, then the pieces fly out and settle on the cloth
+  if(t===40){snd(g,&#x27;crash&#x27;);for(let i=0;i&lt;40;i++)g.chips.push({x:BX+XC+rr(-40,40),y:BY+120,vx:rr(-3,3),vy:rr(-4,-1),fl:rr(150,262),l:rr(60,120)|0,c:BOWLS[g.k].img[BOWLS[g.k].list[(i*37)%BOWLS[g.k].list.length]]})}
+  for(const p of g.pc){if(!p.k)continue;if(t&lt;40){p.x=p.sx;p.y=p.sy-(1-(t/40)**2)*70;p.th=0}else{const u=clamp((t-40)/50,0,1),e=1-(1-u)**3;p.x=lerp(p.sx,p.ex,e);p.y=lerp(p.sy,p.ey,e)-Math.sin(u*Math.PI)*30;p.th=lerp(0,p.eth,e)}}
+  g.drop=t&lt;40?(1-(t/40)**2)*70:0}
+function paint(g,x,y,ox,oy,mode){const B=BOWLS[g.k];const steps=Math.max(1,Math.ceil(Math.hypot(x-ox,y-oy)));const mv=Math.hypot(x-ox,y-oy);let hit=false;
+  for(let s=1;s&lt;=steps;s++){const px=lerp(ox,x,s/steps),py=lerp(oy,y,s/steps),r=mode===&#x27;polish&#x27;?4.5:mode===&#x27;gold&#x27;?3.2:1.6;
+    for(let j=-4;j&lt;=4;j++)for(let i=-4;i&lt;=4;i++){if(i*i+j*j&gt;r*r)continue;const id=bi(px+i,py+j);if(id&lt;0||!B.reg[id])continue;
+      if(mode===&#x27;lac&#x27;){if(B.val[id]){if(!g.L[id]){g.L[id]=1;hit=true}}else if(!g.Sm[id]){g.Sm[id]=1;g.smear++}}
+      else if(mode===&#x27;gold&#x27;){if((g.L[id]||g.Sm[id])&amp;&amp;!g.G[id]&amp;&amp;rnd()&lt;0.7){g.G[id]=1;hit=true}}
+      else if(g.G[id]&amp;&amp;mv&gt;0.3){g.Pl[id]=Math.min(1,g.Pl[id]+mv*0.03);hit=true}}}
+  snd(g,mode===&#x27;lac&#x27;?&#x27;brush&#x27;:mode===&#x27;gold&#x27;?&#x27;powder&#x27;:&#x27;rub&#x27;)}
+function finish(g){const st=stats(g);const sm=clamp(1-g.smear/160,0,1);g.sc=Math.round(600*st.gold+250*st.gold*st.pol+150*sm);g.total+=g.sc;g.res.push(TYPES[g.k].n+&#x27; &#x27;+g.sc);g.stage=&#x27;show&#x27;;g.ft=0;g.st2=st;g.sm=sm}
+// ---------------- drawing ----------------
+function pixel(g,B,i,glint){// one bowl pixel with whatever is on it: crack, lacquer, gold
+  let c=B.img[i];if(g.Sm[i])c=g.G[i]?GM[clamp(B.band[i],0,4)]:0x4a1610;
+  if(B.val[i]&amp;&amp;(g.L[i]||B.crk[i])){if(g.G[i]){const p=g.Pl[i],b=clamp(B.band[i]+1,0,4);c=p&lt;0.35?GM[b]:p&lt;0.75?GI[b]:GB[b];if(p&gt;0.75&amp;&amp;glint(i))c=0xfffbe8}
+    else if(g.L[i])c=0x6a1a12;else if(B.crk[i])c=0x161010}
+  return c}
+function glintF(g){const T=g.T;return i=&gt;{const x=i%BW,y=(i/BW)|0;const s=((x+y*0.6)-((T*1.6)%260)+40);return s&gt;-3&amp;&amp;s&lt;3}}
+function drawBowl(g,X,Y,sc,forceAll){const B=BOWLS[g.k],gl=glintF(g);// placed shards in the bowl (a scaled copy for the shelf)
+  const placed=new Uint8Array(B.sh.length);for(const p of g.pc)if(p.placed||forceAll)placed[p.k]=1;
+  if(sc===1){for(let y=0;y&lt;BH;y++)for(let x=0;x&lt;BW;x++){const i=y*BW+x,k=B.lab[i];if(k&lt;0||!placed[k])continue;let c=pixel(g,B,i,gl);if(B.oth[i]&gt;=0&amp;&amp;!placed[B.oth[i]])c=CLAY[2+(((x+y)&gt;&gt;2)&amp;1)];
+      const p=(Y+y)*W+X+x;if(X+x&lt;0||X+x&gt;=W||Y+y&lt;0||Y+y&gt;=H)continue;col[p]=c;if(c===0xfffbe8)em[p]=70;else if(g.G[i]&amp;&amp;g.Pl[i]&gt;0.75)em[p]=14}return}
+  const w=Math.ceil(BW*sc),h=Math.ceil(BH*sc);for(let y=0;y&lt;h;y++)for(let x=0;x&lt;w;x++){const i=((y/sc)|0)*BW+((x/sc)|0);if(B.lab[i]&lt;0)continue;K.px(X+x,Y+y,pixel(g,B,i,gl))}}
+function drawLoose(g,p,lift){const B=BOWLS[g.k],s=B.sh[p.k],co=Math.cos(-p.th),si=Math.sin(-p.th),R=s.r;
+  for(let pass=0;pass&lt;2;pass++){const ox=pass?0:3+lift,oy=pass?0:4+lift;for(let y=Math.floor(p.y-R);y&lt;=p.y+R;y++)for(let x=Math.floor(p.x-R);x&lt;=p.x+R;x++){if(x&lt;0||y&lt;0||x&gt;=W||y&gt;=H)continue;const dx=x+0.5-p.x,dy=y+0.5-p.y,sx=Math.floor(s.cx+co*dx-si*dy),sy=Math.floor(s.cy+si*dx+co*dy);
+    if(sx&lt;0||sy&lt;0||sx&gt;=BW||sy&gt;=BH)continue;const i=sy*BW+sx;if(B.lab[i]!==p.k)continue;if(!pass){const q=(y+oy)*W+x+ox;if(y+oy&lt;H&amp;&amp;x+ox&lt;W)col[q]=mix(col[q],0x000000,0.45);continue}
+    let c=B.img[i];if(B.oth[i]&gt;=0)c=CLAY[2+(((sx+sy)&gt;&gt;2)&amp;1)];col[y*W+x]=c;em[y*W+x]=0}}}
+function tool(g){const c=g.cur,x=Math.round(c.x),y=Math.round(c.y),st=g.stage;// the hand tool, tip at the cursor
+  if(st===&#x27;join&#x27;){if(g.held){K.disc(x+4,y+4,4,0xd8a878);K.disc(x+7,y+7,4,0xc8986a);K.rect(x+3,y-1,2,5,0xe0b088)}else{for(let k=0;k&lt;6;k++){K.px(x-6+k,y,0xf0e0c0);K.px(x+1+k,y,0xf0e0c0);K.px(x,y-6+k,0xf0e0c0);K.px(x,y+1+k,0xf0e0c0)}K.px(x,y,0xffffff)}return}
+  if(st===&#x27;lac&#x27;){for(let k=0;k&lt;26;k++){const c2=k&lt;3?0x6a1a12:k&lt;7?0x2a1a10:k%6===0?0x6a8a3a:0x9ab05a;K.px(x+k*0.7,y+k,c2);K.px(x+1+k*0.7,y+k,c2)}return}
+  if(st===&#x27;gold&#x27;){for(let k=0;k&lt;22;k++){const c2=k&lt;3?0xd8b860:k%7===0?0x4a6a2a:0x8aa050;K.rect(x-2+k*0.5,y-12-k,5,1,c2)}K.rect(x-2,y-13,5,2,0xe8d090);return}
+  if(st===&#x27;polish&#x27;){for(let j=0;j&lt;10;j++)for(let i=0;i&lt;14;i++){const fold=(i+j)%5===0;K.px(x-3+i+(j&gt;&gt;1),y-2+j,fold?0xd8d0c4:0xf2ece0)}K.disc(x+12,y+10,5,0xd8a878)}}
+function room(g){col.set(BG);const T=g.T;// rain on the window, lamp flicker
+  for(let k=0;k&lt;70;k++){const x=336+((hash(k,1)*126)|0),sp=2+hash(k,2)*2,y=14+((T*sp+hash(k,3)*94)%94);for(let j=0;j&lt;5;j++)if(y+j&lt;108)K.pxa(x,y+j,0x8a9ab8,0.35)}
+  for(let k=0;k&lt;12;k++){const x=338+((hash(k,7)*122)|0),y=16+((T*0.15+hash(k,8)*90)%90);K.px(x,y,0xaab8d0);K.px(x,y+1,0x6a7a98)}
+  const fl=0.85+0.15*vnoise(T*0.05,0,2);K.glow(56,78,48,0xffd090,0.16*fl);tools(g)}
+function tools(g){const st=g.stage;// the kit laid out on the cloth; the one in use glows
+  const on=(x,y,k)=&gt;{if(st===k&amp;&amp;g.st===&#x27;play&#x27;)K.glow(x,y,22,0xffd890,0.12)};
+  on(96,232,&#x27;lac&#x27;);K.disc(97,236,13,0x0a0604);K.disc(96,234,13,0x1a0e0a);K.disc(96,233,10,0x5a140e);K.disc(93,231,3,0x8a2a1a);// lacquer dish
+  for(let k=0;k&lt;30;k++)K.rect(112+k,226+k*0.25,1,2,k&lt;4?0x2a1a10:0x9ab05a);// brush on its rest
+  on(206,236,&#x27;gold&#x27;);for(let j=0;j&lt;14;j++)for(let i=0;i&lt;24;i++){if(Math.abs(i-12)+j*0.6&gt;13)continue;K.px(194+i,228+j,j&lt;2?0xd8ccb0:0xece2c8)}for(let j=0;j&lt;6;j++)for(let i=0;i&lt;12-j;i++)K.px(200+i+j*0.5,233+j*0.7,(i+j)%3?0xd8a840:0xf8d870,10);// a paper fold of gold powder
+  for(let k=0;k&lt;22;k++)K.rect(222+k,240-k*0.3,4,2,k%7===0?0x4a6a2a:0x8aa050);
+  on(318,236,&#x27;polish&#x27;);for(let j=0;j&lt;16;j++)for(let i=0;i&lt;26;i++){const f=(i+j*2)%9;K.px(306+i+(j&gt;&gt;2),228+j,f===0?0xc8c0b4:f&lt;3?0xe6e0d4:0xf4f0e8)}// silk
+  for(let k=0;k&lt;16;k++)K.px(346+k,238-k*0.4,0x8a6a4a);K.disc(363,232,2.4,0xf0ece0)}// the tooth burnisher
+
+function draw(g){em.fill(0);const T=g.T;
+  if(g.st===&#x27;end&#x27;){shelf(g);hud(g);return}
+  room(g);
+  for(const c of g.chips)K.px(c.x,c.y,c.c);
+  const B=BOWLS[g.k];const lift=g.st===&#x27;intro&#x27;||g.stage===&#x27;break&#x27;?g.drop:0;
+  if(lift&gt;0){// the whole bowl falling
+    const sv=g.pc.map(p=&gt;p.placed);g.pc.forEach(p=&gt;p.placed=true);drawBowl(g,BX,BY-Math.round(lift),1);g.pc.forEach((p,i)=&gt;p.placed=sv[i])}
+  else{drawBowl(g,BX,BY,1);for(const p of g.pc)if(!p.placed)drawLoose(g,p,p===g.held?4:0)}
+  for(const d of g.dust)K.px(d.x,d.y,(d.l&amp;3)?0xe8c060:0xfff0b0,40);
+  if(g.stage===&#x27;show&#x27;)showFx(g);
+  if(g.st===&#x27;play&#x27;&amp;&amp;g.stage!==&#x27;break&#x27;&amp;&amp;g.stage!==&#x27;show&#x27;)tool(g);
+  hud(g)}
+function showFx(g){const t=g.ft;// a warm sweep of lamp light across the mended bowl
+  const sx=BX-40+((t*1.4)%320);for(let y=BY;y&lt;BY+BH;y++)for(let x=Math.max(BX,sx-10);x&lt;Math.min(BX+BW,sx+10);x++){const i=(y-BY)*BW+(x-BX);if(BOWLS[g.k].lab[i]&lt;0)continue;K.pxa(x,y,0xfff0d0,0.08)}}
+function shelf(g){// a tokonoma alcove: three mended bowls on a dark board, a hanging scroll
+  for(let y=0;y&lt;H;y++)for(let x=0;x&lt;W;x++){let c=y&lt;188?mix(0x2a2018,0x5a4630,clamp(1-Math.hypot(x-240,y-90)/300,0,1)**1.5):y&lt;200?0x1a0e08:mix(0x3a2414,0x24160c,(y-200)/70);col[y*W+x]=c}
+  K.rect(214,10,52,92,0xe8dcc0);K.rect(214,10,52,4,0x5a3a2a);K.rect(214,98,52,4,0x5a3a2a);K.text(&#x27;破&#x27;,240,30,0x1a1410,{size:20,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;});K.text(&#x27;而&#x27;,240,54,0x1a1410,{size:20,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;});K.text(&#x27;美&#x27;,240,78,0x1a1410,{size:20,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;});
+  const k0=g.k;for(let k=0;k&lt;3;k++){g.k=k;const sv=g.kept&amp;&amp;g.kept[k];if(!sv)continue;const L=g.L,G=g.G,Pl=g.Pl,Sm=g.Sm;g.L=sv.L;g.G=sv.G;g.Pl=sv.Pl;g.Sm=sv.Sm;const x0=22+k*150,y0=110;drawBowl(g,x0,y0,0.6,true);g.L=L;g.G=G;g.Pl=Pl;g.Sm=Sm}g.k=k0}
+function hud(g){if(g.st===&#x27;intro&#x27;){const a=clamp((g.it-100)/30,0,1)*clamp((220-g.it)/20,0,1);K.text(&#x27;金 缮&#x27;,240,8,0xf8d870,{size:26,bold:true,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;,a,sp:10,ink:0x1a0e08});
+    K.text(&#x27;碎了的碗，用漆粘好，再描上金。裂痕是它的一部分。&#x27;,240,250,0xf0e0c0,{size:10,align:&#x27;c&#x27;,a,ink:0x1a0e08});return}
+  if(g.st===&#x27;end&#x27;){const a=clamp(g.et/50,0,1);K.text(&#x27;三只碗 · &#x27;+g.total+&#x27; 分&#x27;,240,226,0xf8d870,{size:16,bold:true,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;,a,ink:0x000000});K.text(g.res.join(&#x27; · &#x27;)+(g.sv.best?&#x27; · 最高 &#x27;+g.sv.best:&#x27;&#x27;),240,248,0xe0d0b0,{size:9,align:&#x27;c&#x27;,a,ink:0x000000});return}
+  const o=TYPES[g.k];K.text(&#x27;第 &#x27;+(g.k+1)+&#x27;/3 只 · &#x27;+o.n+&#x27; · 总分 &#x27;+g.total,8,6,0xf0e0c0,{size:10,ink:0x000000});
+  if(g.stage===&#x27;break&#x27;&amp;&amp;g.ft&lt;100)K.text(o.who+&#x27;：&#x27;+o.say,240,262,0xf0e0c0,{size:9,align:&#x27;c&#x27;,ink:0x000000});
+  const st=g.stage!==&#x27;break&#x27;&amp;&amp;g.stage!==&#x27;join&#x27;?stats(g):null;
+  if(g.stage===&#x27;join&#x27;){const n=g.pc.filter(p=&gt;!p.placed).length;K.text(&#x27;还差 &#x27;+n+&#x27; 片&#x27;,472,6,0xf0e0c0,{size:10,align:&#x27;r&#x27;,ink:0x000000});if(!g.auto&amp;&amp;g.ft&lt;1200)K.text(&#x27;J 拿起 / 放下碎片 · 按住 K 转动 · 放到原位会自己卡进去&#x27;,240,262,0xf0e0c0,{size:9,align:&#x27;c&#x27;,ink:0x000000})}
+  if(g.stage===&#x27;lac&#x27;){meter(&#x27;漆&#x27;,st.lac,0x9a2a1a);if(!g.auto)K.text(&#x27;按住 J 沿着裂缝涂漆 · 涂到外面会脏 · 涂完按 K&#x27;,240,262,0xf0e0c0,{size:9,align:&#x27;c&#x27;,ink:0x000000})}
+  if(g.stage===&#x27;gold&#x27;){meter(&#x27;金&#x27;,st.gold,0xe0b040);if(!g.auto)K.text(&#x27;按住 J 在湿漆上撒金粉 · 撒完按 K&#x27;,240,262,0xf0e0c0,{size:9,align:&#x27;c&#x27;,ink:0x000000})}
+  if(g.stage===&#x27;polish&#x27;){meter(&#x27;亮&#x27;,st.pol,0xfff0b0);if(!g.auto)K.text(&#x27;按住 J 来回擦金线，擦得越久越亮 · 好了按 K&#x27;,240,262,0xf0e0c0,{size:9,align:&#x27;c&#x27;,ink:0x000000})}
+  if(g.stage===&#x27;show&#x27;&amp;&amp;g.ft&gt;40){const a=clamp((g.ft-40)/30,0,1),s=g.st2;K.text(o.n+&#x27; · &#x27;+g.sc+&#x27; 分&#x27;,240,226,0xf8d870,{size:16,bold:true,fam:&#x27;kai&#x27;,align:&#x27;c&#x27;,a,ink:0x000000});
+    K.text(&#x27;金线 &#x27;+Math.round(s.gold*100)+&#x27;% · 光泽 &#x27;+Math.round(s.pol*100)+&#x27;% · 干净 &#x27;+Math.round(g.sm*100)+&#x27;%&#x27;,240,246,0xe0d0b0,{size:9,align:&#x27;c&#x27;,a,ink:0x000000});
+    K.text(g.sc&gt;850?o.who+&#x27;：比摔之前还好看。&#x27;:g.sc&gt;650?o.who+&#x27;：谢谢你，它又能用了。&#x27;:o.who+&#x27;：嗯……能用就好。&#x27;,240,260,0xe0d0b0,{size:9,align:&#x27;c&#x27;,a,ink:0x000000})}
+  g.pops.draw(0,0)}
+function meter(lb,v,c){K.text(lb,394,6,0xf0e0c0,{size:10,ink:0x000000});UI.bar(408,8,64,7,v,c)}
+function info(g){return &#x27;金缮 · 总分 &#x27;+(g.total||0)+(g.sv&amp;&amp;g.sv.best?&#x27; · 最高 &#x27;+g.sv.best:&#x27;&#x27;)}
+// keep each finished bowl&#x27;s lacquer and gold for the alcove at the end
+return{init,tick:(g,p)=&gt;{const st=g.stage;tick(g,p);if(st===&#x27;polish&#x27;&amp;&amp;g.stage===&#x27;show&#x27;&amp;&amp;!(g.kept&amp;&amp;g.kept[g.k]))(g.kept=g.kept||[])[g.k]={L:g.L,G:g.G,Pl:g.Pl,Sm:g.Sm}},draw,ai,info}})();
+GAMES.push({id:&#x27;kintsugi&#x27;,name:&#x27;金缮&#x27;,ref:&#x27;手艺 · 金缮修复碎瓷&#x27;,keys:&#x27;方向键 / 鼠标移动 · J 拿起放下碎片，按住 K 转动 · 按住 J 涂漆 / 撒金 / 打磨 · K 下一步 · 手机：摇杆 + 按钮&#x27;,touch:&#x27;stick&#x27;,tbtn:[&#x27;拿 / 涂&#x27;,&#x27;转 / 下一步&#x27;],thumbAt:1500,
+  init:KIN.init,tick:KIN.tick,draw:KIN.draw,ai:KIN.ai,info:KIN.info,canAttract:g=&gt;g.st===&#x27;intro&#x27;||g.k===0&amp;&amp;g.stage===&#x27;break&#x27;,
+  about:[&#x27;雨夜，纸灯下的工作台。三位客人送来摔碎的茶碗：一只天目、一只青瓷、一只粉引。碗落地碎开，碎片散在靛蓝布上，露出里面的素胎。&#x27;,&#x27;先把碎片一片片拿起来、转到对的角度放回去，靠近原位会自己卡进去。再沿着每一道裂缝涂上红漆，涂到外面就脏了；趁漆没干撒上金粉；最后用丝绸来回擦，金线才会亮起来。&#x27;],
+  tags:[&#x27;碗摔下来碎成真正能拼回去的几片&#x27;,&#x27;碎片断口露出素胎的颜色&#x27;,&#x27;靠近原位咔嗒一声卡进去&#x27;,&#x27;先红漆后金粉，两层手艺&#x27;,&#x27;擦得越久，金线越亮，光会沿着金线走&#x27;,&#x27;三种釉：天目兔毫、青瓷、粉引铁斑&#x27;,&#x27;最后三只碗摆进壁龛&#x27;]});
+
+
+
+// ================= player: 60 Hz fixed step, hit-stop, keyboard / mouse / touch, attract-mode autoplay, bloom display =================
+(function(){
+const $=id=&gt;document.getElementById(id);
+const {W,H,S}=K;
+const cv=$(&#x27;cv&#x27;),ctx=cv.getContext(&#x27;2d&#x27;),stage=$(&#x27;stage&#x27;);
+const low=document.createElement(&#x27;canvas&#x27;);low.width=W;low.height=H;const lg=low.getContext(&#x27;2d&#x27;);
+const half=document.createElement(&#x27;canvas&#x27;);half.width=W&gt;&gt;1;half.height=H&gt;&gt;1;const hg=half.getContext(&#x27;2d&#x27;);
+const b1=document.createElement(&#x27;canvas&#x27;);b1.width=W;b1.height=H;const b1g=b1.getContext(&#x27;2d&#x27;);
+const b2=document.createElement(&#x27;canvas&#x27;);b2.width=W&gt;&gt;1;b2.height=H&gt;&gt;1;const b2g=b2.getContext(&#x27;2d&#x27;);
+const FILT=(()=&gt;{try{const c=document.createElement(&#x27;canvas&#x27;);c.width=c.height=9;const g=c.getContext(&#x27;2d&#x27;);g.filter=&#x27;blur(2px)&#x27;;g.fillStyle=&#x27;#fff&#x27;;g.fillRect(4,4,1,1);return g.getImageData(1,4,1,1).data[3]&gt;0}catch(e){return false}})();
+const mips=[[120,68],[60,34],[30,17]].map(([w,h])=&gt;{const c=document.createElement(&#x27;canvas&#x27;);c.width=w;c.height=h;return c});
+let skip=false,slow=false,avg=8,cur=0,G=null,paused=false,acc=0,last=performance.now(),visible=true,mode=&#x27;auto&#x27;,idle=0;
+const reduce=matchMedia(&#x27;(prefers-reduced-motion: reduce)&#x27;).matches;
+const keys=new Set(),pressed=new Set();
+// mouse / touch: pointer position in game pixels; click = a press this step; stick = the floating joystick for touch play
+const mouse={x:W/2,y:H/2,down:false,active:false,click:false,touch:false};
+const stick={id:null,ox:0,oy:0,x:0,y:0};
+function newGame(d){K.setSeed((Date.now()&amp;0xffff)+cur*77);S.flash=0;S.fade=0;S.frame=0;S.bloomK=1;K.bedsOff();
+  const g={t:0,stop:0,ts:1,d,auto:mode===&#x27;auto&#x27;};d.init(g);return g}
+const TB={a:false,b:false,ap:false,bp:false};
+function readPad(){const k=c=&gt;keys.has(c);
+  let x=(k(&#x27;ArrowRight&#x27;)||k(&#x27;KeyD&#x27;)?1:0)-(k(&#x27;ArrowLeft&#x27;)||k(&#x27;KeyA&#x27;)?1:0),y=(k(&#x27;ArrowDown&#x27;)||k(&#x27;KeyS&#x27;)?1:0)-(k(&#x27;ArrowUp&#x27;)||k(&#x27;KeyW&#x27;)?1:0);
+  if(stick.id!=null){const m=Math.hypot(stick.x,stick.y);if(m&gt;3){const s=Math.min(1,(m-3)/18);x=stick.x/m*s;y=stick.y/m*s}}
+  const pad={x,y,
+    up:pressed.has(&#x27;ArrowUp&#x27;)||pressed.has(&#x27;KeyW&#x27;),down:pressed.has(&#x27;ArrowDown&#x27;)||pressed.has(&#x27;KeyS&#x27;),left:pressed.has(&#x27;ArrowLeft&#x27;)||pressed.has(&#x27;KeyA&#x27;),right:pressed.has(&#x27;ArrowRight&#x27;)||pressed.has(&#x27;KeyD&#x27;),
+    fire:k(&#x27;KeyJ&#x27;)||k(&#x27;KeyZ&#x27;)||k(&#x27;Space&#x27;)||TB.a,
+    a:pressed.has(&#x27;KeyJ&#x27;)||pressed.has(&#x27;KeyZ&#x27;)||pressed.has(&#x27;Space&#x27;)||pressed.has(&#x27;Enter&#x27;)||TB.ap,
+    b:pressed.has(&#x27;KeyK&#x27;)||pressed.has(&#x27;KeyX&#x27;)||pressed.has(&#x27;Escape&#x27;)||TB.bp,
+    hl:k(&#x27;ArrowLeft&#x27;)||k(&#x27;KeyA&#x27;)||k(&#x27;KeyZ&#x27;)||k(&#x27;ShiftLeft&#x27;)||TB.a,hr:k(&#x27;ArrowRight&#x27;)||k(&#x27;KeyD&#x27;)||k(&#x27;KeyJ&#x27;)||k(&#x27;Slash&#x27;)||k(&#x27;ShiftRight&#x27;)||TB.b,hd:k(&#x27;ArrowDown&#x27;)||k(&#x27;KeyS&#x27;)||k(&#x27;Space&#x27;),
+    bh:k(&#x27;KeyK&#x27;)||k(&#x27;KeyX&#x27;)||TB.b,
+    stick:stick.id!=null,
+    mouse:mouse.active?{x:mouse.x,y:mouse.y,down:mouse.down,click:mouse.click,touch:mouse.touch}:null};
+  pressed.clear();mouse.click=false;TB.ap=TB.bp=false;return pad}
+function step(){const d=G.d;
+  if(G.stop&gt;0){G.stop--;S.frame++;return}
+  let pad;
+  if(mode===&#x27;play&#x27;){pad=readPad();const any=pad.x||pad.y||pad.fire||pad.a||pad.b||(pad.mouse&amp;&amp;(pad.mouse.down||pad.mouse.click));if(!any)idle++;else idle=0;
+    if(idle&gt;60*45&amp;&amp;(!d.canAttract||d.canAttract(G))){setMode(&#x27;auto&#x27;);G=newGame(d)}}
+  else{pressed.clear();mouse.click=false;pad=d.ai(G)}
+  d.tick(G,pad);G.t++;S.frame++;if(S.flash&gt;0){S.flash*=0.86;if(S.flash&lt;0.02)S.flash=0}}
+function frame(){G.d.draw(G);S.raw=false;K.present();lg.putImageData(S.img,0,0);
+  ctx.imageSmoothingEnabled=false;ctx.globalCompositeOperation=&#x27;source-over&#x27;;ctx.globalAlpha=1;ctx.drawImage(low,0,0,cv.width,cv.height);
+  hg.putImageData(S.bimg,0,0);ctx.globalCompositeOperation=&#x27;lighter&#x27;;ctx.imageSmoothingEnabled=true;
+  if(FILT){b1g.clearRect(0,0,W,H);b1g.filter=&#x27;blur(2px)&#x27;;b1g.drawImage(half,0,0,W,H);b1g.filter=&#x27;none&#x27;;
+    b2g.clearRect(0,0,W&gt;&gt;1,H&gt;&gt;1);b2g.filter=&#x27;blur(7px)&#x27;;b2g.drawImage(half,0,0);b2g.filter=&#x27;none&#x27;;
+    ctx.globalAlpha=0.8;ctx.drawImage(b1,0,0,cv.width,cv.height);ctx.globalAlpha=0.9;ctx.drawImage(b2,0,0,cv.width,cv.height);ctx.globalAlpha=1}
+  else{let src=half;const al=[0.6,0.7,0.8];mips.forEach((m,i)=&gt;{const g=m.getContext(&#x27;2d&#x27;);g.imageSmoothingEnabled=true;g.clearRect(0,0,m.width,m.height);g.drawImage(src,0,0,m.width,m.height);src=m;ctx.globalAlpha=al[i];ctx.drawImage(m,0,0,cv.width,cv.height)});ctx.globalAlpha=1}
+  ctx.globalCompositeOperation=&#x27;source-over&#x27;;syncInfo()}
+function fit(){const aw=stage.clientWidth-2,ah=Math.max(200,innerHeight*0.74);let sc=Math.min(aw/W,ah/H);const dpr=devicePixelRatio||1;
+  const css=sc&gt;=2?Math.floor(sc*dpr)/dpr:Math.max(0.5,sc);const dev=Math.max(1,Math.min(4,Math.round(css*dpr)));if(cv.width!==W*dev){cv.width=W*dev;cv.height=H*dev}
+  cv.style.width=Math.floor(W*css)+&#x27;px&#x27;;cv.style.height=Math.floor(H*css)+&#x27;px&#x27;}
+let infoLast=&#x27;&#x27;;function syncInfo(){const d=G.d;const s=(d.info?d.info(G):&#x27;&#x27;)+(mode===&#x27;play&#x27;?&#x27;&#x27;:&#x27; · 演示中&#x27;);if(s!==infoLast){$(&#x27;info&#x27;).textContent=s;infoLast=s}}
+// ---------------- controls ----------------
+const rail=$(&#x27;rail&#x27;);
+function seg(label,opts,get,set){const l=document.createElement(&#x27;span&#x27;);l.className=&#x27;lab&#x27;;l.textContent=label;const s=document.createElement(&#x27;div&#x27;);s.className=&#x27;seg&#x27;;
+  for(const[v,t]of opts){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=t;b.onclick=()=&gt;{set(v);sync()};b.dataset.v=v;s.appendChild(b)}
+  const sync=()=&gt;{for(const b of s.children)b.classList.toggle(&#x27;on&#x27;,String(b.dataset.v)===String(get()))};rail.append(l,s);sync();return sync}
+const btn=(t,fn)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;btn&#x27;;b.textContent=t;b.onclick=fn;rail.appendChild(b);return b};
+const syncMode=seg(&#x27;&#x27;,[[&#x27;play&#x27;,&#x27;我来玩&#x27;],[&#x27;auto&#x27;,&#x27;看演示&#x27;]],()=&gt;mode,v=&gt;{wake();setMode(v);G=newGame(GAMES[cur]);cv.focus()});
+const playB=btn(&#x27;暂停&#x27;,()=&gt;setPaused(!paused));
+btn(&#x27;重开&#x27;,()=&gt;{G=newGame(GAMES[cur]);frame();cv.focus()});
+let sndUser=false;
+const sndB=btn(&#x27;声音 开&#x27;,()=&gt;{K.sndInit();sndUser=true;K.SND.on=!K.SND.on;syncSnd();if(K.SND.ctx&amp;&amp;K.SND.ctx.state===&#x27;suspended&#x27;)K.SND.ctx.resume();if(!K.SND.on)K.bedsOff()});
+function syncSnd(){const on=K.SND.on||!sndUser;sndB.textContent=on?&#x27;声音 开&#x27;:&#x27;声音 关&#x27;;sndB.classList.toggle(&#x27;on&#x27;,on)}
+// sound comes on with the first key or touch (browsers need a gesture), unless the player turned it off
+function wake(){if(sndUser)return;K.sndInit();if(K.SND.ctx){K.SND.on=true;if(K.SND.ctx.state===&#x27;suspended&#x27;)K.SND.ctx.resume()}syncSnd()}
+const info=document.createElement(&#x27;span&#x27;);info.id=&#x27;info&#x27;;rail.appendChild(info);
+function setMode(m){mode=m;idle=0;syncMode();$(&#x27;hint&#x27;).textContent=m===&#x27;play&#x27;?(GAMES[cur].keys||&#x27;&#x27;):&#x27;演示中 · 按任意键或点画面开始玩&#x27;;if(G)G.auto=m===&#x27;auto&#x27;;touchUI()}
+function setPaused(p){paused=p;playB.textContent=p?&#x27;继续&#x27;:&#x27;暂停&#x27;}
+addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.target.tagName===&#x27;INPUT&#x27;)return;const gameKey=/^(Arrow|Key[WASDJKZX]|Space|Enter|Escape)/.test(e.code);
+  if(e.code===&#x27;KeyP&#x27;){setPaused(!paused);return}
+  if(gameKey&amp;&amp;(e.code===&#x27;Space&#x27;||e.code===&#x27;Enter&#x27;)&amp;&amp;document.activeElement&amp;&amp;document.activeElement.tagName===&#x27;BUTTON&#x27;)return;
+  if(gameKey){wake();if(paused)setPaused(false);if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;);G=newGame(GAMES[cur]);e.preventDefault();return}if(!keys.has(e.code))pressed.add(e.code);keys.add(e.code);e.preventDefault()}});
+addEventListener(&#x27;keyup&#x27;,e=&gt;keys.delete(e.code));
+addEventListener(&#x27;blur&#x27;,()=&gt;{keys.clear();if(mode===&#x27;play&#x27;&amp;&amp;G&amp;&amp;G.d.onBlur)G.d.onBlur(G)});
+function cpos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]}
+const coarse=matchMedia(&#x27;(pointer: coarse)&#x27;).matches;
+cv.addEventListener(&#x27;pointermove&#x27;,e=&gt;{const p=cpos(e);if(e.pointerId===stick.id){stick.x=p[0]-stick.ox;stick.y=p[1]-stick.oy}if(mode!==&#x27;play&#x27;)return;mouse.x=p[0];mouse.y=p[1];mouse.active=true;mouse.touch=e.pointerType!==&#x27;mouse&#x27;});
+cv.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{cv.focus();wake();const p=cpos(e);e.preventDefault();
+  if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;);G=newGame(GAMES[cur]);return}
+  // touch on a stick game: a touch anywhere starts a floating joystick; the game may also read it as a tap
+  if(e.pointerType!==&#x27;mouse&#x27;&amp;&amp;G.d.touch===&#x27;stick&#x27;){stick.id=e.pointerId;stick.ox=p[0];stick.oy=p[1];stick.x=stick.y=0}
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  mouse.x=p[0];mouse.y=p[1];mouse.active=true;mouse.down=true;mouse.click=true;mouse.touch=e.pointerType!==&#x27;mouse&#x27;});
+addEventListener(&#x27;pointerup&#x27;,e=&gt;{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0}mouse.down=false});
+addEventListener(&#x27;pointercancel&#x27;,e=&gt;{if(e.pointerId===stick.id){stick.id=null;stick.x=stick.y=0}mouse.down=false});
+cv.addEventListener(&#x27;pointerleave&#x27;,e=&gt;{if(e.pointerType===&#x27;mouse&#x27;)mouse.active=false});
+// touch buttons (A / B) for games that want them
+const tb=$(&#x27;tbtn&#x27;);
+function tbtn(lbl,k){const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.textContent=lbl;
+  b.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{e.preventDefault();wake();if(mode!==&#x27;play&#x27;){setMode(&#x27;play&#x27;);G=newGame(GAMES[cur]);return}TB[k]=true;TB[k+&#x27;p&#x27;]=true});
+  const up=()=&gt;{TB[k]=false};b.addEventListener(&#x27;pointerup&#x27;,up);b.addEventListener(&#x27;pointercancel&#x27;,up);b.addEventListener(&#x27;pointerleave&#x27;,up);tb.appendChild(b);return b}
+const tA=tbtn(&#x27;A&#x27;,&#x27;a&#x27;),tB=tbtn(&#x27;B&#x27;,&#x27;b&#x27;);
+function touchUI(){const d=GAMES[cur];const show=coarse&amp;&amp;d.tbtn&amp;&amp;mode===&#x27;play&#x27;;tb.style.display=show?&#x27;flex&#x27;:&#x27;none&#x27;;if(show){tA.textContent=d.tbtn[0];tB.textContent=d.tbtn[1]||&#x27;B&#x27;;tB.style.display=d.tbtn[1]?&#x27;&#x27;:&#x27;none&#x27;}}
+// ---------------- cartridges ----------------
+const carts=$(&#x27;carts&#x27;);
+function select(i){cur=i;const d=GAMES[i];mode=&#x27;auto&#x27;;G=newGame(d);$(&#x27;nm&#x27;).textContent=d.name;$(&#x27;about&#x27;).innerHTML=d.about.map(p=&gt;&#x27;&lt;p&gt;&#x27;+p+&#x27;&lt;/p&gt;&#x27;).join(&#x27;&#x27;);$(&#x27;tags&#x27;).innerHTML=d.tags.map(t=&gt;&#x27;&lt;li&gt;&#x27;+t+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;);
+  for(const[k,c]of [...carts.children].entries())c.classList.toggle(&#x27;on&#x27;,k===i);setMode(mode);try{history.replaceState(null,&#x27;&#x27;,&#x27;#&#x27;+d.id)}catch(e){}frame()}
+GAMES.forEach((d,i)=&gt;{const b=document.createElement(&#x27;button&#x27;);b.type=&#x27;button&#x27;;b.className=&#x27;cart&#x27;;const c=document.createElement(&#x27;canvas&#x27;);c.width=W;c.height=H;
+  const nm=document.createElement(&#x27;span&#x27;);nm.className=&#x27;nm&#x27;;nm.textContent=d.name;const rf=document.createElement(&#x27;span&#x27;);rf.className=&#x27;ref&#x27;;rf.textContent=d.ref;b.append(c,nm,rf);
+  b.onclick=()=&gt;{select(i);stage.scrollIntoView({block:&#x27;nearest&#x27;,behavior:&#x27;smooth&#x27;})};carts.appendChild(b);d._thumb=c});
+// thumbnails are simulated one per task after the page is up, so it opens at once; the game being played just lends its live frame
+function thumb(d){const keep=[cur,G];cur=GAMES.indexOf(d);G=newGame(d);G.auto=true;G.thumb=true;for(let k=0;k&lt;(d.thumbAt||300);k++){const pad=d.ai(G);if(G.stop&gt;0)G.stop--;else{d.tick(G,pad);G.t++}S.frame++}d.draw(G);S.raw=false;K.present();
+  const g=d._thumb.getContext(&#x27;2d&#x27;);g.putImageData(S.img,0,0);cur=keep[0];G=keep[1]}
+function thumbs(){const q=GAMES.slice();const one=()=&gt;{const d=q.shift();if(!d)return;if(GAMES.indexOf(d)===cur){if(!d._lent){d._lent=1;q.push(d)}else{d.draw(G);S.raw=false;K.present();d._thumb.getContext(&#x27;2d&#x27;).putImageData(S.img,0,0)}}else thumb(d);setTimeout(one,30)};setTimeout(one,200)}
+new ResizeObserver(()=&gt;{fit();if(G)frame()}).observe(stage);
+new IntersectionObserver(es=&gt;{visible=es[0].isIntersecting}).observe(stage);
+document.addEventListener(&#x27;visibilitychange&#x27;,()=&gt;{if(document.hidden&amp;&amp;mode===&#x27;play&#x27;&amp;&amp;G&amp;&amp;G.d.onBlur)G.d.onBlur(G)});
+const start=Math.max(0,GAMES.findIndex(d=&gt;&#x27;#&#x27;+d.id===location.hash));
+fit();select(start);thumbs();if(reduce)setPaused(true);syncSnd();
+function loop(now){const dt=Math.min(0.1,(now-last)/1000);last=now;
+  if(!paused&amp;&amp;visible){acc+=dt*60*(G.ts||1);let n=0;while(acc&gt;=1&amp;&amp;n&lt;5){step();acc-=1;n++}skip=!skip;if(n&amp;&amp;(!slow||!skip)){const t0=performance.now();frame();const ft=performance.now()-t0;avg=avg*0.95+ft*0.05;slow=avg&gt;14}}
+  requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+window.__TT={step:()=&gt;step(),frame,select,get G(){return G},setMode:m=&gt;{setMode(m);G=newGame(GAMES[cur])},press:c=&gt;{pressed.add(c)},hold:(c,on)=&gt;{on?keys.add(c):keys.delete(c)},mouse};
+})();
+</code></pre></html>
