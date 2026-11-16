@@ -1,0 +1,15 @@
+package: community.lazycat.app.openpixel
+version: 0.1.0
+name: OpenPixel
+description: "26 runnable, interactive, editable pixel worlds drawn live in the browser (HTML/Canvas, no build step)."
+min_os_version: "1.5.0"
+homepage: https://github.com/ma1902056219-coder/openpixel
+author: ma1902056219-coder
+license: MIT
+locales:
+  zh:
+    name: 像素万象
+    description: "26 个可运行、可交互、可修改的像素小世界：点水喂鱼、投放卫星、走进首领战，每件作品都附可编辑源码。HTML/Canvas 实时绘制，无需构建。"
+  en:
+    name: OpenPixel
+    description: "26 runnable, interactive, editable pixel worlds drawn live in the browser (HTML/Canvas, no build step)."
