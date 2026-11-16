@@ -1,0 +1,21 @@
+application:
+  subdomain: openpixel
+  multi_instance: false
+  public_path:
+    - /
+  upstreams:
+    - location: /
+      backend: file:///lzcapp/pkg/content/site/
+usage: |
+  像素万象（OpenPixel）：26 个在浏览器里实时绘制的像素小世界，
+  涵盖互动材质、自然宇宙、空间错觉、可玩场景与像素画卷五个方向。
+
+  使用方式：
+    - 打开应用即是合集首页，点图卡进入单件作品
+    - 先看演示，再点击画面接管操作；每件作品的按键和玩法写在其页面里
+    - 顶部「作品目录」可按主题筛选、搜索；作品内可打开 source.js 直接改源码
+
+  说明：
+    - 每件作品都是独立网页，全部本地运行，无外部接口；声音需要浏览器允许，必要时先点击声音按钮
+    - 推荐桌面浏览器与键鼠操作；触摸能力以各作品控件为准
+    - 原 README 与修改指南可通过首页「使用说明」查看
