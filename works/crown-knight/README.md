@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#crown-knight) · [日本語](../../docs/works.ja.md#crown-knight) · [한국어](../../docs/works.ko.md#crown-knight)
+
 # 断冠骑士
 
 多机位首领战，翻滚、硬直、处决与布料。

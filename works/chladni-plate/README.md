@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#chladni-plate) · [日本語](../../docs/works.ja.md#chladni-plate) · [한국어](../../docs/works.ko.md#chladni-plate)
+
 # 克拉尼板
 
 振动频率改变粒子形成的结线图案。

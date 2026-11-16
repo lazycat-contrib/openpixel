@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#zen-garden) · [日本語](../../docs/works.ja.md#zen-garden) · [한국어](../../docs/works.ko.md#zen-garden)
+
 # 枯山水
 
 拖动耙砂，保留高度场与光影的变化。

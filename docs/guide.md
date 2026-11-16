@@ -1,3 +1,5 @@
+[中文](guide.md) · [English](guide.en.md) · [日本語](guide.ja.md) · [한국어](guide.ko.md)
+
 # 把作品改成自己的版本
 
 ## 先跑通一个作品

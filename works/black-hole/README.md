@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#black-hole) · [日本語](../../docs/works.ja.md#black-hole) · [한국어](../../docs/works.ko.md#black-hole)
+
 # 黑洞
 
 吸积盘与透镜视觉，参数化生成宇宙场景。

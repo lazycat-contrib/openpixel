@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#sunset-loop) · [日本語](../../docs/works.ja.md#sunset-loop) · [한국어](../../docs/works.ko.md#sunset-loop)
+
 # 落日环线
 
 追尾视角、道路透视与落日光照。

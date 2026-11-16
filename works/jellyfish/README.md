@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#jellyfish) · [日本語](../../docs/works.ja.md#jellyfish) · [한국어](../../docs/works.ko.md#jellyfish)
+
 # 水母
 
 半透明水母、柔软触须与触碰后的发光。

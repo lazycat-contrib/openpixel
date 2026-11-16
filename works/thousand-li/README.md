@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#thousand-li) · [日本語](../../docs/works.ja.md#thousand-li) · [한국어](../../docs/works.ko.md#thousand-li)
+
 # 千里江山
 
 青绿山水长卷、舟桥与云雾的层次。

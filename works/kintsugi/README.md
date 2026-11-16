@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#kintsugi) · [日本語](../../docs/works.ja.md#kintsugi) · [한국어](../../docs/works.ko.md#kintsugi)
+
 # 金缮
 
 碎片拼合、修补与金色接缝。

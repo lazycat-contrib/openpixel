@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#aurora) · [日本語](../../docs/works.ja.md#aurora) · [한국어](../../docs/works.ko.md#aurora)
+
 # 极光
 
 极光带、雪山、木屋与水面倒影。

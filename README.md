@@ -1,5 +1,7 @@
 <div align="center">
 
+[中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+
 <img src="docs/assets/openpixel-banner.png" alt="OpenPixel：26个可以运行、探索和修改的像素小世界" width="100%">
 
 # OpenPixel · 像素万象
@@ -10,7 +12,7 @@
 
 <img src="docs/assets/badge-works.svg" alt="26件作品"> <img src="docs/assets/badge-runtime.svg" alt="浏览器运行"> <a href="LICENSE"><img src="docs/assets/badge-license.svg" alt="MIT许可"></a>
 
-[下载第一辑](https://github.com/ma1902056219-coder/openpixel/releases/tag/v0.1.0) · [作品目录](#作品目录) · [开始运行](#开始运行) · [修改指南](docs/guide.md)
+[下载当前源码](https://github.com/ma1902056219-coder/openpixel/archive/refs/heads/main.zip) · [作品目录](#作品目录) · [开始运行](#开始运行) · [修改指南](docs/guide.md)
 
 </div>
 
@@ -27,9 +29,11 @@
 - **走进场景**：首领战、落日驾驶、拼好后开始运动的微型世界。
 - **直接改源码**：每件作品独立成目录，附实际画面和中文说明，无需构建或 AI 接口。
 
+仓库首页、修改指南和26件作品的操作说明现提供中文、英文、日文、韩文。作品内界面及源码注释仍以中文为主。
+
 ## 开始运行
 
-1. [下载并解压第一辑](https://github.com/ma1902056219-coder/openpixel/releases/download/v0.1.0/openpixel-v0.1.0.zip)，或克隆此仓库。
+1. [下载并解压第一辑](https://github.com/ma1902056219-coder/openpixel/archive/refs/heads/main.zip)，或克隆此仓库。
 2. 双击根目录 `index.html` 进入合集，也可以直接打开任一 `works/<作品目录>/index.html`。
 3. 先看演示，再点击画面接管操作；每件作品的按键和玩法写在对应页面里。
 

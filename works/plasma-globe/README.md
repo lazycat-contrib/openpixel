@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#plasma-globe) · [日本語](../../docs/works.ja.md#plasma-globe) · [한국어](../../docs/works.ko.md#plasma-globe)
+
 # 等离子球
 
 手指聚拢电弧，切换电光颜色。

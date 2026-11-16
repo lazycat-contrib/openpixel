@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#endless-window) · [日本語](../../docs/works.ja.md#endless-window) · [한국어](../../docs/works.ko.md#endless-window)
+
 # 无尽之窗
 
 六层嵌套首尾相连，连续推进回到起点。

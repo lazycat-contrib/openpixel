@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#penrose-tower) · [日本語](../../docs/works.ja.md#penrose-tower) · [한국어](../../docs/works.ko.md#penrose-tower)
+
 # 永登之塔
 
 转动视角，揭示看似无限上升的楼梯。

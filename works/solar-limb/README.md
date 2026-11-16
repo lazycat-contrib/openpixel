@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#solar-limb) · [日本語](../../docs/works.ja.md#solar-limb) · [한국어](../../docs/works.ko.md#solar-limb)
+
 # 太阳边缘
 
 日珥、太阳颗粒和地球比例尺。

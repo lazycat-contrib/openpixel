@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#light-painting) · [日本語](../../docs/works.ja.md#light-painting) · [한국어](../../docs/works.ko.md#light-painting)
+
 # 光绘
 
 光轨累积、空间旋涡与加色光晕。

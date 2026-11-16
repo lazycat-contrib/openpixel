@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#rose-window) · [日本語](../../docs/works.ja.md#rose-window) · [한국어](../../docs/works.ko.md#rose-window)
+
 # 哥特玫瑰窗
 
 彩色玻璃和地面的投影随光变化。

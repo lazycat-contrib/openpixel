@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#ferrofluid) · [日本語](../../docs/works.ja.md#ferrofluid) · [한국어](../../docs/works.ko.md#ferrofluid)
+
 # 磁流体
 
 移动磁场，控制黑色液体的尖峰与反光。

@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#night-pond) · [日本語](../../docs/works.ja.md#night-pond) · [한국어](../../docs/works.ko.md#night-pond)
+
 # 夜池
 
 点水扭曲倒影，投食让锦鲤靠近。

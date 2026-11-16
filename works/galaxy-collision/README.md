@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#galaxy-collision) · [日本語](../../docs/works.ja.md#galaxy-collision) · [한국어](../../docs/works.ko.md#galaxy-collision)
+
 # 星系相撞
 
 双星系接近，恒星轨迹拉成长尾。

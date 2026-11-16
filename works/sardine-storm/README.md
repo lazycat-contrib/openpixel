@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#sardine-storm) · [日本語](../../docs/works.ja.md#sardine-storm) · [한국어](../../docs/works.ko.md#sardine-storm)
+
 # 沙丁鱼风暴
 
 鱼群受海豚扰动聚合，观察整体运动。

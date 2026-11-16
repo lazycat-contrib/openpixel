@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#ocean-in-a-tank) · [日本語](../../docs/works.ja.md#ocean-in-a-tank) · [한국어](../../docs/works.ko.md#ocean-in-a-tank)
+
 # 鱼缸里的海
 
 普通鱼缸逐渐展现深海尺度。

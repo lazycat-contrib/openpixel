@@ -1,3 +1,5 @@
+[中文](README.md) · [English](../../docs/works.en.md#cracking-ice) · [日本語](../../docs/works.ja.md#cracking-ice) · [한국어](../../docs/works.ko.md#cracking-ice)
+
 # 冰裂
 
 按压裂冰，观察应力线与碎裂传播。
